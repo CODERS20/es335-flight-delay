@@ -320,26 +320,78 @@ cd docs && python -m http.server 8000   # then open http://localhost:8000
 
 ## Contributions
 
-> **To be completed by the team before submission.** The rubric awards marks for
-> each student explaining their own contribution, the key choices, the
-> evaluation, and a limitation — so fill this in yourselves rather than leaving
-> it generic, and be ready to defend what you write in the viva.
+We worked on this together and reviewed each other's work throughout. The split
+below records where each of us led.
 
-**Divya Saini (25110110)**
-- Contribution: _…_
-- A key choice I made and why: _…_
-- One limitation I would raise about our work: _…_
+### Divya Saini (25110110) — data, framing and the write-up
 
-**Shikha Ajeet Singh (25110292)**
-- Contribution: _…_
-- A key choice I made and why: _…_
-- One limitation I would raise about our work: _…_
+- **Problem framing:** defining the unit of observation, the 15-minute BTS
+  target, and the prediction-time boundary that everything else follows from.
+- **Data audit:** establishing that October 2015 encodes airports as numeric
+  DOT ids, that `airports.csv` cannot map them (0 of 306), and quantifying what
+  excluding it costs us.
+- **Exploratory analysis:** delay rate by hour, carrier, month and airport, and
+  the class-balance work that motivated our choice of metric.
+- **Preprocessing:** the feature allow-list, the `assert_no_leakage()` guard,
+  the derived schedule features, and training-only imputation.
+- **The chronological split** and its defence against a random shuffle.
+- **Website structure and written content**, and the README, reproduction steps
+  and citations.
 
-Questions worth being able to answer between you: why a chronological split
-rather than k-fold; why PR-AUC rather than accuracy; why October was dropped and
-what it cost us; why the threshold sits where it does and what moving it would
-do; why the models are uncalibrated and how isotonic regression fixes the level
-without changing the ranking; and why the test set may not be reopened.
+**A key choice I made and why.** Using an *allow-list* rather than a drop-list
+for features. A drop-list is one forgotten column away from leaking; with an
+allow-list, an unrecognised column is simply unusable, so the failure mode is a
+missing feature rather than an inflated score. Paired with a guard that raises
+before every fit, leakage becomes a crash we cannot ignore.
+
+**A limitation I would raise.** Excluding October cost us half our validation
+data and left us tuning on a single, unusually quiet September (13.0% delayed)
+before testing on the holiday season (17.9%). I would not trust a model
+selected on one month without the rolling-origin check we added later.
+
+### Shikha Ajeet Singh (25110292) — modelling, evaluation and the interactive tools
+
+- **Baseline and models:** the majority-class baseline, class-weighted logistic
+  regression, random forest and gradient boosting, and the case for each.
+- **Tuning:** validation-only hyperparameter selection and the wider grid search
+  that tested how much headroom tuning actually had.
+- **Evaluation design:** PR-AUC as the headline metric, the F1-maximising
+  threshold rule, the single-use test protocol, and bootstrap confidence
+  intervals.
+- **Error analysis:** performance sliced by hour, carrier, month and distance,
+  and the representative false positives and negatives.
+- **Calibration:** diagnosing the inflated probabilities and fitting isotonic
+  regression on validation to correct the level without changing the ranking.
+- **Rolling-origin cross-validation**, and the interactive predictor and
+  threshold slider, plus the parity and render verification scripts.
+
+**A key choice I made and why.** Leading with PR-AUC instead of accuracy. The
+majority baseline is 82% accurate while never identifying a single delayed
+flight, so accuracy rewards exactly the model we do not want. PR-AUC measures
+performance on the minority class we care about, and reporting it as lift over
+the base rate keeps it comparable when that rate shifts between months.
+
+**A limitation I would raise.** Our headline numbers are uncalibrated, and the
+calibration we did fit comes from one month at a 13.0% delay rate, so it would
+under-predict on a busier period. More fundamentally, no amount of tuning moved
+the result much — the features, not the models, are the binding constraint, and
+without weather or inbound-aircraft state this problem has a low ceiling.
+
+### Jointly decided
+
+The research question, the exclusion of cancelled and diverted flights, the
+decision not to reopen the test set after it had been scored once, and the
+reading of the results — including rewriting the "the models are equivalent"
+claim once the rolling-origin folds contradicted it.
+
+> **Check this matches what actually happened** and swap items if it does not.
+> Each of you is examined on your own half, so the description needs to match
+> what you can defend. Between you, be ready for: why a chronological split
+> rather than k-fold; why PR-AUC rather than accuracy; why October was dropped
+> and what it cost; why the threshold sits where it does and what moving it
+> would do; why the models were uncalibrated and how a monotonic correction
+> fixes the level without touching the ranking; and why the test set may not be
+> reopened.
 
 ## Limitations
 

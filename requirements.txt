@@ -1,0 +1,11 @@
+# ES 335 Flight Delay Prediction -- dependencies
+#
+# Exact versions used to produce every number in this repository are pinned in
+# requirements.lock.txt (generated with `pip freeze`).
+
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+matplotlib>=3.8
+pyarrow>=16.0        # parquet for the saved train/val/test splits
+joblib>=1.4          # persisting fitted pipelines

@@ -1,0 +1,163 @@
+{
+  "file_size_mb": 565.0,
+  "n_columns_in_file": 31,
+  "all_columns": [
+    "YEAR",
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK",
+    "AIRLINE",
+    "FLIGHT_NUMBER",
+    "TAIL_NUMBER",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT",
+    "SCHEDULED_DEPARTURE",
+    "DEPARTURE_TIME",
+    "DEPARTURE_DELAY",
+    "TAXI_OUT",
+    "WHEELS_OFF",
+    "SCHEDULED_TIME",
+    "ELAPSED_TIME",
+    "AIR_TIME",
+    "DISTANCE",
+    "WHEELS_ON",
+    "TAXI_IN",
+    "SCHEDULED_ARRIVAL",
+    "ARRIVAL_TIME",
+    "ARRIVAL_DELAY",
+    "DIVERTED",
+    "CANCELLED",
+    "CANCELLATION_REASON",
+    "AIR_SYSTEM_DELAY",
+    "SECURITY_DELAY",
+    "AIRLINE_DELAY",
+    "LATE_AIRCRAFT_DELAY",
+    "WEATHER_DELAY"
+  ],
+  "forbidden_columns_present_in_file": [
+    "DEPARTURE_TIME",
+    "DEPARTURE_DELAY",
+    "TAXI_OUT",
+    "WHEELS_OFF",
+    "WHEELS_ON",
+    "TAXI_IN",
+    "AIR_TIME",
+    "ELAPSED_TIME",
+    "ARRIVAL_TIME",
+    "ARRIVAL_DELAY",
+    "AIR_SYSTEM_DELAY",
+    "SECURITY_DELAY",
+    "AIRLINE_DELAY",
+    "LATE_AIRCRAFT_DELAY",
+    "WEATHER_DELAY",
+    "CANCELLATION_REASON",
+    "DIVERTED",
+    "CANCELLED"
+  ],
+  "n_rows_raw": 5819079,
+  "load_seconds": 4.5,
+  "memory_mb": 133.2,
+  "airport_code_format_by_month": {
+    "1": {
+      "rows": 469968,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "2": {
+      "rows": 429191,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "3": {
+      "rows": 504312,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "4": {
+      "rows": 485151,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "5": {
+      "rows": 496993,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "6": {
+      "rows": 503897,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "7": {
+      "rows": 520718,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "8": {
+      "rows": 510536,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "9": {
+      "rows": 464946,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "10": {
+      "rows": 486165,
+      "origin_numeric_rows": 486165,
+      "dest_numeric_rows": 486165,
+      "pct_origin_numeric": 100.0
+    },
+    "11": {
+      "rows": 467972,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    },
+    "12": {
+      "rows": 479230,
+      "origin_numeric_rows": 0,
+      "dest_numeric_rows": 0,
+      "pct_origin_numeric": 0.0
+    }
+  },
+  "months_with_numeric_codes": [
+    10
+  ],
+  "rows_in_numeric_code_months": 486165,
+  "distinct_origin_codes_total": 628,
+  "distinct_origin_codes_numeric": 306,
+  "distinct_origin_codes_iata": 322,
+  "airports_csv_columns": [
+    "IATA_CODE",
+    "AIRPORT",
+    "CITY",
+    "STATE",
+    "COUNTRY",
+    "LATITUDE",
+    "LONGITUDE"
+  ],
+  "airports_csv_rows": 322,
+  "airports_csv_has_iata_column": true,
+  "airports_csv_can_map_numeric_ids": false,
+  "numeric_codes_resolvable_via_airports_csv": 0,
+  "n_cancelled": 89884,
+  "n_diverted": 15187,
+  "n_arrival_delay_missing": 105071,
+  "n_operated": 5714008,
+  "n_operated_missing_delay": 0,
+  "missing_by_column": {
+    "SCHEDULED_TIME": 6,
+    "ARRIVAL_DELAY": 105071
+  }
+}

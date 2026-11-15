@@ -1,0 +1,80 @@
+{
+  "n_rows_raw": 5819079,
+  "exclusions": [
+    {
+      "reason": "cancelled flights removed",
+      "rows": 89884
+    },
+    {
+      "reason": "diverted flights removed",
+      "rows": 15187
+    },
+    {
+      "reason": "remaining rows with no arrival delay",
+      "rows": 0
+    },
+    {
+      "reason": "October removed (unmappable numeric airport codes)",
+      "rows": 482878
+    }
+  ],
+  "n_rows_after_exclusions": 5231130,
+  "train_scheduled_time_median": 123.0,
+  "n_imputed_scheduled_time": {
+    "train": 0,
+    "val": 0,
+    "test": 0
+  },
+  "n_train_available": 3836893,
+  "n_train_used": 1000000,
+  "train_subsample_seed": 42,
+  "train_delay_rate_full": 0.20223550669773693,
+  "train_delay_rate_subsample": 0.202978,
+  "splits": {
+    "train": {
+      "months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "n": 1000000,
+      "delay_rate": 0.202978
+    },
+    "val": {
+      "months": [
+        9
+      ],
+      "n": 462153,
+      "delay_rate": 0.12995912609027746
+    },
+    "test": {
+      "months": [
+        11,
+        12
+      ],
+      "n": 932084,
+      "delay_rate": "withheld until final evaluation"
+    }
+  },
+  "october_excluded": true,
+  "october_reason": "October 2015 encodes airport codes as numeric DOT ids; airports.csv has no DOT id column, so 0 of 306 codes are mappable. Including October would add 306 unseen airport categories to validation.",
+  "n_features": 11,
+  "features": [
+    "AIRLINE",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT",
+    "SCHED_DEP_HOUR",
+    "SCHED_ARR_HOUR",
+    "SCHEDULED_TIME",
+    "DISTANCE",
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK",
+    "IS_WEEKEND"
+  ]
+}

@@ -1,0 +1,436 @@
+{
+  "validation": {
+    "months": [
+      9
+    ],
+    "rows": 462153,
+    "delay_rate": 0.12995912609027746,
+    "results": {
+      "majority_baseline": {
+        "pr_auc": 0.12995912609027746,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "accuracy": 0.8700408739097225
+      },
+      "logistic_regression": {
+        "pr_auc": 0.19538522860167615,
+        "roc_auc": 0.6338976404706228,
+        "precision": 0.18520668154056688,
+        "recall": 0.5791112369091423,
+        "f1": 0.2806561715793466,
+        "accuracy": 0.6142013575590768
+      },
+      "random_forest": {
+        "pr_auc": 0.18836224850390412,
+        "roc_auc": 0.6335258770627719,
+        "precision": 0.1792349041217514,
+        "recall": 0.6184545711859609,
+        "f1": 0.2779243031316521,
+        "accuracy": 0.5823612526587515
+      },
+      "gradient_boosting": {
+        "pr_auc": 0.20005085077565588,
+        "roc_auc": 0.643721204415984,
+        "precision": 0.19442524625434965,
+        "recall": 0.5386357203509765,
+        "f1": 0.2857180707781713,
+        "accuracy": 0.6500033538676585
+      }
+    },
+    "all_candidates": [
+      {
+        "pr_auc": 0.19519632016774077,
+        "roc_auc": 0.633712536570547,
+        "threshold": 0.508666716457806,
+        "precision": 0.1843329304598513,
+        "recall": 0.5865869699139209,
+        "f1": 0.2805149927544309,
+        "accuracy": 0.6089476861558835,
+        "confusion": {
+          "tp": 35231,
+          "fp": 155896,
+          "fn": 24830,
+          "tn": 246196
+        },
+        "model": "logistic_regression",
+        "params": {
+          "C": 0.1
+        },
+        "fit_seconds": 8.5
+      },
+      {
+        "pr_auc": 0.19538522860167615,
+        "roc_auc": 0.6338976404706228,
+        "threshold": 0.5115967810626142,
+        "precision": 0.18520668154056688,
+        "recall": 0.5791112369091423,
+        "f1": 0.2806561715793466,
+        "accuracy": 0.6142013575590768,
+        "confusion": {
+          "tp": 34782,
+          "fp": 153019,
+          "fn": 25279,
+          "tn": 249073
+        },
+        "model": "logistic_regression",
+        "params": {
+          "C": 1.0
+        },
+        "fit_seconds": 8.4
+      },
+      {
+        "pr_auc": 0.1875873888030994,
+        "roc_auc": 0.6322701538862705,
+        "threshold": 0.4921238692643108,
+        "precision": 0.18128618884535086,
+        "recall": 0.5869699139208472,
+        "f1": 0.2770157979310643,
+        "accuracy": 0.6018223402206628,
+        "confusion": {
+          "tp": 35254,
+          "fp": 159212,
+          "fn": 24807,
+          "tn": 242880
+        },
+        "model": "random_forest",
+        "params": {
+          "n_estimators": 60,
+          "max_depth": 14,
+          "min_samples_leaf": 100
+        },
+        "fit_seconds": 17.8
+      },
+      {
+        "pr_auc": 0.18836224850390412,
+        "roc_auc": 0.6335258770627719,
+        "threshold": 0.46017456961154174,
+        "precision": 0.1792349041217514,
+        "recall": 0.6184545711859609,
+        "f1": 0.2779243031316521,
+        "accuracy": 0.5823612526587515,
+        "confusion": {
+          "tp": 37145,
+          "fp": 170097,
+          "fn": 22916,
+          "tn": 231995
+        },
+        "model": "random_forest",
+        "params": {
+          "n_estimators": 60,
+          "max_depth": 20,
+          "min_samples_leaf": 50
+        },
+        "fit_seconds": 19.5
+      },
+      {
+        "pr_auc": 0.19552832743364063,
+        "roc_auc": 0.6392078463161913,
+        "threshold": 0.48493057554241853,
+        "precision": 0.18883679318742855,
+        "recall": 0.5693211901233746,
+        "f1": 0.28360523849414027,
+        "accuracy": 0.6262060399910852,
+        "confusion": {
+          "tp": 34194,
+          "fp": 146883,
+          "fn": 25867,
+          "tn": 255209
+        },
+        "model": "gradient_boosting",
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 31
+        },
+        "fit_seconds": 15.4
+      },
+      {
+        "pr_auc": 0.19710581718337794,
+        "roc_auc": 0.639396201721244,
+        "threshold": 0.47586196960765353,
+        "precision": 0.1885698386199221,
+        "recall": 0.5641930703784486,
+        "f1": 0.28266482038363205,
+        "accuracy": 0.627852680822152,
+        "confusion": {
+          "tp": 33886,
+          "fp": 145814,
+          "fn": 26175,
+          "tn": 256278
+        },
+        "model": "gradient_boosting",
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.1,
+          "max_leaf_nodes": 63
+        },
+        "fit_seconds": 14.2
+      },
+      {
+        "pr_auc": 0.20005085077565588,
+        "roc_auc": 0.643721204415984,
+        "threshold": 0.5032775795913949,
+        "precision": 0.19442524625434965,
+        "recall": 0.5386357203509765,
+        "f1": 0.2857180707781713,
+        "accuracy": 0.6500033538676585,
+        "confusion": {
+          "tp": 32351,
+          "fp": 134042,
+          "fn": 27710,
+          "tn": 268050
+        },
+        "model": "gradient_boosting",
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31
+        },
+        "fit_seconds": 12.1
+      },
+      {
+        "pr_auc": 0.19886480772499815,
+        "roc_auc": 0.6419790646208189,
+        "threshold": 0.479059555076213,
+        "precision": 0.1895412945197927,
+        "recall": 0.5724013919182165,
+        "f1": 0.2847817893398387,
+        "accuracy": 0.6263510136253578,
+        "confusion": {
+          "tp": 34379,
+          "fp": 147001,
+          "fn": 25682,
+          "tn": 255091
+        },
+        "model": "gradient_boosting",
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 63
+        },
+        "fit_seconds": 15.1
+      },
+      {
+        "pr_auc": 0.1994609201941127,
+        "roc_auc": 0.643054910450087,
+        "threshold": 0.49381209360751965,
+        "precision": 0.18809407390292784,
+        "recall": 0.5828407785418158,
+        "f1": 0.28440508591623676,
+        "accuracy": 0.6188318587134564,
+        "confusion": {
+          "tp": 35006,
+          "fp": 151103,
+          "fn": 25055,
+          "tn": 250989
+        },
+        "model": "gradient_boosting",
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.03,
+          "max_leaf_nodes": 31
+        },
+        "fit_seconds": 16.2
+      }
+    ]
+  },
+  "test": {
+    "evaluated_once": true,
+    "test_months": [
+      11,
+      12
+    ],
+    "test_rows": 932084,
+    "test_delay_rate": 0.17953639371558786,
+    "validation_delay_rate": 0.12995912609027746,
+    "chosen_model": "gradient_boosting",
+    "threshold_rule": "max_f1_on_validation",
+    "n_bootstrap": 200,
+    "results": {
+      "majority_baseline": {
+        "pr_auc": 0.17953639371558786,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "accuracy": 0.8204636062844122,
+        "brier": 0.14976099133491516,
+        "confusion": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 167343,
+          "tn": 764741
+        },
+        "note": "Always predicts on time. High accuracy, zero recall.",
+        "pr_auc_ci95": [
+          0.17889543753567275,
+          0.18028546783337124
+        ],
+        "pr_auc_lift_over_baseline": 1.0,
+        "val_pr_auc_lift_over_baseline": 1.0
+      },
+      "logistic_regression": {
+        "pr_auc": 0.23073676658446912,
+        "roc_auc": 0.5948536530021351,
+        "threshold": 0.5115967810626142,
+        "precision": 0.23283545963958335,
+        "recall": 0.4943678552434222,
+        "f1": 0.3165727230634416,
+        "accuracy": 0.6167770286798185,
+        "brier": 0.23004113137722015,
+        "confusion": {
+          "tp": 82729,
+          "fp": 272582,
+          "fn": 84614,
+          "tn": 492159
+        },
+        "params": {
+          "C": 1.0
+        },
+        "val_pr_auc": 0.19538522860167615,
+        "pr_auc_ci95": [
+          0.22939185746541374,
+          0.2324651619990714
+        ],
+        "pr_auc_lift_over_baseline": 1.2852,
+        "val_pr_auc_lift_over_baseline": 1.5034
+      },
+      "random_forest": {
+        "pr_auc": 0.22553481791874574,
+        "roc_auc": 0.591729259399545,
+        "threshold": 0.46017456961154174,
+        "precision": 0.2220458616558122,
+        "recall": 0.5592645046401702,
+        "f1": 0.31788230179271365,
+        "accuracy": 0.5690839023092339,
+        "brier": 0.22199781239032745,
+        "confusion": {
+          "tp": 93589,
+          "fp": 327896,
+          "fn": 73754,
+          "tn": 436845
+        },
+        "params": {
+          "n_estimators": 60,
+          "max_depth": 20,
+          "min_samples_leaf": 50
+        },
+        "val_pr_auc": 0.18836224850390412,
+        "pr_auc_ci95": [
+          0.22409720817633894,
+          0.2269515944747141
+        ],
+        "pr_auc_lift_over_baseline": 1.2562,
+        "val_pr_auc_lift_over_baseline": 1.4494
+      },
+      "gradient_boosting": {
+        "pr_auc": 0.23171207592254928,
+        "roc_auc": 0.5880802084672815,
+        "threshold": 0.5032775795913949,
+        "precision": 0.2285627587655697,
+        "recall": 0.468116383714885,
+        "f1": 0.30715422799739645,
+        "accuracy": 0.6208453315366427,
+        "brier": 0.22904008626937866,
+        "confusion": {
+          "tp": 78336,
+          "fp": 264397,
+          "fn": 89007,
+          "tn": 500344
+        },
+        "params": {
+          "max_iter": 200,
+          "learning_rate": 0.05,
+          "max_leaf_nodes": 31
+        },
+        "val_pr_auc": 0.20005085077565588,
+        "pr_auc_ci95": [
+          0.23004211908358732,
+          0.23322763734607518
+        ],
+        "pr_auc_lift_over_baseline": 1.2906,
+        "val_pr_auc_lift_over_baseline": 1.5393
+      }
+    },
+    "model_comparison": {
+      "better": "gradient_boosting",
+      "than": "logistic_regression",
+      "mean_pr_auc_difference": 0.0009031577620080926,
+      "ci95": [
+        7.355501572536845e-06,
+        0.0019753810898187276
+      ],
+      "statistically_separated": true,
+      "practically_material": false,
+      "practical_margin_used": 0.005,
+      "conclusion": "gradient_boosting edges out logistic_regression, but by 0.0009 PR-AUC -- statistically separable on 932k rows, yet far too small to matter in practice. We treat the two as equivalent in performance and prefer the simpler, interpretable model when explaining results."
+    },
+    "calibration": [
+      {
+        "bin": "0.0-0.1",
+        "mean_predicted": 0.08810515701770782,
+        "observed_rate": 0.08677184466019418,
+        "n": 1648
+      },
+      {
+        "bin": "0.1-0.2",
+        "mean_predicted": 0.1639195829629898,
+        "observed_rate": 0.09750824477830707,
+        "n": 54580
+      },
+      {
+        "bin": "0.2-0.3",
+        "mean_predicted": 0.25465163588523865,
+        "observed_rate": 0.12999289420985766,
+        "n": 139323
+      },
+      {
+        "bin": "0.3-0.4",
+        "mean_predicted": 0.351165235042572,
+        "observed_rate": 0.15524588519197158,
+        "n": 189377
+      },
+      {
+        "bin": "0.4-0.5",
+        "mean_predicted": 0.4496200680732727,
+        "observed_rate": 0.17576240741114496,
+        "n": 198188
+      },
+      {
+        "bin": "0.5-0.6",
+        "mean_predicted": 0.547923743724823,
+        "observed_rate": 0.2038922714442345,
+        "n": 171468
+      },
+      {
+        "bin": "0.6-0.7",
+        "mean_predicted": 0.6455875039100647,
+        "observed_rate": 0.23556131824348692,
+        "n": 116458
+      },
+      {
+        "bin": "0.7-0.8",
+        "mean_predicted": 0.7401038408279419,
+        "observed_rate": 0.2751781102910203,
+        "n": 54601
+      },
+      {
+        "bin": "0.8-0.9",
+        "mean_predicted": 0.8210115432739258,
+        "observed_rate": 0.3283118496660972,
+        "n": 6439
+      }
+    ],
+    "calibration_warning": {
+      "is_calibrated": false,
+      "brier": 0.22904008626937866,
+      "max_abs_gap": 0.4927,
+      "cause": "All three models were trained with class weighting, which deliberately over-weights the minority class. That lifts recall but inflates the predicted probabilities: a flight scored 0.45 is delayed about 18% of the time, not 45%.",
+      "consequence": "The website presents the predictor's output as a RELATIVE RISK SCORE, not as a calibrated probability, and shows this curve so a visitor can read off what a score corresponds to. Fitting a post-hoc calibrator on the validation month is the obvious next step; we did not do it here because the test set has already been used, and re-scoring it with a changed model would turn our single honest test into a second round of tuning."
+    },
+    "metric_comparability_note": "Test PR-AUC exceeds validation PR-AUC, but the two are not comparable: the test base rate is 0.1795 against 0.1300 on validation, and PR-AUC scales with the base rate. Lift over baseline is the fair comparison, and it falls from 1.54x on validation to 1.29x on test. Performance degraded on the holiday months.",
+    "provenance": "Models, hyperparameters and thresholds were fixed in step 03 using the validation month only. This script re-tunes nothing."
+  }
+}

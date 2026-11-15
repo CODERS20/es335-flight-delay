@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flight Delay Prediction</title>
+<meta name="description" content="ES 335 course project: predicting US domestic flight arrival delays using only information available at scheduling time.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">ES 335 &middot; Machine Learning &middot; Course Project</p>
+    <h1>Can a flight schedule tell you the flight will be late?</h1>
+    <p class="sub">
+      We predict whether a US domestic flight in 2015 arrives 15 or more minutes
+      late, using only what is known when the ticket is sold &mdash; carrier,
+      route, time of day, and the calendar. No weather, no actual departure
+      time, nothing from after the plane moves.
+    </p>
+    <p class="byline">
+      Divya Saini (25110110) &middot; Shikha Ajeet Singh (25110292)
+    </p>
+    <div class="hero-stats" id="hero-stats"></div>
+    <p class="hero-foot" id="hero-foot"></p>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#question">Question</a>
+    <a href="#data">Data</a>
+    <a href="#preprocessing">Preprocessing</a>
+    <a href="#methods">Methods</a>
+    <a href="#evaluation">Evaluation</a>
+    <a href="#results">Results</a>
+    <a href="#explore">Try it</a>
+    <a href="#errors">Errors</a>
+    <a href="#limitations">Limitations</a>
+    <a href="#conclusion">Conclusion</a>
+    <a href="#reproduce">Reproduce</a>
+  </div>
+</nav>
+
+<main id="main" class="wrap">
+
+  <!-- 1. QUESTION -->
+  <section id="question">
+    <h2>The question</h2>
+    <p class="lede">
+      Using only schedule-time features &mdash; carrier, route, scheduled
+      departure hour, distance and calendar variables &mdash; how accurately can
+      machine-learning models predict whether a US domestic flight in 2015 will
+      arrive more than 15 minutes late in a later, unseen time period, compared
+      with a simple baseline?
+    </p>
+    <dl class="facts">
+      <div><dt>One row is</dt><dd>one scheduled US domestic flight leg in 2015</dd></div>
+      <div><dt>We predict</dt><dd><code>ARRIVAL_DELAY &ge; 15 min</code> &rarr; delayed (the US BTS definition of a late arrival)</dd></div>
+      <div><dt>Prediction is made</dt><dd>at scheduling time, before departure</dd></div>
+      <div><dt>So we may use</dt><dd>carrier, origin, destination, scheduled departure and arrival times, planned duration, distance, calendar fields</dd></div>
+      <div><dt>We exclude</dt><dd>cancelled and diverted flights &mdash; they have no arrival delay to label</dd></div>
+      <div><dt>The claim is</dt><dd>an operational <em>risk estimate</em>, not a causal explanation</dd></div>
+    </dl>
+    <p class="note">
+      Because cancelled and diverted flights are dropped, every number on this
+      page applies to <strong>flights that actually operated</strong>. A flight
+      cancelled in a snowstorm never enters our data, so we are not predicting
+      disruption in general &mdash; only lateness among flights that flew.
+    </p>
+  </section>
+
+  <!-- 2. DATA -->
+  <section id="data">
+    <h2>The data</h2>
+    <p>
+      US Department of Transportation <em>Flight Delays and Cancellations</em>
+      for 2015, published on Kaggle as
+      <a href="https://www.kaggle.com/datasets/usdot/flight-delays"><code>usdot/flight-delays</code></a>.
+      One row per flight, plus small lookup tables for carriers and airports.
+    </p>
+    <div class="tiles" id="data-tiles"></div>
+
+    <h3>Class balance</h3>
+    <p id="balance-text"></p>
+    <figure>
+      <img src="figures/class_balance.png" alt="Bar chart of on-time versus delayed flights in the training months.">
+    </figure>
+
+    <h3>What the schedule already tells you</h3>
+    <p>
+      Delay risk climbs steadily through the day. An early-morning departure
+      starts the day on an aircraft that is already in position; an evening
+      departure inherits every delay that happened upstream of it.
+    </p>
+    <figure>
+      <img src="figures/delay_by_hour.png" alt="Delay rate rising with scheduled departure hour.">
+    </figure>
+    <figure>
+      <img src="figures/delay_by_airline.png" alt="Delay rate by carrier.">
+    </figure>
+    <figure>
+      <img src="figures/delay_by_month.png" alt="Delay rate by month across training and validation.">
+    </figure>
+
+    <h3>Data-quality audit</h3>
+    <p>
+      Two problems in this dataset would quietly corrupt the results if left
+      alone. We checked for both in code rather than assuming.
+    </p>
+    <div id="quality-audit"></div>
+  </section>
+
+  <!-- 3. PREPROCESSING -->
+  <section id="preprocessing">
+    <h2>Preprocessing, and how we avoid leakage</h2>
+    <p>
+      This dataset is a trap for exactly the mistake it looks like it rewards.
+      It ships with columns that are only known <em>during or after</em> a
+      flight: the actual departure delay, taxi times, air time, and the
+      airline's own breakdown of delay causes. Feed those to a model and it
+      scores brilliantly &mdash; because it is reading the answer, not
+      predicting it. A model that needs to know the departure delay in order to
+      predict the arrival delay is useless at the moment you would actually want
+      it.
+    </p>
+    <p>
+      So we keep an <strong>allow-list, not a drop-list</strong>. A column is
+      unusable unless it is explicitly named as available at scheduling time,
+      and a function called <code>assert_no_leakage()</code> raises an error
+      before every single model fit. Leakage becomes a crash instead of a
+      flattering number.
+    </p>
+    <div class="cols">
+      <div>
+        <h3>Used &mdash; known at scheduling time</h3>
+        <ul class="chips" id="allowed-list"></ul>
+      </div>
+      <div>
+        <h3>Refused &mdash; known only during or after the flight</h3>
+        <ul class="chips bad" id="forbidden-list"></ul>
+      </div>
+    </div>
+
+    <h3>Rows removed, and why</h3>
+    <div id="exclusions"></div>
+
+    <h3>Transformations</h3>
+    <ul class="plain">
+      <li><strong>Derived from the schedule:</strong> departure and arrival hour from the published <code>hhmm</code> times, and a weekend flag. Pure arithmetic on fields printed on the ticket, so nothing is learned and nothing can leak.</li>
+      <li><strong>Categoricals:</strong> one-hot for logistic regression, integer codes for the tree models. Airports seen rarely in training are pooled, because a handful of flights cannot support an estimate.</li>
+      <li><strong>Clock hours</strong> enter logistic regression as sine and cosine, so 23:00 sits next to 00:00 instead of 23 units away from it.</li>
+      <li><strong>Scaling</strong> for logistic regression only; trees split on order and do not care.</li>
+      <li><strong>Every transformer is fitted on the training rows alone</strong> and then applied unchanged to validation and test. The median used to fill missing scheduled durations is the training median.</li>
+    </ul>
+  </section>
+
+  <!-- 4. METHODS -->
+  <section id="methods">
+    <h2>Baseline and models</h2>
+    <p>
+      Start with the model that cannot be beaten on accuracy and is worthless
+      anyway: <strong>always predict &ldquo;on time&rdquo;</strong>. It is right
+      about four times in five, and it never once identifies a delayed flight.
+      That is the whole reason accuracy is not our headline metric, and why this
+      baseline sits in every comparison below.
+    </p>
+    <div id="methods-table"></div>
+    <p class="note" id="gb-note"></p>
+  </section>
+
+  <!-- 5. EVALUATION -->
+  <section id="evaluation">
+    <h2>How we evaluate</h2>
+    <p>
+      A random train/test shuffle would let the model learn from flights that
+      departed <em>after</em> the ones it is graded on &mdash; and in a dataset
+      where delays cascade through a day, that is a real advantage it would never
+      have in practice. We split by calendar instead, which mirrors the actual
+      task: learn from the past, predict a future period.
+    </p>
+    <div id="split-table"></div>
+    <div class="rules">
+      <div><span class="rule-k">Tuning</span> Hyperparameters and the decision threshold are chosen on the validation month only.</div>
+      <div><span class="rule-k">Test</span> November and December were scored exactly once, after everything was frozen. Nothing was re-tuned afterwards.</div>
+      <div><span class="rule-k">Threshold</span> The cut-off that maximises F1 on validation, as stated in our proposal.</div>
+      <div><span class="rule-k">Headline metric</span> PR-AUC, because delayed flights are the minority class and PR-AUC tracks performance on exactly that class. An uninformative model scores the base rate.</div>
+      <div><span class="rule-k">Accuracy</span> Reported only beside the baseline, to show why it misleads here.</div>
+    </div>
+    <p class="note" id="october-note"></p>
+  </section>
+
+  <!-- 6. RESULTS -->
+  <section id="results">
+    <h2>Results</h2>
+    <p id="results-intro"></p>
+    <div id="results-table"></div>
+    <p class="caption">
+      95% confidence intervals come from 200 bootstrap resamples of the test
+      set. Lift is PR-AUC divided by the base rate: it is what the model adds
+      over knowing nothing.
+    </p>
+
+    <h3>Is the best model actually better?</h3>
+    <div id="comparison"></div>
+
+    <h3>Curves</h3>
+    <figure>
+      <img src="figures/curves.png" alt="Precision-recall and ROC curves for the three models on the test set.">
+    </figure>
+
+    <h3>Which schedule fields carry the signal?</h3>
+    <p id="importance-text"></p>
+    <figure>
+      <img src="figures/importance.png" alt="Permutation importance of each feature.">
+    </figure>
+
+    <h3>The probabilities are not calibrated &mdash; and that matters</h3>
+    <div id="calibration-warning"></div>
+    <figure>
+      <img src="figures/calibration.png" alt="Calibration curve showing predicted probabilities well above observed delay rates.">
+    </figure>
+    <div id="calibration-table"></div>
+  </section>
+
+  <!-- 7. INTERACTION -->
+  <section id="explore">
+    <h2>Try it yourself</h2>
+
+    <h3>Score a flight</h3>
+    <p>
+      Pick a real route and a departure time, exactly as a scheduler would see
+      it. The page computes the logistic-regression model's output in your
+      browser from its published coefficients &mdash; the same arithmetic the
+      Python model does, verified to agree with scikit-learn to within
+      <span id="verify-err">1e-6</span>.
+    </p>
+    <div class="predictor" id="predictor"></div>
+
+    <h3>Move the decision threshold</h3>
+    <p>
+      A probability is not a decision. To act, you need a cut-off &mdash; and
+      the cut-off is a trade-off with no free lunch: catch more real delays and
+      you raise more false alarms. Drag the slider and watch what each choice
+      costs, on the real test set.
+    </p>
+    <div class="threshold-tool" id="threshold-tool"></div>
+  </section>
+
+  <!-- 8. ERRORS -->
+  <section id="errors">
+    <h2>Where the model goes wrong</h2>
+    <p id="errors-intro"></p>
+    <div id="errors-slices"></div>
+
+    <h3>Representative mistakes</h3>
+    <p>
+      The most confident errors in both directions, drawn from the test set.
+      They are instructive: nothing in the schedule distinguishes these flights
+      from their neighbours, because what separated them was weather or a late
+      inbound aircraft &mdash; neither of which we can see.
+    </p>
+    <div id="error-examples"></div>
+  </section>
+
+  <!-- 9. LIMITATIONS -->
+  <section id="limitations">
+    <h2>Limitations</h2>
+    <ul class="limits">
+      <li><strong>No weather.</strong> One of the largest real causes of delay is absent from the dataset. This is the ceiling on everything above.</li>
+      <li><strong>No inbound-aircraft state.</strong> The single best predictor of a delayed departure is the aircraft arriving late from its previous leg, and at scheduling time that is unknowable.</li>
+      <li><strong>Uncalibrated probabilities.</strong> Scores are relative risk, not probabilities. See the calibration section.</li>
+      <li><strong>One year.</strong> 2015 schedules, fleets and carriers. We make no claim about other years.</li>
+      <li><strong>Operated flights only.</strong> Cancellations and diversions are excluded by construction.</li>
+      <li><strong>October is missing entirely</strong> because of the airport-code defect, so validation rests on a single month, September &mdash; a quiet one.</li>
+      <li><strong>An atypical test period.</strong> November and December carry holiday traffic, and performance measurably degraded there.</li>
+      <li><strong>One million training rows, not 3.8 million,</strong> so the tree models would finish on a laptop. All models share the same rows, so the comparison is fair, but more data might have helped them.</li>
+      <li><strong>Association, not causation.</strong> Evening flights are riskier; evening does not <em>cause</em> delay. The schedule is a proxy for accumulated upstream disruption.</li>
+    </ul>
+  </section>
+
+  <!-- 10. CONCLUSION -->
+  <section id="conclusion">
+    <h2>Conclusion</h2>
+    <div id="conclusion-body"></div>
+  </section>
+
+  <!-- 11. REPRODUCE -->
+  <section id="reproduce">
+    <h2>Reproducing this</h2>
+    <ol class="repro">
+      <li>Clone the repository.</li>
+      <li>Download the three CSVs from Kaggle and put them in a <code>Dataset/</code> folder <em>next to</em> the repository. We do not redistribute the raw data.</li>
+      <li><code>python -m venv .venv</code>, activate it, then <code>pip install -r requirements.txt</code>. The exact versions behind every number here are pinned in <code>requirements.lock.txt</code>.</li>
+      <li><code>python src/config.py</code> to confirm the paths resolve.</li>
+      <li>Run the five steps in order:
+        <code>step01_audit_eda</code> &rarr; <code>step02_preprocess_split</code> &rarr;
+        <code>step03_models</code> &rarr; <code>step04_export_model</code> &rarr;
+        <code>step05_final_eval</code>.
+      </li>
+    </ol>
+    <p>
+      The split is defined in code, the seed is fixed at 42, and every figure
+      and number on this page is read from a JSON file that those scripts wrote.
+      Setup, data access and our AI-use disclosure are in the repository README.
+    </p>
+    <div id="provenance"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>ES 335 course project, 2026. Data: US DOT / Bureau of Transportation Statistics, 2015, via Kaggle.</p>
+    <p class="muted">Every number on this page is generated by code in the project repository. None are entered by hand.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "model": "gradient_boosting",
+  "measured_on": "validation subsample (40,000 rows)",
+  "metric": "average_precision (PR-AUC)",
+  "baseline_pr_auc": 0.2030139992558173,
+  "n_repeats": 3,
+  "importance": [
+    {
+      "feature": "SCHED_DEP_HOUR",
+      "drop_in_pr_auc": 0.031278469243264384,
+      "std": 0.0005069036582012568
+    },
+    {
+      "feature": "DESTINATION_AIRPORT",
+      "drop_in_pr_auc": 0.014629821743504606,
+      "std": 0.001756602565542287
+    },
+    {
+      "feature": "ORIGIN_AIRPORT",
+      "drop_in_pr_auc": 0.013152100846314527,
+      "std": 0.0009760341198792592
+    },
+    {
+      "feature": "AIRLINE",
+      "drop_in_pr_auc": 0.012274595883641798,
+      "std": 0.0004056406794951428
+    },
+    {
+      "feature": "DAY",
+      "drop_in_pr_auc": 0.007073300942739465,
+      "std": 0.0006808865940277739
+    },
+    {
+      "feature": "SCHED_ARR_HOUR",
+      "drop_in_pr_auc": 0.003701994247100974,
+      "std": 0.0009731846466694012
+    },
+    {
+      "feature": "DAY_OF_WEEK",
+      "drop_in_pr_auc": 0.0014664881187359442,
+      "std": 0.0010939505032510587
+    },
+    {
+      "feature": "SCHEDULED_TIME",
+      "drop_in_pr_auc": 0.00021252655507665122,
+      "std": 0.00011658358030242401
+    },
+    {
+      "feature": "DISTANCE",
+      "drop_in_pr_auc": 7.327663064983041e-05,
+      "std": 7.173179960934972e-05
+    },
+    {
+      "feature": "IS_WEEKEND",
+      "drop_in_pr_auc": 0.0,
+      "std": 0.0
+    },
+    {
+      "feature": "MONTH",
+      "drop_in_pr_auc": 0.0,
+      "std": 0.0
+    }
+  ],
+  "interpretation": "Each value is how much PR-AUC falls when that single column is randomly shuffled, breaking its relationship with the target while leaving every other column intact. Larger means more load-bearing."
+}

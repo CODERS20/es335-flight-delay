@@ -1,0 +1,8 @@
+{
+  "n_flights": 200,
+  "max_abs_difference": 2.220446049250313e-16,
+  "mean_abs_difference": 1.9428902930940238e-17,
+  "tolerance": 1e-09,
+  "passed": true,
+  "what_this_proves": "The JavaScript in docs/app.js, run on the coefficients in docs/data/model.json, reproduces scikit-learn's predict_proba for the fitted logistic-regression pipeline on 200 real routes."
+}

@@ -1,0 +1,293 @@
+{
+  "selection_metric": "pr_auc_on_validation",
+  "threshold_rule": "max_f1_on_validation",
+  "val_months": [
+    9
+  ],
+  "val_rows": 462153,
+  "val_delay_rate": 0.12995912609027746,
+  "train_rows": 1000000,
+  "chosen_model": "gradient_boosting",
+  "results": {
+    "majority_baseline": {
+      "model": "majority_baseline",
+      "params": {
+        "predicts": 0
+      },
+      "pr_auc": 0.12995912609027746,
+      "roc_auc": 0.5,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.8700408739097225,
+      "confusion": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 60061,
+        "tn": 402092
+      },
+      "note": "Always predicts the majority class. Its accuracy is high and its recall on delayed flights is exactly zero -- which is why accuracy is not our headline metric. PR-AUC here equals the validation base rate, the score any uninformative model achieves."
+    },
+    "logistic_regression": {
+      "pr_auc": 0.19538522860167615,
+      "roc_auc": 0.6338976404706228,
+      "threshold": 0.5115967810626142,
+      "precision": 0.18520668154056688,
+      "recall": 0.5791112369091423,
+      "f1": 0.2806561715793466,
+      "accuracy": 0.6142013575590768,
+      "confusion": {
+        "tp": 34782,
+        "fp": 153019,
+        "fn": 25279,
+        "tn": 249073
+      },
+      "model": "logistic_regression",
+      "params": {
+        "C": 1.0
+      },
+      "fit_seconds": 8.4
+    },
+    "random_forest": {
+      "pr_auc": 0.18836224850390412,
+      "roc_auc": 0.6335258770627719,
+      "threshold": 0.46017456961154174,
+      "precision": 0.1792349041217514,
+      "recall": 0.6184545711859609,
+      "f1": 0.2779243031316521,
+      "accuracy": 0.5823612526587515,
+      "confusion": {
+        "tp": 37145,
+        "fp": 170097,
+        "fn": 22916,
+        "tn": 231995
+      },
+      "model": "random_forest",
+      "params": {
+        "n_estimators": 60,
+        "max_depth": 20,
+        "min_samples_leaf": 50
+      },
+      "fit_seconds": 19.5
+    },
+    "gradient_boosting": {
+      "pr_auc": 0.20005085077565588,
+      "roc_auc": 0.643721204415984,
+      "threshold": 0.5032775795913949,
+      "precision": 0.19442524625434965,
+      "recall": 0.5386357203509765,
+      "f1": 0.2857180707781713,
+      "accuracy": 0.6500033538676585,
+      "confusion": {
+        "tp": 32351,
+        "fp": 134042,
+        "fn": 27710,
+        "tn": 268050
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31
+      },
+      "fit_seconds": 12.1
+    }
+  },
+  "all_candidates": [
+    {
+      "pr_auc": 0.19519632016774077,
+      "roc_auc": 0.633712536570547,
+      "threshold": 0.508666716457806,
+      "precision": 0.1843329304598513,
+      "recall": 0.5865869699139209,
+      "f1": 0.2805149927544309,
+      "accuracy": 0.6089476861558835,
+      "confusion": {
+        "tp": 35231,
+        "fp": 155896,
+        "fn": 24830,
+        "tn": 246196
+      },
+      "model": "logistic_regression",
+      "params": {
+        "C": 0.1
+      },
+      "fit_seconds": 8.5
+    },
+    {
+      "pr_auc": 0.19538522860167615,
+      "roc_auc": 0.6338976404706228,
+      "threshold": 0.5115967810626142,
+      "precision": 0.18520668154056688,
+      "recall": 0.5791112369091423,
+      "f1": 0.2806561715793466,
+      "accuracy": 0.6142013575590768,
+      "confusion": {
+        "tp": 34782,
+        "fp": 153019,
+        "fn": 25279,
+        "tn": 249073
+      },
+      "model": "logistic_regression",
+      "params": {
+        "C": 1.0
+      },
+      "fit_seconds": 8.4
+    },
+    {
+      "pr_auc": 0.1875873888030994,
+      "roc_auc": 0.6322701538862705,
+      "threshold": 0.4921238692643108,
+      "precision": 0.18128618884535086,
+      "recall": 0.5869699139208472,
+      "f1": 0.2770157979310643,
+      "accuracy": 0.6018223402206628,
+      "confusion": {
+        "tp": 35254,
+        "fp": 159212,
+        "fn": 24807,
+        "tn": 242880
+      },
+      "model": "random_forest",
+      "params": {
+        "n_estimators": 60,
+        "max_depth": 14,
+        "min_samples_leaf": 100
+      },
+      "fit_seconds": 17.8
+    },
+    {
+      "pr_auc": 0.18836224850390412,
+      "roc_auc": 0.6335258770627719,
+      "threshold": 0.46017456961154174,
+      "precision": 0.1792349041217514,
+      "recall": 0.6184545711859609,
+      "f1": 0.2779243031316521,
+      "accuracy": 0.5823612526587515,
+      "confusion": {
+        "tp": 37145,
+        "fp": 170097,
+        "fn": 22916,
+        "tn": 231995
+      },
+      "model": "random_forest",
+      "params": {
+        "n_estimators": 60,
+        "max_depth": 20,
+        "min_samples_leaf": 50
+      },
+      "fit_seconds": 19.5
+    },
+    {
+      "pr_auc": 0.19552832743364063,
+      "roc_auc": 0.6392078463161913,
+      "threshold": 0.48493057554241853,
+      "precision": 0.18883679318742855,
+      "recall": 0.5693211901233746,
+      "f1": 0.28360523849414027,
+      "accuracy": 0.6262060399910852,
+      "confusion": {
+        "tp": 34194,
+        "fp": 146883,
+        "fn": 25867,
+        "tn": 255209
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 31
+      },
+      "fit_seconds": 15.4
+    },
+    {
+      "pr_auc": 0.19710581718337794,
+      "roc_auc": 0.639396201721244,
+      "threshold": 0.47586196960765353,
+      "precision": 0.1885698386199221,
+      "recall": 0.5641930703784486,
+      "f1": 0.28266482038363205,
+      "accuracy": 0.627852680822152,
+      "confusion": {
+        "tp": 33886,
+        "fp": 145814,
+        "fn": 26175,
+        "tn": 256278
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.1,
+        "max_leaf_nodes": 63
+      },
+      "fit_seconds": 14.2
+    },
+    {
+      "pr_auc": 0.20005085077565588,
+      "roc_auc": 0.643721204415984,
+      "threshold": 0.5032775795913949,
+      "precision": 0.19442524625434965,
+      "recall": 0.5386357203509765,
+      "f1": 0.2857180707781713,
+      "accuracy": 0.6500033538676585,
+      "confusion": {
+        "tp": 32351,
+        "fp": 134042,
+        "fn": 27710,
+        "tn": 268050
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 31
+      },
+      "fit_seconds": 12.1
+    },
+    {
+      "pr_auc": 0.19886480772499815,
+      "roc_auc": 0.6419790646208189,
+      "threshold": 0.479059555076213,
+      "precision": 0.1895412945197927,
+      "recall": 0.5724013919182165,
+      "f1": 0.2847817893398387,
+      "accuracy": 0.6263510136253578,
+      "confusion": {
+        "tp": 34379,
+        "fp": 147001,
+        "fn": 25682,
+        "tn": 255091
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.05,
+        "max_leaf_nodes": 63
+      },
+      "fit_seconds": 15.1
+    },
+    {
+      "pr_auc": 0.1994609201941127,
+      "roc_auc": 0.643054910450087,
+      "threshold": 0.49381209360751965,
+      "precision": 0.18809407390292784,
+      "recall": 0.5828407785418158,
+      "f1": 0.28440508591623676,
+      "accuracy": 0.6188318587134564,
+      "confusion": {
+        "tp": 35006,
+        "fp": 151103,
+        "fn": 25055,
+        "tn": 250989
+      },
+      "model": "gradient_boosting",
+      "params": {
+        "max_iter": 200,
+        "learning_rate": 0.03,
+        "max_leaf_nodes": 31
+      },
+      "fit_seconds": 16.2
+    }
+  ],
+  "gradient_boosting_note": "HistGradientBoostingClassifier: the same gradient-boosted-trees method named in our proposal, with histogram binning so it is tractable on 1,000,000 rows and can treat carrier and airport as true categories."
+}

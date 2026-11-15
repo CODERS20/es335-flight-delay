@@ -1,0 +1,704 @@
+{
+  "audit": {
+    "file_size_mb": 565.0,
+    "n_columns_in_file": 31,
+    "all_columns": [
+      "YEAR",
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "AIRLINE",
+      "FLIGHT_NUMBER",
+      "TAIL_NUMBER",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "SCHEDULED_DEPARTURE",
+      "DEPARTURE_TIME",
+      "DEPARTURE_DELAY",
+      "TAXI_OUT",
+      "WHEELS_OFF",
+      "SCHEDULED_TIME",
+      "ELAPSED_TIME",
+      "AIR_TIME",
+      "DISTANCE",
+      "WHEELS_ON",
+      "TAXI_IN",
+      "SCHEDULED_ARRIVAL",
+      "ARRIVAL_TIME",
+      "ARRIVAL_DELAY",
+      "DIVERTED",
+      "CANCELLED",
+      "CANCELLATION_REASON",
+      "AIR_SYSTEM_DELAY",
+      "SECURITY_DELAY",
+      "AIRLINE_DELAY",
+      "LATE_AIRCRAFT_DELAY",
+      "WEATHER_DELAY"
+    ],
+    "forbidden_columns_present_in_file": [
+      "DEPARTURE_TIME",
+      "DEPARTURE_DELAY",
+      "TAXI_OUT",
+      "WHEELS_OFF",
+      "WHEELS_ON",
+      "TAXI_IN",
+      "AIR_TIME",
+      "ELAPSED_TIME",
+      "ARRIVAL_TIME",
+      "ARRIVAL_DELAY",
+      "AIR_SYSTEM_DELAY",
+      "SECURITY_DELAY",
+      "AIRLINE_DELAY",
+      "LATE_AIRCRAFT_DELAY",
+      "WEATHER_DELAY",
+      "CANCELLATION_REASON",
+      "DIVERTED",
+      "CANCELLED"
+    ],
+    "n_rows_raw": 5819079,
+    "load_seconds": 4.5,
+    "memory_mb": 133.2,
+    "airport_code_format_by_month": {
+      "1": {
+        "rows": 469968,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "2": {
+        "rows": 429191,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "3": {
+        "rows": 504312,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "4": {
+        "rows": 485151,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "5": {
+        "rows": 496993,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "6": {
+        "rows": 503897,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "7": {
+        "rows": 520718,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "8": {
+        "rows": 510536,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "9": {
+        "rows": 464946,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "10": {
+        "rows": 486165,
+        "origin_numeric_rows": 486165,
+        "dest_numeric_rows": 486165,
+        "pct_origin_numeric": 100.0
+      },
+      "11": {
+        "rows": 467972,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      },
+      "12": {
+        "rows": 479230,
+        "origin_numeric_rows": 0,
+        "dest_numeric_rows": 0,
+        "pct_origin_numeric": 0.0
+      }
+    },
+    "months_with_numeric_codes": [
+      10
+    ],
+    "rows_in_numeric_code_months": 486165,
+    "distinct_origin_codes_total": 628,
+    "distinct_origin_codes_numeric": 306,
+    "distinct_origin_codes_iata": 322,
+    "airports_csv_columns": [
+      "IATA_CODE",
+      "AIRPORT",
+      "CITY",
+      "STATE",
+      "COUNTRY",
+      "LATITUDE",
+      "LONGITUDE"
+    ],
+    "airports_csv_rows": 322,
+    "airports_csv_has_iata_column": true,
+    "airports_csv_can_map_numeric_ids": false,
+    "numeric_codes_resolvable_via_airports_csv": 0,
+    "n_cancelled": 89884,
+    "n_diverted": 15187,
+    "n_arrival_delay_missing": 105071,
+    "n_operated": 5714008,
+    "n_operated_missing_delay": 0,
+    "missing_by_column": {
+      "SCHEDULED_TIME": 6,
+      "ARRIVAL_DELAY": 105071
+    }
+  },
+  "eda": {
+    "n_labelled_all_months": 5714008,
+    "n_train": 3836893,
+    "n_val": 945031,
+    "train_delay_rate": 0.20223550669773693,
+    "val_delay_rate": 0.12712810479232955,
+    "delay_threshold_minutes": 15,
+    "note": "Test months (Nov-Dec) are deliberately not summarised here. Delay rates by group are computed on training months only.",
+    "majority_class": 0,
+    "majority_baseline_train_accuracy": 0.7977644933022631,
+    "delay_rate_by_dep_hour": {
+      "0": {
+        "rate": 0.1683724663857114,
+        "n": 9966
+      },
+      "1": {
+        "rate": 0.1977509599561163,
+        "n": 3646
+      },
+      "2": {
+        "rate": 0.16910229645093947,
+        "n": 958
+      },
+      "3": {
+        "rate": 0.18705035971223022,
+        "n": 556
+      },
+      "4": {
+        "rate": 0.18181818181818182,
+        "n": 418
+      },
+      "5": {
+        "rate": 0.07370033812341505,
+        "n": 75712
+      },
+      "6": {
+        "rate": 0.09481729872003153,
+        "n": 268991
+      },
+      "7": {
+        "rate": 0.11962609617423148,
+        "n": 259425
+      },
+      "8": {
+        "rate": 0.13828594439663,
+        "n": 253294
+      },
+      "9": {
+        "rate": 0.15217400723585867,
+        "n": 230795
+      },
+      "10": {
+        "rate": 0.16543491774571664,
+        "n": 246127
+      },
+      "11": {
+        "rate": 0.17476005630678668,
+        "n": 234430
+      },
+      "12": {
+        "rate": 0.18977397485571726,
+        "n": 234089
+      },
+      "13": {
+        "rate": 0.20540029287192868,
+        "n": 241061
+      },
+      "14": {
+        "rate": 0.22631426920854997,
+        "n": 214644
+      },
+      "15": {
+        "rate": 0.23496242925860128,
+        "n": 242609
+      },
+      "16": {
+        "rate": 0.2534766004154685,
+        "n": 220474
+      },
+      "17": {
+        "rate": 0.26814169615429484,
+        "n": 257170
+      },
+      "18": {
+        "rate": 0.28439189558189065,
+        "n": 219732
+      },
+      "19": {
+        "rate": 0.28866674618539484,
+        "n": 217978
+      },
+      "20": {
+        "rate": 0.2897312987516118,
+        "n": 172943
+      },
+      "21": {
+        "rate": 0.2686940137640315,
+        "n": 125254
+      },
+      "22": {
+        "rate": 0.2537739698082415,
+        "n": 78432
+      },
+      "23": {
+        "rate": 0.20646351413671998,
+        "n": 28189
+      }
+    },
+    "delay_rate_by_airline": {
+      "NK": {
+        "rate": 0.32523972786200245,
+        "n": 74668,
+        "name": "Spirit Air Lines"
+      },
+      "F9": {
+        "rate": 0.2976312726774834,
+        "n": 58428,
+        "name": "Frontier Airlines Inc."
+      },
+      "MQ": {
+        "rate": 0.2513394512185832,
+        "n": 196909,
+        "name": "American Eagle Airlines Inc."
+      },
+      "UA": {
+        "rate": 0.23398988364403295,
+        "n": 335694,
+        "name": "United Air Lines Inc."
+      },
+      "B6": {
+        "rate": 0.2330572073465553,
+        "n": 174558,
+        "name": "JetBlue Airways"
+      },
+      "EV": {
+        "rate": 0.21208592809670837,
+        "n": 382180,
+        "name": "Atlantic Southeast Airlines"
+      },
+      "WN": {
+        "rate": 0.20783651609699896,
+        "n": 829782,
+        "name": "Southwest Airlines Co."
+      },
+      "AA": {
+        "rate": 0.2029216090271894,
+        "n": 415456,
+        "name": "American Airlines Inc."
+      },
+      "VX": {
+        "rate": 0.19682866246832426,
+        "n": 39857,
+        "name": "Virgin America"
+      },
+      "OO": {
+        "rate": 0.19342414013132164,
+        "n": 388664,
+        "name": "Skywest Airlines Inc."
+      },
+      "US": {
+        "rate": 0.18818059653079192,
+        "n": 194223,
+        "name": "US Airways Inc."
+      },
+      "DL": {
+        "rate": 0.149270985337011,
+        "n": 580441,
+        "name": "Delta Air Lines Inc."
+      },
+      "AS": {
+        "rate": 0.13266499144941193,
+        "n": 114612,
+        "name": "Alaska Airlines Inc."
+      },
+      "HA": {
+        "rate": 0.1229264308356508,
+        "n": 51421,
+        "name": "Hawaiian Airlines Inc."
+      }
+    },
+    "delay_rate_by_month_train_val": {
+      "1": {
+        "rate": 0.2099524521184299,
+        "n": 457013
+      },
+      "2": {
+        "rate": 0.23347470827619873,
+        "n": 407663
+      },
+      "3": {
+        "rate": 0.19395372842576675,
+        "n": 492138
+      },
+      "4": {
+        "rate": 0.1716157086787508,
+        "n": 479251
+      },
+      "5": {
+        "rate": 0.18308311599723062,
+        "n": 489641
+      },
+      "6": {
+        "rate": 0.23484367359444208,
+        "n": 492847
+      },
+      "7": {
+        "rate": 0.20923473513950666,
+        "n": 514384
+      },
+      "8": {
+        "rate": 0.18674844629293033,
+        "n": 503956
+      },
+      "9": {
+        "rate": 0.12995912609027746,
+        "n": 462153
+      },
+      "10": {
+        "rate": 0.1244185902029084,
+        "n": 482878
+      }
+    },
+    "delay_rate_by_day_of_week": {
+      "1": {
+        "rate": 0.22220542053642703,
+        "n": 568726
+      },
+      "2": {
+        "rate": 0.20444370080405097,
+        "n": 543871
+      },
+      "3": {
+        "rate": 0.19255156697622178,
+        "n": 554667
+      },
+      "4": {
+        "rate": 0.21575262280666763,
+        "n": 576577
+      },
+      "5": {
+        "rate": 0.2046737874494484,
+        "n": 581584
+      },
+      "6": {
+        "rate": 0.1714674991458034,
+        "n": 471203
+      },
+      "7": {
+        "rate": 0.19871729614170824,
+        "n": 540265
+      }
+    },
+    "delay_rate_by_busiest_origin": {
+      "LGA": {
+        "rate": 0.26361474937043655,
+        "n": 71081
+      },
+      "ORD": {
+        "rate": 0.2585514230384372,
+        "n": 200873
+      },
+      "BWI": {
+        "rate": 0.24262822617718527,
+        "n": 60908
+      },
+      "DFW": {
+        "rate": 0.2338725980004274,
+        "n": 173137
+      },
+      "DEN": {
+        "rate": 0.23299380951372567,
+        "n": 141669
+      },
+      "IAH": {
+        "rate": 0.22846868724606548,
+        "n": 107065
+      },
+      "EWR": {
+        "rate": 0.2278762306610408,
+        "n": 71100
+      },
+      "JFK": {
+        "rate": 0.2257603231465511,
+        "n": 67833
+      },
+      "BOS": {
+        "rate": 0.22359868172522046,
+        "n": 76767
+      },
+      "LAX": {
+        "rate": 0.22083860435203573,
+        "n": 141497
+      },
+      "LAS": {
+        "rate": 0.22014808960252918,
+        "n": 96158
+      },
+      "MCO": {
+        "rate": 0.2185900058264222,
+        "n": 80667
+      },
+      "CLT": {
+        "rate": 0.21837700501165663,
+        "n": 71633
+      },
+      "SFO": {
+        "rate": 0.2077230991045682,
+        "n": 105424
+      },
+      "PHX": {
+        "rate": 0.20057232290865987,
+        "n": 107981
+      },
+      "DTW": {
+        "rate": 0.19090746740822,
+        "n": 78394
+      },
+      "ATL": {
+        "rate": 0.17409473528907463,
+        "n": 250783
+      },
+      "SEA": {
+        "rate": 0.1676614420062696,
+        "n": 79750
+      },
+      "MSP": {
+        "rate": 0.16407601428028118,
+        "n": 81511
+      },
+      "SLC": {
+        "rate": 0.12910715542109336,
+        "n": 71065
+      }
+    }
+  },
+  "splits": {
+    "n_rows_raw": 5819079,
+    "exclusions": [
+      {
+        "reason": "cancelled flights removed",
+        "rows": 89884
+      },
+      {
+        "reason": "diverted flights removed",
+        "rows": 15187
+      },
+      {
+        "reason": "remaining rows with no arrival delay",
+        "rows": 0
+      },
+      {
+        "reason": "October removed (unmappable numeric airport codes)",
+        "rows": 482878
+      }
+    ],
+    "n_rows_after_exclusions": 5231130,
+    "train_scheduled_time_median": 123.0,
+    "n_imputed_scheduled_time": {
+      "train": 0,
+      "val": 0,
+      "test": 0
+    },
+    "n_train_available": 3836893,
+    "n_train_used": 1000000,
+    "train_subsample_seed": 42,
+    "train_delay_rate_full": 0.20223550669773693,
+    "train_delay_rate_subsample": 0.202978,
+    "splits": {
+      "train": {
+        "months": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "n": 1000000,
+        "delay_rate": 0.202978
+      },
+      "val": {
+        "months": [
+          9
+        ],
+        "n": 462153,
+        "delay_rate": 0.12995912609027746
+      },
+      "test": {
+        "months": [
+          11,
+          12
+        ],
+        "n": 932084,
+        "delay_rate": "withheld until final evaluation"
+      }
+    },
+    "october_excluded": true,
+    "october_reason": "October 2015 encodes airport codes as numeric DOT ids; airports.csv has no DOT id column, so 0 of 306 codes are mappable. Including October would add 306 unseen airport categories to validation.",
+    "n_features": 11,
+    "features": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "SCHED_DEP_HOUR",
+      "SCHED_ARR_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND"
+    ]
+  },
+  "importance": {
+    "model": "gradient_boosting",
+    "measured_on": "validation subsample (40,000 rows)",
+    "metric": "average_precision (PR-AUC)",
+    "baseline_pr_auc": 0.2030139992558173,
+    "n_repeats": 3,
+    "importance": [
+      {
+        "feature": "SCHED_DEP_HOUR",
+        "drop_in_pr_auc": 0.031278469243264384,
+        "std": 0.0005069036582012568
+      },
+      {
+        "feature": "DESTINATION_AIRPORT",
+        "drop_in_pr_auc": 0.014629821743504606,
+        "std": 0.001756602565542287
+      },
+      {
+        "feature": "ORIGIN_AIRPORT",
+        "drop_in_pr_auc": 0.013152100846314527,
+        "std": 0.0009760341198792592
+      },
+      {
+        "feature": "AIRLINE",
+        "drop_in_pr_auc": 0.012274595883641798,
+        "std": 0.0004056406794951428
+      },
+      {
+        "feature": "DAY",
+        "drop_in_pr_auc": 0.007073300942739465,
+        "std": 0.0006808865940277739
+      },
+      {
+        "feature": "SCHED_ARR_HOUR",
+        "drop_in_pr_auc": 0.003701994247100974,
+        "std": 0.0009731846466694012
+      },
+      {
+        "feature": "DAY_OF_WEEK",
+        "drop_in_pr_auc": 0.0014664881187359442,
+        "std": 0.0010939505032510587
+      },
+      {
+        "feature": "SCHEDULED_TIME",
+        "drop_in_pr_auc": 0.00021252655507665122,
+        "std": 0.00011658358030242401
+      },
+      {
+        "feature": "DISTANCE",
+        "drop_in_pr_auc": 7.327663064983041e-05,
+        "std": 7.173179960934972e-05
+      },
+      {
+        "feature": "IS_WEEKEND",
+        "drop_in_pr_auc": 0.0,
+        "std": 0.0
+      },
+      {
+        "feature": "MONTH",
+        "drop_in_pr_auc": 0.0,
+        "std": 0.0
+      }
+    ],
+    "interpretation": "Each value is how much PR-AUC falls when that single column is randomly shuffled, breaking its relationship with the target while leaving every other column intact. Larger means more load-bearing."
+  },
+  "config": {
+    "seed": 42,
+    "delay_threshold_minutes": 15,
+    "features": [
+      "AIRLINE",
+      "ORIGIN_AIRPORT",
+      "DESTINATION_AIRPORT",
+      "SCHED_DEP_HOUR",
+      "SCHED_ARR_HOUR",
+      "SCHEDULED_TIME",
+      "DISTANCE",
+      "MONTH",
+      "DAY",
+      "DAY_OF_WEEK",
+      "IS_WEEKEND"
+    ],
+    "forbidden_features": [
+      "DEPARTURE_TIME",
+      "DEPARTURE_DELAY",
+      "TAXI_OUT",
+      "WHEELS_OFF",
+      "WHEELS_ON",
+      "TAXI_IN",
+      "AIR_TIME",
+      "ELAPSED_TIME",
+      "ARRIVAL_TIME",
+      "ARRIVAL_DELAY",
+      "AIR_SYSTEM_DELAY",
+      "SECURITY_DELAY",
+      "AIRLINE_DELAY",
+      "LATE_AIRCRAFT_DELAY",
+      "WEATHER_DELAY",
+      "CANCELLATION_REASON",
+      "DIVERTED",
+      "CANCELLED"
+    ],
+    "train_months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "val_months_proposed": [
+      9,
+      10
+    ],
+    "val_months_effective": [
+      9
+    ],
+    "test_months": [
+      11,
+      12
+    ],
+    "october_excluded": true
+  }
+}

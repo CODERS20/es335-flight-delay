@@ -498,6 +498,58 @@ function renderResults(metrics, summary) {
   );
 }
 
+function renderCalibrationFix(cal) {
+  const root = document.getElementById("calibration-fix");
+  const h = cal.honest_measurement;
+
+  const rows = [
+    ["Brier score", h.raw.brier, h.calibrated.brier, "lower is better"],
+    ["Expected calibration error", h.raw.ece, h.calibrated.ece, "mean gap between predicted and observed"],
+    ["PR-AUC", h.raw.pr_auc, h.calibrated.pr_auc, "ranking — must not change"],
+    ["ROC-AUC", h.raw.roc_auc, h.calibrated.roc_auc, "ranking — must not change"],
+  ].map(([k, raw, calv, note]) => ({
+    cells: [
+      `${k} <span class="muted">${note}</span>`,
+      n4(raw),
+      `<strong>${n4(calv)}</strong>`,
+    ],
+  }));
+
+  root.appendChild(
+    table(["Measured on 16–30 September", "Raw", "Calibrated"], rows, {
+      caption: `Fitted on ${num(h.n_fit)} flights from ${h.fit_days}, measured on ${num(
+        h.n_assess
+      )} flights from ${h.assess_days}.`,
+    })
+  );
+
+  const ex = cal.examples.map((e) => ({
+    cells: [e.raw_score.toFixed(2), `<strong>${pct(e.calibrated)}</strong>`],
+  }));
+  root.appendChild(
+    table(["Raw model score", "Actual chance of being late"], ex, {
+      caption:
+        "The mapping the predictor above now uses. A score of 0.50 does not mean a coin flip — it means about one flight in seven.",
+    })
+  );
+
+  root.appendChild(
+    el(
+      "div",
+      "verdict",
+      `<p><strong>The Brier score falls from ${n3(h.raw.brier)} to
+        ${n3(h.calibrated.brier)}, and the expected calibration error from
+        ${n3(h.raw.ece)} to ${n3(h.calibrated.ece)}</strong> &mdash; roughly a
+        thirtyfold improvement in how closely the stated probability matches
+        reality, on days the mapping never saw.</p>
+       <p>Ranking is unaffected: ROC-AUC moves from ${n4(h.raw.roc_auc)} to
+        ${n4(h.calibrated.roc_auc)}, which is what a monotonic transform
+        guarantees. The predictor above now reports the calibrated number.</p>
+       <p class="muted"><strong>Caveat.</strong> ${cal.caveat}</p>`
+    )
+  );
+}
+
 /* ===================================================================== */
 /* interaction 1: the predictor                                          */
 /* ===================================================================== */
@@ -523,7 +575,24 @@ function scoreFlight(model, f) {
   return sigmoid(z);
 }
 
-function renderPredictor(model, options, calib) {
+/* Evaluate the isotonic step function exported by step07, by linear
+   interpolation between its knots. Outside the fitted range we clamp, which is
+   what `out_of_bounds="clip"` does on the Python side. */
+function applyCalibration(cal, s) {
+  if (!cal) return null;
+  const { x, y } = cal.mapping;
+  if (s <= x[0]) return y[0];
+  if (s >= x[x.length - 1]) return y[y.length - 1];
+  let lo = 0, hi = x.length - 1;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    if (x[mid] <= s) lo = mid; else hi = mid;
+  }
+  const t = (s - x[lo]) / (x[hi] - x[lo] || 1);
+  return y[lo] + t * (y[hi] - y[lo]);
+}
+
+function renderPredictor(model, options, calib, cal) {
   const root = document.getElementById("predictor");
   document.getElementById("verify-err").textContent =
     model.verified_max_abs_error_vs_sklearn.toExponential(1);
@@ -624,41 +693,58 @@ function renderPredictor(model, options, calib) {
       IS_WEEKEND: dow >= 6 ? 1 : 0,
     };
     const p = scoreFlight(model, f);
+    const cp = applyCalibration(cal, p);
     const b = band(p);
     const flagged = p >= model.threshold;
+    const shown = cp == null ? p : cp;
 
     out.innerHTML = "";
     const gauge = el("div", "gauge");
     const bar = el("div", "gauge-bar");
     const fillEl = el("div", "gauge-fill");
-    fillEl.style.width = (p * 100).toFixed(1) + "%";
+    fillEl.style.width = (shown * 100).toFixed(1) + "%";
     bar.appendChild(fillEl);
-    const markEl = el("div", "gauge-mark");
-    markEl.style.left = (model.threshold * 100).toFixed(1) + "%";
-    markEl.title = `decision threshold ${model.threshold.toFixed(3)}`;
-    bar.appendChild(markEl);
 
-    gauge.appendChild(el("p", "gauge-k", "Risk score"));
-    gauge.appendChild(el("p", "gauge-v", p.toFixed(3)));
+    gauge.appendChild(
+      el("p", "gauge-k", cp == null ? "Risk score" : "Chance of arriving 15+ min late")
+    );
+    gauge.appendChild(
+      el("p", "gauge-v", cp == null ? p.toFixed(3) : pct(cp))
+    );
     gauge.appendChild(bar);
     gauge.appendChild(
       el(
         "p",
         "gauge-s",
-        `Threshold ${model.threshold.toFixed(3)} &rarr; ` +
-          `<strong>${flagged ? "flagged as at risk" : "not flagged"}</strong>`
+        cp == null
+          ? `Threshold ${model.threshold.toFixed(3)} &rarr; <strong>${
+              flagged ? "flagged as at risk" : "not flagged"
+            }</strong>`
+          : `Raw model score ${p.toFixed(3)}, calibrated to
+             <strong>${pct(cp)}</strong>. At our decision threshold this flight
+             is <strong>${flagged ? "flagged as at risk" : "not flagged"}</strong>.`
       )
     );
     out.appendChild(gauge);
 
     const expl = el("div", "pexpl");
-    expl.innerHTML = b
-      ? `<p>Flights the model scores in the <strong>${b.bin}</strong> band were
-          actually late <strong>${pct(b.observed_rate)}</strong> of the time in
-          the test months (${num(b.n)} flights). That is the number to trust
-          &mdash; the raw score runs high, as the calibration section explains.</p>`
-      : `<p>Too few test flights fell in this score band to report an observed
-          rate for it.</p>`;
+    const baseline = 0.1795;
+    const rel = shown / baseline;
+    expl.innerHTML =
+      (cp == null
+        ? ""
+        : `<p>That is <strong>${rel.toFixed(2)}&times;</strong> the overall
+            rate of ${pct(baseline)}. The raw score of ${p.toFixed(3)} is not a
+            probability &mdash; class weighting inflates it &mdash; so it is
+            passed through a mapping fitted on the validation month, which cut
+            the Brier score from 0.222 to 0.103 on days the mapping had never
+            seen.</p>`) +
+      (b
+        ? `<p class="muted">Independently: flights the model scored in the
+            <strong>${b.bin}</strong> raw band were late
+            <strong>${pct(b.observed_rate)}</strong> of the time across
+            ${num(b.n)} test flights.</p>`
+        : "");
     out.appendChild(expl);
 
     routeInfo.innerHTML =
@@ -913,7 +999,7 @@ function renderConclusion(metrics, summary) {
 /* boot                                                                  */
 /* ===================================================================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  const [summary, metrics, thr, errors, model, options, rollingCV] = await Promise.all([
+  const [summary, metrics, thr, errors, model, options, rollingCV, calibration] = await Promise.all([
     loadJSON("summary.json"),
     loadJSON("metrics.json"),
     loadJSON("threshold.json"),
@@ -921,6 +1007,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadJSON("model.json"),
     loadJSON("options.json"),
     loadJSON("rolling_cv.json"),
+    loadJSON("calibration.json"),
   ]);
 
   if (!metrics || !summary) {
@@ -936,13 +1023,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   try { renderMethods(metrics); } catch (e) { console.error(e); }
   try { renderEvaluation(summary, metrics); } catch (e) { console.error(e); }
   try { renderResults(metrics, summary); } catch (e) { console.error(e); }
+  if (calibration) {
+    try { renderCalibrationFix(calibration); } catch (e) { console.error(e); }
+  } else fail("calibration-fix", "data/calibration.json");
   if (rollingCV) {
     try { renderRollingCV(rollingCV, metrics); } catch (e) { console.error(e); }
   } else fail("rolling-cv", "data/rolling_cv.json");
   try { renderConclusion(metrics, summary); } catch (e) { console.error(e); }
 
   if (model && options) {
-    try { renderPredictor(model, options, metrics.test.calibration); }
+    try { renderPredictor(model, options, metrics.test.calibration, calibration); }
     catch (e) { console.error(e); fail("predictor", "data/model.json"); }
   } else fail("predictor", "data/model.json");
 

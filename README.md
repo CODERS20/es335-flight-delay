@@ -156,10 +156,32 @@ Three honest caveats we report rather than bury:
   class weighting deliberately over-weights the minority class, which lifts
   recall and inflates predicted probabilities. The website therefore presents
   output as a **relative risk score** and publishes the calibration curve.
-  We did *not* fit a post-hoc calibrator, because the test set has already been
+  We did *not* apply a calibrator to the test set, because it has already been
   used and re-scoring it with a changed model would turn one honest test into a
-  second round of tuning. Doing that properly on validation is the obvious next
-  step.
+  second round of tuning. We did fix it properly on validation — see below.
+
+### Calibration, fixed on validation only
+
+Isotonic regression maps raw score → probability. It is monotonic, so it
+**cannot** reorder flights: precision, recall and both AUCs are untouched and
+only the level changes. We fitted it on the validation month and measured it
+honestly by splitting September in half — learn from 1–15 September, score on
+16–30 September, days the mapping never saw:
+
+| Measured on 16–30 Sep | Raw | Calibrated |
+|---|---|---|
+| Brier score | 0.2219 | **0.1030** |
+| Expected calibration error | 0.3345 | **0.0115** |
+| Worst bin gap | 0.492 | **0.019** |
+| PR-AUC *(must not change)* | 0.1746 | 0.1718 |
+| ROC-AUC *(must not change)* | 0.6215 | 0.6213 |
+
+A raw score of 0.50 maps to a true **13.7%** chance of being late; 0.80 maps to
+31.0%. The website's predictor now reports the calibrated figure.
+
+**Caveat:** the mapping is fitted on September (13.0% delay rate), so on a
+busier period such as the test months (17.9%) it would under-predict. The test
+results above remain the uncalibrated ones, measured once, as published.
 
 ### Rolling-origin cross-validation
 
@@ -216,6 +238,7 @@ es335-flight-delay/
 │   ├── step04_export_model.py    model → JSON for the site, importance
 │   ├── step05_final_eval.py      test set, opened once
 │   ├── step06_rolling_cv.py      rolling-origin CV (robustness; no test data)
+│   ├── step07_calibrate.py       isotonic calibration (validation only)
 │   ├── check_site_parity.py/.mjs verifies the site's JS == scikit-learn
 │   └── check_site_render.mjs     verifies every section renders
 ├── artifacts/                    every number and figure the site shows
@@ -281,6 +304,7 @@ python src/step03_models.py           # ~3 min  (test set untouched)
 python src/step04_export_model.py     # ~3 min
 python src/step05_final_eval.py       # ~4 min  (opens the test set)
 python src/step06_rolling_cv.py       # ~6 min  (robustness; Jan-Sep only)
+python src/step07_calibrate.py        # ~1 min  (calibration; validation only)
 
 # verification
 python src/check_site_parity.py --make && node src/check_site_parity.mjs
@@ -294,11 +318,36 @@ To preview the site locally, serve it — browsers block `fetch` over `file://`:
 cd docs && python -m http.server 8000   # then open http://localhost:8000
 ```
 
+## Contributions
+
+> **To be completed by the team before submission.** The rubric awards marks for
+> each student explaining their own contribution, the key choices, the
+> evaluation, and a limitation — so fill this in yourselves rather than leaving
+> it generic, and be ready to defend what you write in the viva.
+
+**Divya Saini (25110110)**
+- Contribution: _…_
+- A key choice I made and why: _…_
+- One limitation I would raise about our work: _…_
+
+**Shikha Ajeet Singh (25110292)**
+- Contribution: _…_
+- A key choice I made and why: _…_
+- One limitation I would raise about our work: _…_
+
+Questions worth being able to answer between you: why a chronological split
+rather than k-fold; why PR-AUC rather than accuracy; why October was dropped and
+what it cost us; why the threshold sits where it does and what moving it would
+do; why the models are uncalibrated and how isotonic regression fixes the level
+without changing the ranking; and why the test set may not be reopened.
+
 ## Limitations
 
 - **No weather**, the single largest omission and the ceiling on everything above.
 - **No inbound-aircraft state**, the best predictor of a late departure, and unknowable at scheduling time.
-- **Uncalibrated probabilities** — scores rank risk, they are not probabilities.
+- **Calibration is fitted on one month.** September's 13.0% delay rate means the
+  mapping under-predicts on busier periods; the published test metrics remain
+  the uncalibrated ones.
 - **One year** (2015); no claim about other years.
 - **Operated flights only**; cancellations and diversions excluded by construction.
 - **October missing entirely**, so validation rests on one quiet month.

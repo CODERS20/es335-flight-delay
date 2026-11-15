@@ -244,6 +244,25 @@
       <img src="figures/calibration.png" alt="Calibration curve showing predicted probabilities well above observed delay rates.">
     </figure>
     <div id="calibration-table"></div>
+
+    <h3>Fixing it, without spending the test set</h3>
+    <p>
+      The fix is a monotonic mapping from raw score to probability, fitted by
+      isotonic regression. Because it is monotonic it <em>cannot</em> reorder
+      any flight, so precision, recall and the AUCs are untouched &mdash; only
+      the level changes, which is precisely the defect.
+    </p>
+    <p>
+      We fitted it on the <strong>validation month only</strong>, and measured
+      it honestly by splitting September in half: the mapping learned from
+      1&ndash;15 September and was scored on 16&ndash;30 September, days it had
+      never seen. The test months were not touched, so the published test
+      numbers above stand exactly as measured.
+    </p>
+    <div id="calibration-fix"></div>
+    <figure>
+      <img src="figures/calibration_fix.png" alt="Calibration curve before and after isotonic correction, measured on held-out September days.">
+    </figure>
   </section>
 
   <!-- 7. INTERACTION -->

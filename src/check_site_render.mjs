@@ -18,7 +18,10 @@ import { dirname, join } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = join(here, "..");
-const docs = join(repo, "docs");
+// Optional argument: check a different copy of the site, e.g. one downloaded
+// from the live GitHub Pages deployment rather than the working tree.
+const docs = process.argv[2] ? process.argv[2] : join(repo, "docs");
+console.log(`checking site at: ${docs}`);
 
 const html = readFileSync(join(docs, "index.html"), "utf8");
 const appSrc = readFileSync(join(docs, "app.js"), "utf8");

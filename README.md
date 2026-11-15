@@ -2,8 +2,8 @@
 
 **Course:** ES 335 (Machine Learning) — Undergraduate track
 **Team:** Divya Saini (25110110), Shikha Ajeet Singh (25110292)
-**Live site:** _(GitHub Pages link — add after publishing)_
-**Repository:** _(repo link — add after pushing)_
+**Live site:** <https://coders20.github.io/es335-flight-delay/>
+**Repository:** <https://github.com/CODERS20/es335-flight-delay>
 
 > Names and roll numbers above are placeholders for the team to confirm.
 

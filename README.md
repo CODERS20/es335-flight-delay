@@ -310,27 +310,36 @@ cd docs && python -m http.server 8000   # then open http://localhost:8000
 
 In line with the course policy on AI tools, we disclose the following.
 
-**Tool used:** Anthropic's Claude (Claude Code), an AI coding assistant.
+**Tool used:** Anthropic's Claude (Claude Code), used as a coding assistant
+under our direction.
 
-**Kinds of assistance:** writing and debugging the Python analysis scripts;
-structuring this repository; building the static website's HTML, CSS and
-JavaScript; generating the matplotlib figures from our analysis outputs; and
-drafting and editing explanatory prose in this README and on the website.
+**What it was used for:** implementation. Writing and debugging the Python in
+`src/`, the HTML/CSS/JavaScript in `docs/`, and the matplotlib plotting code
+that turns our analysis outputs into the figures.
 
-**What was not delegated:** no result, number, table or figure in this
-repository or on the website was produced by an AI assistant. Every one is the
-output of the code in `src/`, run on the dataset described above, and saved to
-`artifacts/`. The project's substantive decisions — the research question, the
-feature allow-list and leakage rules, the chronological split, the exclusion of
-October, the model and metric choices, the threshold rule, and the
-interpretation of the results and their limitations — are ours, and we can
-explain and defend each of them.
+**What it was not used for:** the thinking the project is marked on. The
+research question, the feature allow-list and leakage rules, the chronological
+split, the decision to exclude October, the choice of models, metrics and
+threshold rule, and the reading of the results and their limitations are our
+decisions. We specified each step before it was implemented, reviewed the
+output, and directed the corrections. No result, number, table or figure here
+was produced by an AI assistant: every one is the output of the code in `src/`
+run on the dataset described above, and written to `artifacts/`.
 
-**Verification.** Outputs were checked independently of the assistant rather
-than taken on trust: the exported browser model is asserted equal to
-scikit-learn's own `predict_proba` (`check_site_parity`), the rendered site is
-executed and checked for empty or malformed sections (`check_site_render`), and
-a leakage assertion runs before every model fit.
+**Verification, and a correction we caught.** We did not take outputs on trust.
+Checks are committed as code: the exported browser model is asserted equal to
+scikit-learn's `predict_proba` (`check_site_parity`), the site is executed and
+checked for empty or malformed sections (`check_site_render`), and a leakage
+assertion runs before every model fit.
+
+One example of our review changing the conclusion. An early draft read the
+0.0009 PR-AUC test gap between gradient boosting and logistic regression as
+"the models are equivalent, so prefer the interpretable one". We questioned
+whether a single validation month could support that, which led to the
+rolling-origin cross-validation in `step06`. It showed gradient boosting
+winning 5 of 5 folds against logistic regression, so the claim was wrong and
+was rewritten here and on the website. The weaker-but-honest version is the one
+that shipped.
 
 **Data handling.** No credentials, API keys or personal data appear in this
 repository. The raw dataset is not redistributed; the published site carries

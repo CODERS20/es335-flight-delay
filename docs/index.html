@@ -192,6 +192,25 @@
       <div><span class="rule-k">Accuracy</span> Reported only beside the baseline, to show why it misleads here.</div>
     </div>
     <p class="note" id="october-note"></p>
+
+    <h3>Why not cross-validation?</h3>
+    <p>
+      Ordinary k-fold cross-validation would be wrong here. Shuffling flights at
+      random puts December in the training folds and June in the held-out fold,
+      so the model learns from the future &mdash; the exact leakage the
+      chronological split exists to prevent.
+    </p>
+    <p>
+      But a single validation month is thin evidence for choosing between
+      models, so we also ran the time-aware equivalent: <strong>rolling-origin
+      cross-validation</strong>, where each fold trains on every month before
+      the one it validates on. Five folds, September at the end, and the test
+      months never loaded.
+    </p>
+    <div id="rolling-cv"></div>
+    <figure>
+      <img src="figures/rolling_cv.png" alt="Lift by validation month for the three models across five rolling-origin folds.">
+    </figure>
   </section>
 
   <!-- 6. RESULTS -->

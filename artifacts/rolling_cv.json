@@ -1,0 +1,345 @@
+{
+  "purpose": "robustness check on model selection; not used to re-select",
+  "why_not_kfold": "Random k-fold would place later flights in training and earlier flights in the held-out fold, learning from the future. Rolling-origin CV preserves time order: each fold trains on all months before the month it validates on.",
+  "test_months_touched": false,
+  "max_train_per_fold": 600000,
+  "seed": 42,
+  "metric": "PR-AUC as lift over each fold's own base rate",
+  "folds": [
+    {
+      "fold": 1,
+      "train_months": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "val_month": 5,
+      "model": "logistic_regression",
+      "n_train": 600000,
+      "n_val": 489641,
+      "base_rate": 0.18308311599723062,
+      "pr_auc": 0.23512921521080501,
+      "lift": 1.2843,
+      "roc_auc": 0.6072066073162266,
+      "fit_seconds": 14.2
+    },
+    {
+      "fold": 1,
+      "train_months": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "val_month": 5,
+      "model": "random_forest",
+      "n_train": 600000,
+      "n_val": 489641,
+      "base_rate": 0.18308311599723062,
+      "pr_auc": 0.2521883738235536,
+      "lift": 1.3775,
+      "roc_auc": 0.6223429406333776,
+      "fit_seconds": 31.6
+    },
+    {
+      "fold": 1,
+      "train_months": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "val_month": 5,
+      "model": "gradient_boosting",
+      "n_train": 600000,
+      "n_val": 489641,
+      "base_rate": 0.18308311599723062,
+      "pr_auc": 0.2617889027095588,
+      "lift": 1.4299,
+      "roc_auc": 0.635966717634715,
+      "fit_seconds": 21.9
+    },
+    {
+      "fold": 2,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "val_month": 6,
+      "model": "logistic_regression",
+      "n_train": 600000,
+      "n_val": 492847,
+      "base_rate": 0.23484367359444208,
+      "pr_auc": 0.34054880362561446,
+      "lift": 1.4501,
+      "roc_auc": 0.6546569121050746,
+      "fit_seconds": 14.7
+    },
+    {
+      "fold": 2,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "val_month": 6,
+      "model": "random_forest",
+      "n_train": 600000,
+      "n_val": 492847,
+      "base_rate": 0.23484367359444208,
+      "pr_auc": 0.3740495009084206,
+      "lift": 1.5928,
+      "roc_auc": 0.677026664431587,
+      "fit_seconds": 31.7
+    },
+    {
+      "fold": 2,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "val_month": 6,
+      "model": "gradient_boosting",
+      "n_train": 600000,
+      "n_val": 492847,
+      "base_rate": 0.23484367359444208,
+      "pr_auc": 0.3670269809219081,
+      "lift": 1.5629,
+      "roc_auc": 0.6721152226730481,
+      "fit_seconds": 22.8
+    },
+    {
+      "fold": 3,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "val_month": 7,
+      "model": "logistic_regression",
+      "n_train": 600000,
+      "n_val": 514384,
+      "base_rate": 0.20923473513950666,
+      "pr_auc": 0.31056812453990384,
+      "lift": 1.4843,
+      "roc_auc": 0.6580956510377152,
+      "fit_seconds": 12.7
+    },
+    {
+      "fold": 3,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "val_month": 7,
+      "model": "random_forest",
+      "n_train": 600000,
+      "n_val": 514384,
+      "base_rate": 0.20923473513950666,
+      "pr_auc": 0.3347004930345945,
+      "lift": 1.5996,
+      "roc_auc": 0.6707689983316658,
+      "fit_seconds": 31.4
+    },
+    {
+      "fold": 3,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "val_month": 7,
+      "model": "gradient_boosting",
+      "n_train": 600000,
+      "n_val": 514384,
+      "base_rate": 0.20923473513950666,
+      "pr_auc": 0.33389727714776335,
+      "lift": 1.5958,
+      "roc_auc": 0.6732075733942915,
+      "fit_seconds": 21.6
+    },
+    {
+      "fold": 4,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "val_month": 8,
+      "model": "logistic_regression",
+      "n_train": 600000,
+      "n_val": 503956,
+      "base_rate": 0.18674844629293033,
+      "pr_auc": 0.2796926105052513,
+      "lift": 1.4977,
+      "roc_auc": 0.6473718374512651,
+      "fit_seconds": 12.6
+    },
+    {
+      "fold": 4,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "val_month": 8,
+      "model": "random_forest",
+      "n_train": 600000,
+      "n_val": 503956,
+      "base_rate": 0.18674844629293033,
+      "pr_auc": 0.2916027075647427,
+      "lift": 1.5615,
+      "roc_auc": 0.6541991221318806,
+      "fit_seconds": 31.4
+    },
+    {
+      "fold": 4,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "val_month": 8,
+      "model": "gradient_boosting",
+      "n_train": 600000,
+      "n_val": 503956,
+      "base_rate": 0.18674844629293033,
+      "pr_auc": 0.3010106664554482,
+      "lift": 1.6119,
+      "roc_auc": 0.6585333556936768,
+      "fit_seconds": 21.4
+    },
+    {
+      "fold": 5,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "val_month": 9,
+      "model": "logistic_regression",
+      "n_train": 600000,
+      "n_val": 462153,
+      "base_rate": 0.12995912609027746,
+      "pr_auc": 0.193855264568356,
+      "lift": 1.4917,
+      "roc_auc": 0.6326250839318636,
+      "fit_seconds": 12.5
+    },
+    {
+      "fold": 5,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "val_month": 9,
+      "model": "random_forest",
+      "n_train": 600000,
+      "n_val": 462153,
+      "base_rate": 0.12995912609027746,
+      "pr_auc": 0.18676171387039545,
+      "lift": 1.4371,
+      "roc_auc": 0.6297962619933902,
+      "fit_seconds": 32.4
+    },
+    {
+      "fold": 5,
+      "train_months": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "val_month": 9,
+      "model": "gradient_boosting",
+      "n_train": 600000,
+      "n_val": 462153,
+      "base_rate": 0.12995912609027746,
+      "pr_auc": 0.19856884954918552,
+      "lift": 1.5279,
+      "roc_auc": 0.6402766180393235,
+      "fit_seconds": 20.7
+    }
+  ],
+  "summary": {
+    "gradient_boosting": {
+      "mean_lift": 1.54568,
+      "std_lift": 0.0723096950622806,
+      "min_lift": 1.4299,
+      "max_lift": 1.6119,
+      "mean_pr_auc": 0.2924585353567728,
+      "mean_roc_auc": 0.656019897487011,
+      "folds_won": 3
+    },
+    "logistic_regression": {
+      "mean_lift": 1.44162,
+      "std_lift": 0.08985550623083707,
+      "min_lift": 1.2843,
+      "max_lift": 1.4977,
+      "mean_pr_auc": 0.27195880368998615,
+      "mean_roc_auc": 0.6399912183684291,
+      "folds_won": 0
+    },
+    "random_forest": {
+      "mean_lift": 1.5136999999999998,
+      "std_lift": 0.10042218380417746,
+      "min_lift": 1.3775,
+      "max_lift": 1.5996,
+      "mean_pr_auc": 0.28786055784034137,
+      "mean_roc_auc": 0.6508267975043802,
+      "folds_won": 2
+    }
+  },
+  "single_month_choice": "gradient_boosting",
+  "rolling_cv_best": "gradient_boosting",
+  "agrees_with_single_month": true,
+  "gap_to_runner_up": 0.03198000000000012,
+  "gap_within_fold_noise": true,
+  "verdict": "Rolling-origin CV over 5 folds agrees with the single-month choice (gradient_boosting). The gap to the runner-up is smaller than the fold-to-fold spread, so the fair reading is that the models are not meaningfully different from one another -- which is exactly what the test set also showed."
+}

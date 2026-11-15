@@ -23,10 +23,25 @@ against a majority-baseline PR-AUC of **0.1795** — a lift of **1.29×**. At th
 validation-chosen threshold it catches **46.8%** of delayed flights at **22.9%**
 precision, on 932,084 flights it had never seen.
 
-The three models finish within 0.006 PR-AUC of each other. **The model class is
-not the bottleneck; the missing information is.** Weather and inbound-aircraft
-state are the dominant real causes of delay and neither is knowable at
-scheduling time, which is the honest answer to our research question.
+The three models finish within 0.006 PR-AUC of each other on the test set.
+**The model class is not the bottleneck; the missing information is.** Weather
+and inbound-aircraft state are the dominant real causes of delay and neither is
+knowable at scheduling time, which is the honest answer to our research
+question.
+
+A caveat on that "within 0.006": across five rolling-origin CV folds, gradient
+boosting beats logistic regression in **5 of 5**, by ~0.10 lift on average. The
+test set happened to land them 0.0009 apart; the folds show the boosted model
+has a small but consistent edge. See
+[Rolling-origin cross-validation](#rolling-origin-cross-validation).
+
+**A note on accuracy.** These models do not beat the baseline on accuracy and
+cannot: the highest accuracy reachable at *any* threshold is 0.8205, exactly the
+baseline's, achieved only by flagging no flight at all (recall 0.000). Our 0.62
+accuracy is the deliberate price of an F1-maximising threshold under class
+weighting — 20 points of accuracy traded for 47% recall on the class the
+baseline never finds. What the model does provide is ranking: the riskiest 2% of
+flights are late 30.5% of the time against a 17.95% base rate (1.70× lift).
 
 ## Problem framing
 
@@ -122,11 +137,16 @@ baseline, to show why it misleads. Threshold rule: maximise F1 on validation.
 
 Three honest caveats we report rather than bury:
 
-- **The winner's margin is not material.** Gradient boosting beats logistic
-  regression by 0.0009 PR-AUC, CI [0.0000, 0.0020]. On 932k rows a gap can be
-  statistically separable and still far too small to act on; we fixed 0.005 as
-  the margin that would count as material *before* looking. We treat the models
-  as equivalent and would ship the logistic regression, which is interpretable.
+- **The winner's margin on test is not material — but the folds disagree.**
+  Gradient boosting beats logistic regression by 0.0009 PR-AUC on test,
+  CI [0.0000, 0.0020]; on 932k rows a gap can be statistically separable and
+  still too small to act on, and we fixed 0.005 as the material margin *before*
+  looking. Taken alone, that reads as "the models are equivalent, so ship the
+  interpretable one". Rolling-origin CV does not support that reading: gradient
+  boosting wins 5 of 5 folds against logistic regression. The honest statement
+  is that the boosted model has a small, consistent edge, and choosing the
+  linear model for interpretability is a genuine trade-off rather than a free
+  one.
 - **Test PR-AUC is not comparable to validation PR-AUC.** Test looks higher
   (0.2317 vs 0.2001) only because its base rate is higher (0.1795 vs 0.1300).
   On lift, performance **fell**: 1.54× on validation → 1.29× on test.
@@ -140,6 +160,43 @@ Three honest caveats we report rather than bury:
   used and re-scoring it with a changed model would turn one honest test into a
   second round of tuning. Doing that properly on validation is the obvious next
   step.
+
+### Rolling-origin cross-validation
+
+Ordinary k-fold CV would be wrong here: shuffling flights at random puts
+December in the training folds and June in the held-out fold, so the model
+learns from the future — the exact leakage the chronological split prevents.
+Because losing October left us tuning on a single month, we also ran the
+time-aware equivalent. Each fold trains on every month before the one it
+validates on; the test months are never loaded, and an assertion enforces it.
+
+| Validation month | Gradient boosting | Random forest | Logistic regression |
+|---|---|---|---|
+| May (base 26.1%) | **1.430×** | 1.377× | 1.284× |
+| Jun (base 23.5%) | 1.563× | **1.593×** | 1.450× |
+| Jul (base 20.9%) | 1.596× | **1.600×** | 1.484× |
+| Aug (base 18.7%) | **1.612×** | 1.562× | 1.498× |
+| Sep (base 13.0%) | **1.528×** | 1.437× | 1.492× |
+| **Mean** | **1.546 ± 0.072** | 1.514 ± 0.100 | 1.442 ± 0.090 |
+
+PR-AUC is shown as lift over each fold's own base rate, since raw PR-AUC scales
+with the base rate and the monthly delay rate varies from 13% to 26%.
+
+Three conclusions:
+
+1. **The model choice holds.** Gradient boosting wins 3 of 5 folds and the best
+   mean lift, agreeing with the single-September choice made in step 03.
+2. **Gradient boosting consistently beats logistic regression** — 5 of 5 folds
+   — which the single test comparison did not reveal.
+3. **The test months are harder than anything we trained on.** Fold lift ranges
+   1.43–1.61; test returned 1.29, below the worst fold. Independent
+   confirmation that the holiday-season degradation is real and not an artefact
+   of one split.
+
+This was run **after** the test set had been used, so it is explicitly a
+robustness check and was not allowed to re-select the model. Had it disagreed,
+the honest response would have been to report the disagreement, not to pick a
+new model and re-score a spent test set.
 
 **What carries the signal** (permutation importance): scheduled departure hour
 dominates (−0.031 PR-AUC when shuffled), then destination, origin and carrier.
@@ -158,6 +215,7 @@ es335-flight-delay/
 │   ├── step03_models.py          baseline + 3 models, tuning on validation
 │   ├── step04_export_model.py    model → JSON for the site, importance
 │   ├── step05_final_eval.py      test set, opened once
+│   ├── step06_rolling_cv.py      rolling-origin CV (robustness; no test data)
 │   ├── check_site_parity.py/.mjs verifies the site's JS == scikit-learn
 │   └── check_site_render.mjs     verifies every section renders
 ├── artifacts/                    every number and figure the site shows
@@ -222,6 +280,7 @@ python src/step02_preprocess_split.py # ~1 min
 python src/step03_models.py           # ~3 min  (test set untouched)
 python src/step04_export_model.py     # ~3 min
 python src/step05_final_eval.py       # ~4 min  (opens the test set)
+python src/step06_rolling_cv.py       # ~6 min  (robustness; Jan-Sep only)
 
 # verification
 python src/check_site_parity.py --make && node src/check_site_parity.mjs

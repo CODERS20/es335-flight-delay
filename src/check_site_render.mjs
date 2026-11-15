@@ -126,7 +126,7 @@ const mustHaveContent = [
   "forbidden-list", "methods-table", "split-table", "results-table",
   "comparison", "calibration-warning", "calibration-table", "importance-text",
   "predictor", "threshold-tool", "errors-slices", "error-examples",
-  "conclusion-body", "provenance", "october-note", "balance-text",
+  "conclusion-body", "provenance", "october-note", "balance-text", "rolling-cv",
 ];
 let failures = 0;
 for (const id of mustHaveContent) {

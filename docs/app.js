@@ -309,6 +309,95 @@ function renderEvaluation(summary, metrics) {
     `shows up in the results.`;
 }
 
+function renderRollingCV(cv, metrics) {
+  const root = document.getElementById("rolling-cv");
+  const models = ["gradient_boosting", "random_forest", "logistic_regression"];
+  const months = [...new Set(cv.folds.map((f) => f.val_month))].sort((a, b) => a - b);
+  const mon = (m) => new Date(2015, m - 1).toLocaleString("en-US", { month: "short" });
+
+  const lift = (model, m) =>
+    cv.folds.find((f) => f.model === model && f.val_month === m)?.lift;
+
+  const rows = months.map((m) => {
+    const vals = models.map((k) => lift(k, m));
+    const best = Math.max(...vals);
+    return {
+      cells: [
+        `${mon(m)} <span class="muted">(base ${pct(
+          cv.folds.find((f) => f.val_month === m).base_rate
+        )})</span>`,
+        ...vals.map((v) =>
+          v === best ? `<strong>${v.toFixed(3)}×</strong>` : `${v.toFixed(3)}×`
+        ),
+      ],
+    };
+  });
+  rows.push({
+    cls: "total",
+    cells: [
+      "<strong>Mean</strong>",
+      ...models.map(
+        (k) =>
+          `<strong>${cv.summary[k].mean_lift.toFixed(3)}×</strong>` +
+          ` <span class="muted">±${cv.summary[k].std_lift.toFixed(3)}</span>`
+      ),
+    ],
+  });
+
+  root.appendChild(
+    table(
+      ["Validation month", ...models.map((k) => MODEL_LABEL[k])],
+      rows,
+      {
+        caption:
+          "PR-AUC as lift over each month's own base rate, because raw PR-AUC " +
+          "scales with the base rate and the monthly delay rate varies widely.",
+      }
+    )
+  );
+
+  const testLift =
+    metrics.test.results[metrics.test.chosen_model].pr_auc_lift_over_baseline;
+  const worstFold = Math.min(...cv.folds.map((f) => f.lift));
+
+  // Does the best model beat the linear one in every single fold?
+  const gbBeatsLr = months.every(
+    (m) => lift("gradient_boosting", m) > lift("logistic_regression", m)
+  );
+
+  root.appendChild(
+    el(
+      "div",
+      "verdict",
+      `<p><strong>${cv.verdict}</strong></p>
+       ${
+         gbBeatsLr
+           ? `<p>One thing the single test set hid: gradient boosting beats
+              logistic regression in <strong>all ${months.length} of
+              ${months.length} folds</strong>, by about
+              ${(cv.summary.gradient_boosting.mean_lift -
+                cv.summary.logistic_regression.mean_lift).toFixed(3)} lift on
+              average. On the test months the two landed within 0.0009 PR-AUC of
+              each other, which made them look interchangeable. Across folds the
+              boosted model has a small but consistent edge, so preferring the
+              interpretable linear model is a real trade-off rather than a free
+              choice.</p>`
+           : ""
+       }
+       <p>Every fold scored between
+        ${worstFold.toFixed(2)}&times; and
+        ${Math.max(...cv.folds.map((f) => f.lift)).toFixed(2)}&times; lift. The
+        test months returned <strong>${testLift.toFixed(2)}&times;</strong>
+        &mdash; below the worst fold. That is independent confirmation that
+        November and December are genuinely harder than anything the model
+        trained on, rather than a quirk of one split.</p>
+       <p class="muted">${cv.why_not_kfold} This check was run after the test
+        set had been used, so it deliberately did <em>not</em> re-select the
+        model: ${cv.purpose}.</p>`
+    )
+  );
+}
+
 /* ===================================================================== */
 /* results                                                               */
 /* ===================================================================== */
@@ -824,13 +913,14 @@ function renderConclusion(metrics, summary) {
 /* boot                                                                  */
 /* ===================================================================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  const [summary, metrics, thr, errors, model, options] = await Promise.all([
+  const [summary, metrics, thr, errors, model, options, rollingCV] = await Promise.all([
     loadJSON("summary.json"),
     loadJSON("metrics.json"),
     loadJSON("threshold.json"),
     loadJSON("errors.json"),
     loadJSON("model.json"),
     loadJSON("options.json"),
+    loadJSON("rolling_cv.json"),
   ]);
 
   if (!metrics || !summary) {
@@ -846,6 +936,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   try { renderMethods(metrics); } catch (e) { console.error(e); }
   try { renderEvaluation(summary, metrics); } catch (e) { console.error(e); }
   try { renderResults(metrics, summary); } catch (e) { console.error(e); }
+  if (rollingCV) {
+    try { renderRollingCV(rollingCV, metrics); } catch (e) { console.error(e); }
+  } else fail("rolling-cv", "data/rolling_cv.json");
   try { renderConclusion(metrics, summary); } catch (e) { console.error(e); }
 
   if (model && options) {

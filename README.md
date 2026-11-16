@@ -5,8 +5,6 @@
 **Live site:** <https://coders20.github.io/es335-flight-delay/>
 **Repository:** <https://github.com/CODERS20/es335-flight-delay>
 
-> Names and roll numbers above are placeholders for the team to confirm.
-
 ---
 
 ## Research question

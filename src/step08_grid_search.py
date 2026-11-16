@@ -1,5 +1,5 @@
 """
-Step 08 - Wide hyperparameter grid search (validation + rolling CV only).
+Step 08 - Wide search over model settings (validation + repeated held-out only).
 
 WHY, AND WHAT THIS CAN AND CANNOT CHANGE
 ----------------------------------------
@@ -64,7 +64,7 @@ print("=" * 72)
 print("STEP 08  Wide grid search (validation + rolling CV; test untouched)")
 print("=" * 72)
 print(f"\ndecision rule fixed in advance: a config must beat the step-03 choice")
-print(f"by >= {MATERIAL_MARGIN} mean CV lift to count as materially better.")
+print(f"by >= {MATERIAL_MARGIN} in the mean ratio to the base rate to count.")
 
 X_tr, y_tr = F.load_split("train")
 X_va, y_va = F.load_split("val")
@@ -291,7 +291,8 @@ print("=" * 72)
 if material:
     verdict = (
         f"A wider grid found a materially better configuration "
-        f"({best['model']} {best['params']}, +{gain:.4f} mean CV lift). "
+        f"({best['model']} {best['params']}, +{gain:.4f} in the mean ratio to "
+        f"the base rate). "
         f"We report this, but we do NOT re-score the test set with it: the "
         f"published test numbers were measured once against a model chosen "
         f"before they were seen, and re-tuning now would make them a tuned-on "
@@ -300,17 +301,17 @@ if material:
     )
 else:
     verdict = (
-        f"A grid {len(stage1)} configurations wide found nothing materially "
-        f"better than the step-03 choice (best gain {gain:+.4f} mean CV lift, "
-        f"against a {MATERIAL_MARGIN} threshold fixed in advance). "
-        f"Hyperparameters are not the binding constraint on this problem: the "
+        f"A search {len(stage1)} sets of settings wide found nothing meaningfully "
+        f"better than the step-03 choice (best gain {gain:+.4f} in the mean ratio "
+        f"to the base rate, against a {MATERIAL_MARGIN} margin fixed in advance). "
+        f"The model settings are not the binding constraint on this problem: the "
         f"features are. Our original configuration stands, and the published "
         f"test numbers stand with it."
     )
 print("\n" + verdict)
 
 out = {
-    "purpose": "measure the headroom in hyperparameter tuning; test set untouched",
+    "purpose": "measure how much the choice of model settings could buy; test set untouched",
     "test_months_touched": False,
     "material_margin_fixed_in_advance": MATERIAL_MARGIN,
     "n_configs_stage1": len(stage1),
@@ -344,8 +345,8 @@ ax.text(2.42, 1.005, "no skill", fontsize=8, color="#86857f")
 ax.set_xticks(range(3))
 ax.set_xticklabels([m.replace("_", "\n") for m in sorted(df1["model"].unique())],
                    fontsize=9)
-ax.set_ylabel("PR-AUC lift on September")
-ax.set_title(f"All {len(stage1)} configurations tried — tuning moves very little")
+ax.set_ylabel("Curve area on September, as a ratio to the base rate")
+ax.set_title(f"All {len(stage1)} settings tried — the choice of settings moves very little")
 ax.spines[["top", "right"]].set_visible(False)
 fig.savefig(C.FIGURES_DIR / "grid_search.png", dpi=150, bbox_inches="tight")
 fig.savefig(C.DOCS_DIR / "figures" / "grid_search.png", dpi=150, bbox_inches="tight")

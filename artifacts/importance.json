@@ -1,7 +1,7 @@
 {
   "model": "gradient_boosting",
   "measured_on": "validation subsample (40,000 rows)",
-  "metric": "average_precision (PR-AUC)",
+  "metric": "area under the precision-recall curve (scikit-learn average_precision)",
   "baseline_pr_auc": 0.2030139992558173,
   "n_repeats": 3,
   "importance": [
@@ -61,5 +61,5 @@
       "std": 0.0
     }
   ],
-  "interpretation": "Each value is how much PR-AUC falls when that single column is randomly shuffled, breaking its relationship with the target while leaving every other column intact. Larger means more load-bearing."
+  "interpretation": "Each value is how much the precision-recall curve area falls when that single column is randomly shuffled, breaking its relationship with the target while leaving every other column intact. Larger means more load-bearing."
 }

@@ -317,6 +317,51 @@ if (!slider) {
   }
 }
 
+/* ---------------- course vocabulary ---------------- */
+/* The write-up has to read in the vocabulary of the course (ES 335 / ES 678).
+ * Standard names from outside the syllabus are replaced by terms built from
+ * ones the course uses -- "PR curve area" rather than "PR-AUC", "times the
+ * base rate" rather than "lift", "step mapping" and "log-odds fit" rather than
+ * the usual method names. Some of the page's prose arrives from the JSON
+ * artifacts, so fixing the HTML alone would not be enough: this checks the text
+ * the visitor actually reads.
+ */
+const OUTSIDE_COURSE = [
+  "PR-AUC", "ROC-AUC", "average precision", "AUPRC",
+  "bootstrap", "isotonic", "Platt", "Brier",
+  "expected calibration error", "cross-validation", "cross validation",
+  "k-fold", "hyperparameter", "one-hot", "permutation importance",
+  "monotonic", "prior shift",
+];
+// Whole-word checks, so "lifts recall" and "folded" stay legal.
+const OUTSIDE_COURSE_WORDS = ["lift", "lifts", "ECE", "F1", "folds", "fold"];
+
+const pageProse = html
+  .replace(/<script[\s\S]*?<\/script>/g, " ")
+  .replace(/<[^>]+>/g, " ");
+const renderedProse = mustHaveContent
+  .map((id) => registry.get(id).rendered)
+  .join(" ")
+  .replace(/<[^>]+>/g, " ");
+// Code identifiers legitimately keep their names (file names, JSON keys).
+const prose = (pageProse + " " + renderedProse)
+  .replace(/step\d\d_[a-z_]+\.py/g, " ")
+  .replace(/[a-z_]+\.(json|png|mjs|js|csv)/g, " ");
+
+for (const term of OUTSIDE_COURSE) {
+  const i = prose.toLowerCase().indexOf(term.toLowerCase());
+  if (i >= 0) {
+    bad(`OUTSIDE-COURSE TERM "${term}": ...${prose.slice(Math.max(0, i - 40), i + 50).replace(/\s+/g, " ")}...`);
+  }
+}
+for (const word of OUTSIDE_COURSE_WORDS) {
+  const m = prose.match(new RegExp("\\b" + word + "\\b", "i"));
+  if (m) {
+    const i = prose.toLowerCase().indexOf(m[0].toLowerCase());
+    bad(`OUTSIDE-COURSE TERM "${word}": ...${prose.slice(Math.max(0, i - 40), i + 50).replace(/\s+/g, " ")}...`);
+  }
+}
+
 /* ---------------- figures and data files referenced by the page ---------- */
 for (const src of [...html.matchAll(/<img[^>]+src="([^"]+)"/g)].map((m) => m[1])) {
   try {
@@ -333,4 +378,5 @@ if (failures) {
 console.log(`sections populated: ${mustHaveContent.length}/${mustHaveContent.length}`);
 console.log(`dashboard tabs    : ${TABS.length}/${TABS.length} switch correctly`);
 console.log("no undefined/NaN/placeholder text in rendered output");
+console.log(`course vocabulary : no outside-course terms in the page text`);
 console.log("\nPASS: every section renders with real numbers, and the predictor responds.");

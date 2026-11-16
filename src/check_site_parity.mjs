@@ -41,7 +41,7 @@ const scoring = [
   lift("sigmoid"),
   lift("scoreFlight"),
   lift("applyCalibration"),
-  lift("applyPlatt"),
+  lift("applyLogOddsFit"),
   lift("calibrate"),
 ].join("\n");
 const { sigmoid, scoreFlight, calibrate } = new Function(

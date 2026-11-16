@@ -16,30 +16,33 @@ late in a later, unseen time period — compared with a simple baseline?
 
 ## Headline result
 
-Gradient boosting reaches a **test PR-AUC of 0.2317** (95% CI 0.2300–0.2332)
-against a majority-baseline PR-AUC of **0.1795** — a lift of **1.29×**. At the
+Gradient boosting reaches a **test precision–recall curve area of 0.2317**
+(95% range 0.2300–0.2332) against a majority-class baseline's **0.1795** —
+**1.29×** the base rate. At the
 validation-chosen threshold it catches **46.8%** of delayed flights at **22.9%**
 precision, on 932,084 flights it had never seen.
 
-The three models finish within 0.006 PR-AUC of each other on the test set.
+The three models finish within 0.006 of curve area of each other on the test
+set.
 **The model class is not the bottleneck; the missing information is.** Weather
 and inbound-aircraft state are the dominant real causes of delay and neither is
 knowable at scheduling time, which is the honest answer to our research
 question.
 
-A caveat on that "within 0.006": across five rolling-origin CV folds, gradient
-boosting beats logistic regression in **5 of 5**, by ~0.10 lift on average. The
-test set happened to land them 0.0009 apart; the folds show the boosted model
-has a small but consistent edge. See
-[Rolling-origin cross-validation](#rolling-origin-cross-validation).
+A caveat on that "within 0.006": across five repeated held-out checks on
+earlier months, gradient boosting beats logistic regression in **all five**, by
+about 0.10 of the base-rate ratio on average. The test set happened to land them
+0.0009 apart; the repeats show the boosted model has a small but consistent
+edge. See
+[Repeated held-out validation](#repeated-held-out-validation-on-earlier-months).
 
-**A note on accuracy.** These models do not beat the baseline on accuracy and
-cannot: the highest accuracy reachable at *any* threshold is 0.8205, exactly the
+**A note on accuracy — a worked example of metric mismatch.** These models do
+not beat the baseline on accuracy and cannot: the highest accuracy reachable at *any* threshold is 0.8205, exactly the
 baseline's, achieved only by flagging no flight at all (recall 0.000). Our 0.62
-accuracy is the deliberate price of an F1-maximising threshold under class
-weighting — 20 points of accuracy traded for 47% recall on the class the
+accuracy is the deliberate price of a threshold chosen to maximise the precision/recall balance,
+with the rare class weighted up — 20 points of accuracy traded for 47% recall on the class the
 baseline never finds. What the model does provide is ranking: the riskiest 2% of
-flights are late 30.5% of the time against a 17.95% base rate (1.70× lift).
+flights are late 30.5% of the time against a 17.95% base rate — 1.70× the base rate.
 
 ## Problem framing
 
@@ -117,16 +120,16 @@ gradient boosting we used `HistGradientBoostingClassifier` — the same
 gradient-boosted-trees method, with histogram binning so it is tractable at this
 scale and can treat carrier and airport as true categories.
 
-**Evaluation.** Hyperparameters and the decision threshold were chosen on
+**Evaluation.** The model settings and the decision threshold were chosen on
 validation only; the test months were scored **exactly once**, after everything
-was frozen, and nothing was re-tuned afterwards. PR-AUC is the headline because
+was frozen, and nothing was re-tuned afterwards. PR curve area is the headline because
 delayed flights are the minority class. Accuracy appears only beside the
-baseline, to show why it misleads. Threshold rule: maximise F1 on validation.
-200 bootstrap resamples give every confidence interval. Seed 42 throughout.
+baseline, to show why it misleads. Threshold rule: maximise P/R balance on validation.
+200 re-draws of the test flights give every confidence interval. Seed 42 throughout.
 
 ## Results (test set, opened once)
 
-| Method | PR-AUC | 95% CI | Lift | ROC-AUC | Precision | Recall | F1 | Accuracy |
+| Method | PR curve area | 95% range | × base rate | ROC curve area | Precision | Recall | P/R balance | Accuracy |
 |---|---|---|---|---|---|---|---|---|
 | Majority baseline | 0.1795 | 0.1789–0.1803 | 1.00× | 0.500 | 0.000 | 0.000 | 0.000 | 0.821 |
 | Logistic regression | 0.2307 | 0.2294–0.2325 | 1.29× | 0.595 | 0.233 | 0.494 | 0.317 | 0.617 |
@@ -135,24 +138,25 @@ baseline, to show why it misleads. Threshold rule: maximise F1 on validation.
 
 Three honest caveats we report rather than bury:
 
-- **The winner's margin on test is not material — but the folds disagree.**
-  Gradient boosting beats logistic regression by 0.0009 PR-AUC on test,
-  CI [0.0000, 0.0020]; on 932k rows a gap can be statistically separable and
+- **The winner's margin on test is not material — but the repeats disagree.**
+  Gradient boosting beats logistic regression by 0.0009 PR curve area on test,
+  CI [0.0000, 0.0020]; on 932k rows a gap can be visible consistently under resampling and
   still too small to act on, and we fixed 0.005 as the material margin *before*
   looking. Taken alone, that reads as "the models are equivalent, so ship the
   interpretable one". Rolling-origin CV does not support that reading: gradient
-  boosting wins 5 of 5 folds against logistic regression. The honest statement
+  boosting wins all five repeats against logistic regression. The honest statement
   is that the boosted model has a small, consistent edge, and choosing the
   linear model for interpretability is a genuine trade-off rather than a free
   one.
-- **Test PR-AUC is not comparable to validation PR-AUC.** Test looks higher
+- **Test PR curve area is not comparable to validation PR curve area.** Test looks higher
   (0.2317 vs 0.2001) only because its base rate is higher (0.1795 vs 0.1300).
-  On lift, performance **fell**: 1.54× on validation → 1.29× on test.
+  As a ratio to the base rate, performance **fell**: 1.54× on validation → 1.29× on test.
   Performance degraded on the holiday months.
 - **The probabilities are not calibrated.** A flight scored 0.45 is delayed
-  about 18% of the time, not 45% (Brier 0.2290, worst gap 0.49). Cause:
-  class weighting deliberately over-weights the minority class, which lifts
-  recall and inflates predicted probabilities. The website therefore presents
+  about 18% of the time, not 45% (mean squared error of the probability 0.2290,
+  worst band gap 0.49). Cause: we deliberately weight the rare class more
+  heavily in the loss, which raises recall and pushes the predicted
+  probabilities up. The website therefore presents
   output as a **relative risk score** and publishes the calibration curve.
   We did *not* apply a calibrator to the test set, because it has already been
   used and re-scoring it with a changed model would turn one honest test into a
@@ -160,100 +164,107 @@ Three honest caveats we report rather than bury:
 
 ### Calibration, fixed on validation only
 
-Isotonic regression maps raw score → probability. It is monotonic, so it
-**cannot** reorder flights: precision, recall and both AUCs are untouched and
-only the level changes. We fitted it on the validation month and measured it
+An increasing step mapping takes the raw score to a probability. It preserves
+the order, so it **cannot** reorder flights: precision, recall and both curve
+areas are untouched and only the level changes. We fitted it on the validation month and measured it
 honestly by splitting September in half — learn from 1–15 September, score on
 16–30 September, days the mapping never saw:
 
-| Measured on 16–30 Sep | Raw | Calibrated |
+| Measured on 16–30 Sep | Raw | Corrected |
 |---|---|---|
-| Brier score | 0.2219 | **0.1030** |
-| Expected calibration error | 0.3345 | **0.0115** |
-| Worst bin gap | 0.492 | **0.019** |
-| PR-AUC *(must not change)* | 0.1746 | 0.1718 |
-| ROC-AUC *(must not change)* | 0.6215 | 0.6213 |
+| Mean squared error of the probability | 0.2219 | **0.1030** |
+| Average predicted-minus-observed gap | 0.3345 | **0.0115** |
+| Worst band gap | 0.492 | **0.019** |
+| PR curve area *(must not change)* | 0.1746 | 0.1718 |
+| ROC curve area *(must not change)* | 0.6215 | 0.6213 |
 
 A raw score of 0.50 maps to a true **13.7%** chance of being late; 0.80 maps to
-31.0%. Step 09 below then compared this against Platt scaling and selected
-Platt, so the website's predictor reports the Platt-calibrated figure; both
-artifacts are kept.
+31.0%. Step 09 below then compared this step mapping against a logistic
+regression fitted on the log-odds and selected the latter, so the website's
+predictor reports that figure; both artifacts are kept.
 
 **Caveat:** the mapping is fitted on September (13.0% delay rate), so on a
 busier period such as the test months (17.9%) it would under-predict. The test
 results above remain the uncalibrated ones, measured once, as published.
 
-### Choosing a calibration method, and calibrating both models (step 09)
+### Choosing between two calibration mappings, for both models (step 09)
 
-Isotonic fitted several hundred knots on a single month, and our headline model
-had no calibrator at all. So we fitted **both** methods for **both** models on
-the same protocol (fit 1–15 September, assess 16–30 September, each model with
-its own calibrator) and selected per model by a rule fixed in advance: lowest
-ECE among methods that preserve ranking.
+The step mapping fits several hundred steps from a single month, and our
+headline model had no correction at all. So we fitted **both** methods for
+**both** models on the same protocol (fit 1–15 September, assess 16–30
+September, each model with its own mapping) and selected per model by a rule
+fixed in advance: smallest average predicted-minus-observed gap among methods
+that preserve the ordering.
 
-Platt scaling fits two parameters, `p = σ(a·logit(s) + b)`, one for each defect
-we diagnosed — `b` for the level error that class weighting introduces, `a` for
-how far the scores are spread.
+The alternative is a logistic regression fitted on the model's own log-odds,
+`p = σ(a·log-odds + b)` — two parameters, one for each defect we diagnosed:
+`b` for the level error that weighting the rare class introduces, `a` for how
+far the scores are spread.
 
 Gradient boosting, measured on 16–30 September:
 
-| Method | Brier | ECE | Worst bin gap | Slope | PR-AUC |
+| Method | Mean sq. error | Average gap | Worst band gap | Spread (slope) | PR curve area |
 |---|---|---|---|---|---|
-| Raw | 0.2027 | 0.2984 | 0.510 | 0.669 | 0.1795 |
-| Isotonic | 0.1028 | 0.0117 | **0.019** | 0.768 | 0.1761 |
-| **Platt** | **0.1026** | **0.0067** | 0.063 | **0.857** | **0.1795** |
-| Class-weight correction *(diagnostic)* | 0.1072 | 0.0504 | 0.232 | 0.668 | 0.1795 |
+| Raw score | 0.2027 | 0.2984 | 0.510 | 0.669 | 0.1795 |
+| Step mapping | 0.1028 | 0.0117 | **0.019** | 0.768 | 0.1761 |
+| **Log-odds fit** | **0.1026** | **0.0067** | 0.063 | **0.857** | **0.1795** |
+| Base-rate correction *(diagnostic)* | 0.1072 | 0.0504 | 0.232 | 0.668 | 0.1795 |
 
-Logistic regression behaves the same way: ECE 0.3345 raw → 0.0115 isotonic →
-**0.0083** Platt.
+Logistic regression behaves the same way: the average gap goes 0.3345 raw →
+0.0115 step mapping → **0.0083** log-odds fit.
 
-**It is a genuine trade-off, not a clean win.** Platt has the lower average
-error (ECE) for both models; isotonic has the smaller worst-case bin gap. Three
-things decided it for Platt:
+**It is a genuine trade-off, not a clean win.** The log-odds fit has the lower
+average error for both models; the step mapping has the smaller worst-case band
+gap. Three things decided it:
 
-1. **Two parameters generalise better from one month** than a few hundred knots.
-2. **Platt leaves PR-AUC exactly unchanged** (0.1795), while isotonic's step
-   function ties distinct scores together and costs a little ranking resolution
-   (0.1761). A smooth strictly-increasing map cannot reorder or tie anything.
-3. **It corrects the spread, not just the level** — the calibration slope moves
-   0.669 → 0.857, against isotonic's 0.768.
+1. **Two parameters generalise better from one month** than several hundred
+   steps.
+2. **The log-odds fit leaves the curve area exactly unchanged** (0.1795), while
+   a step mapping gives the same probability to a range of scores, ties flights
+   the model had ranked differently, and so costs a little ordering information
+   (0.1761). A smooth, strictly rising map can neither reorder nor tie anything.
+3. **It corrects the spread, not just the level** — the slope moves 0.669 →
+   0.857, against the step mapping's 0.768.
 
 **Neither method fully fixes the over-confidence.** The slope stays below 1
-after correction, so the models remain somewhat over-spread. That is a limit of
+after correction, so the corrected probabilities are still a little too
+extreme. That is a limit of
 the features, not of the calibrator.
 
-**The class-weight correction, as a diagnostic.** Dividing the predicted odds by
-(1 − p)/p = **3.927**, derived from the training delay rate alone with nothing
-fitted, already takes ECE from 0.2984 to 0.0504. That is the evidence that class
-weighting *causes* the miscalibration. It is not the fix, because it assumes a
+**The base-rate correction, as a diagnostic.** We weighted the rare class more
+heavily in the loss, which multiplies the predicted odds by (1 − base rate) /
+base rate on the training months. Dividing the predicted odds by that single
+number — **3.927**, read off the training delay rate alone, with nothing fitted
+— already takes the average gap from 0.2984 to 0.0504. That is the evidence that
+our own weighting choice *causes* the miscalibration. It is not the fix, because it assumes a
 single intercept shift is enough — our residuals show the scores are also
 over-dispersed — and it assumes the scored period shares the training base rate,
 which September does not. No correction anywhere in this project was fitted
-using the test calibration bins.
+using the test-set calibration table.
 
 **An honesty note on independence.** The September assessment is *not* a fully
-independent end-to-end evaluation. Model choice and hyperparameters were
+independent end-to-end evaluation. Model choice and model settings were
 selected on this same month in step 03, so the scores being calibrated here were
 already tuned against September. Splitting the month by date keeps the
 *calibrator* honest — it never sees the days it is judged on — but it cannot
 undo the earlier model selection. A fully independent figure would need another
 untouched period, and we are not willing to spend the test set on one.
 
-**The published test metrics are unchanged.** No calibrator is applied to
-November–December, and we make no claim that test Brier, test ECE or test
-probabilities have improved. Calibration is monotone, so it could not have moved
-test PR-AUC, ROC-AUC, precision, recall or F1 in any case.
+**The published test numbers are unchanged.** No correction is applied to
+November–December, and we make no claim that the probabilities measured there
+have improved. Every mapping here preserves the order of flights, so none could
+have moved the test curve areas, precision or recall in any case.
 
-### Rolling-origin cross-validation
+### Repeated held-out validation on earlier months
 
-Ordinary k-fold CV would be wrong here: shuffling flights at random puts
-December in the training folds and June in the held-out fold, so the model
-learns from the future — the exact leakage the chronological split prevents.
-Because losing October left us tuning on a single month, we also ran the
-time-aware equivalent. Each fold trains on every month before the one it
-validates on; the test months are never loaded, and an assertion enforces it.
+Splitting the rows at random would be a leakage error: it puts December
+flights in training and June flights in the held-out set, so the model is fitted
+on data recorded after the flights it is judged on. Because losing October left
+us choosing settings on a single month, we repeated the held-out check in time
+order instead. Each repeat is fitted on every month before the one it is scored
+on; the test months are never loaded, and an assertion enforces it.
 
-| Validation month | Gradient boosting | Random forest | Logistic regression |
+| Held-out month | Gradient boosting | Random forest | Logistic regression |
 |---|---|---|---|
 | May (base 26.1%) | **1.430×** | 1.377× | 1.284× |
 | Jun (base 23.5%) | 1.563× | **1.593×** | 1.450× |
@@ -262,35 +273,35 @@ validates on; the test months are never loaded, and an assertion enforces it.
 | Sep (base 13.0%) | **1.528×** | 1.437× | 1.492× |
 | **Mean** | **1.546 ± 0.072** | 1.514 ± 0.100 | 1.442 ± 0.090 |
 
-PR-AUC is shown as lift over each fold's own base rate, since raw PR-AUC scales
-with the base rate and the monthly delay rate varies from 13% to 26%.
+The curve area is divided by each repeat's own base rate, since that area
+grows with the base rate and the monthly delay rate varies from 13% to 26%.
 
 Three conclusions:
 
-1. **The model choice holds.** Gradient boosting wins 3 of 5 folds and the best
-   mean lift, agreeing with the single-September choice made in step 03.
-2. **Gradient boosting consistently beats logistic regression** — 5 of 5 folds
-   — which the single test comparison did not reveal.
-3. **The test months are harder than anything we trained on.** Fold lift ranges
-   1.43–1.61; test returned 1.29, below the worst fold. Independent
-   confirmation that the holiday-season degradation is real and not an artefact
-   of one split.
+1. **The model choice holds.** Gradient boosting wins 3 of the 5 repeats and the
+   best mean ratio, agreeing with the single-September choice made in step 03.
+2. **Gradient boosting consistently beats logistic regression** — all five
+   repeats — which the single test comparison did not reveal.
+3. **The test months are harder than anything we fitted on.** The repeats range
+   from 1.43× to 1.61× the base rate; the test months returned 1.29×, below the
+   weakest repeat. Independent evidence that the holiday-season degradation is
+   real distribution shift and not an artefact of one split.
 
 This was run **after** the test set had been used, so it is explicitly a
 robustness check and was not allowed to re-select the model. Had it disagreed,
 the honest response would have been to report the disagreement, not to pick a
 new model and re-score a spent test set.
 
-### How much was tuning ever going to buy? (step 08)
+### How much were the model settings ever going to buy? (step 08)
 
 Step 03 tuned over a deliberately small grid, so the fair question is whether a
-wider search would have found something materially better. We ran **62
-configurations** on the validation month, then re-ran the best three per model —
-plus the configuration we had actually chosen — across four rolling-origin
-folds. The margin that would count as a real improvement (0.005 mean lift) was
-fixed **before** any result was seen.
+wider search would have found something materially better. We tried **62 sets
+of settings** on the validation month, then re-ran the best three per model —
+plus the settings we had actually chosen — as four repeated held-out checks on
+earlier months. The margin that would count as a real improvement (0.005 of the
+base-rate ratio) was fixed **before** any result was seen.
 
-| Rank | Model | Configuration | Mean CV lift |
+| Rank | Model | Settings | Mean ratio to base rate |
 |---|---|---|---|
 | 1 | Gradient boosting | `lr=0.03, leaves=31, iter=200, l2=1.0` | 1.5682 ± 0.0275 |
 | 2 | Gradient boosting | `lr=0.05, leaves=31, iter=400, l2=0.0` | 1.5676 ± 0.0415 |
@@ -298,14 +309,14 @@ fixed **before** any result was seen.
 | 5 | Random forest | `n=120, depth=20, leaf=20` | 1.5483 ± 0.0771 |
 | 9 | Logistic regression | `C=10, class_weight=None` | 1.4888 ± 0.0275 |
 
-**Gain over the configuration we had already chosen: +0.0021 mean lift** —
-below the 0.005 margin, so not material. Across the rolling folds the ordering of
-the three model families is also unchanged by tuning: every gradient-boosting
-configuration that reached that stage beats every random-forest one, which
-beats every logistic-regression one. (On the single September month the
-families overlap — another reminder that one month is thin evidence.)
+**Gain over the settings we had already chosen: +0.0021** — below the 0.005
+margin, so not a real gain. Across the repeats the ordering of the three model
+families is also unchanged: every gradient-boosting setting that reached that
+stage beats every random-forest one, which beats every logistic-regression one.
+(On the single September month the families overlap — another reminder that one
+month is thin evidence.)
 
-This confirms the headline reading rather than softening it: **hyperparameters
+This confirms the headline reading rather than softening it: **the model settings
 are not the binding constraint on this problem, the features are.** The test
 months were never loaded by this search, and because the test set has already
 been scored once, we did **not** re-score it with the marginally better
@@ -313,10 +324,47 @@ configuration — doing so would turn a single honest held-out estimate into a
 tuned-on one. Our original configuration stands and the published test numbers
 stand with it.
 
-**What carries the signal** (permutation importance): scheduled departure hour
-dominates (−0.031 PR-AUC when shuffled), then destination, origin and carrier.
+**What carries the signal** (feature ablation — shuffle one column and
+re-measure): scheduled departure hour dominates (−0.031 of curve area when
+shuffled), then destination, origin and carrier.
 `MONTH` scores zero because validation is a single month — a limitation of our
 split, not a claim about seasonality.
+
+## A note on vocabulary
+
+This write-up and the website use the vocabulary of the course. Where the usual
+name for something sits outside the syllabus, we build the term out of ones the
+course does use, and define it where it first appears:
+
+| Written here as | Built from |
+|---|---|
+| area under the precision-recall curve ("PR curve area") | precision, recall, the PR curve |
+| area under the ROC curve ("ROC curve area") | the ROC curve |
+| times the base rate / ratio to the base rate | base rates |
+| precision/recall balance | precision, recall |
+| repeated held-out validation | held-out evaluation, in time order |
+| 95% range from re-drawing the test flights | sampling |
+| mean squared error of the predicted probability | squared-error loss |
+| average predicted-minus-observed gap | calibration |
+| increasing step mapping / log-odds fit | calibration, odds, logistic regression |
+| feature ablation by shuffling | ablations |
+| model settings | capacity, regularization, depth |
+
+Two deliberate exceptions, both about code rather than prose:
+
+1. **Field names in the artifacts mirror the library function that produced
+   them** — `pr_auc` comes from `average_precision_score`, `brier` from
+   `brier_score_loss`. Renaming them would make the code misleading about what
+   it actually calls. Every number a reader sees is labelled in course terms.
+2. **`artifacts/test_results.json` and `docs/data/metrics.json` keep the exact
+   wording they were written with.** They are the output of the single test
+   evaluation, and we were not willing to either re-open the test set or
+   hand-edit a recorded result in order to reword them. No prose from those two
+   files is shown on the website.
+
+`src/check_site_render.mjs` enforces the first part: it fails if an
+outside-course term reaches the page text, including text arriving from the JSON
+artifacts.
 
 ## Repository layout
 
@@ -330,10 +378,10 @@ es335-flight-delay/
 │   ├── step03_models.py          baseline + 3 models, tuning on validation
 │   ├── step04_export_model.py    model → JSON for the site, importance
 │   ├── step05_final_eval.py      test set, opened once
-│   ├── step06_rolling_cv.py      rolling-origin CV (robustness; no test data)
-│   ├── step07_calibrate.py       isotonic calibration (validation only)
-│   ├── step08_grid_search.py     wide tuning search (validation + CV; no test data)
-│   ├── step09_calibrate_platt.py Platt vs isotonic, both models (validation only)
+│   ├── step06_rolling_cv.py      repeated held-out checks (robustness; no test data)
+│   ├── step07_calibrate.py       calibration, step mapping (validation only)
+│   ├── step08_grid_search.py     wide settings search (validation + repeats; no test data)
+│   ├── step09_calibrate_compare.py  two calibration mappings, both models
 │   ├── check_site_parity.py/.mjs verifies the site's JS == scikit-learn
 │   └── check_site_render.mjs     verifies the site renders and the predictor responds
 ├── artifacts/                    every number and figure the site shows
@@ -345,9 +393,8 @@ es335-flight-delay/
 **Every number on the website is read from a JSON file in `docs/data/` that
 these scripts wrote.** None are typed in by hand. Two checks enforce this:
 `check_site_parity` confirms the browser's predictor reproduces scikit-learn's
-`predict_proba` (agreement 2.2e-16 over 200 real routes) and that the
-calibrated probability the page displays matches the Python calibrator
-(1.4e-16), and
+`predict_proba` (agreement 2.2e-16 over 200 real routes) and that the corrected
+probability the page displays matches the Python mapping (1.4e-16), and
 `check_site_render` executes the page's renderers against the real data files
 and fails if any section is empty, contains `undefined`/`NaN`, references a
 missing asset, or if the landing-page predictor stops responding to its inputs
@@ -404,8 +451,8 @@ python src/step04_export_model.py     # ~3 min
 python src/step05_final_eval.py       # ~4 min  (opens the test set)
 python src/step06_rolling_cv.py       # ~6 min  (robustness; Jan-Sep only)
 python src/step07_calibrate.py        # ~1 min  (calibration; validation only)
-python src/step08_grid_search.py      # ~2 hrs (optional: tuning headroom; Jan-Sep only)
-python src/step09_calibrate_platt.py  # ~1 min  (Platt vs isotonic; validation only)
+python src/step08_grid_search.py      # ~2 hrs (optional: settings search; Jan-Sep only)
+python src/step09_calibrate_compare.py # ~1 min  (two calibration mappings; validation only)
 
 # verification
 python src/check_site_parity.py --make && node src/check_site_parity.mjs
@@ -448,28 +495,27 @@ before every fit, leakage becomes a crash we cannot ignore.
 **A limitation I would raise.** Excluding October cost us half our validation
 data and left us tuning on a single, unusually quiet September (13.0% delayed)
 before testing on the holiday season (17.9%). I would not trust a model
-selected on one month without the rolling-origin check we added later.
+selected on one month without the repeated held-out check we added later.
 
 ### Shikha Ajeet Singh (25110292) — modelling, evaluation and the interactive tools
 
 - **Baseline and models:** the majority-class baseline, class-weighted logistic
   regression, random forest and gradient boosting, and the case for each.
-- **Tuning:** validation-only hyperparameter selection and the wider grid search
+- **Tuning:** validation-only model-settings selection and the wider grid search
   that tested how much headroom tuning actually had.
-- **Evaluation design:** PR-AUC as the headline metric, the F1-maximising
-  threshold rule, the single-use test protocol, and bootstrap confidence
-  intervals.
+- **Evaluation design:** PR curve area as the headline metric, the balance-maximising
+  threshold rule, the single-use test protocol, and the resampling ranges.
 - **Error analysis:** performance sliced by hour, carrier, month and distance,
   and the representative false positives and negatives.
-- **Calibration:** diagnosing the inflated probabilities and fitting isotonic
+- **Calibration:** diagnosing the inflated probabilities and fitting step-mapping
   regression on validation to correct the level without changing the ranking.
-- **Rolling-origin cross-validation**, and the interactive predictor and
+- **The repeated held-out checks**, and the interactive predictor and
   threshold slider, plus the parity and render verification scripts.
 
-**A key choice I made and why.** Leading with PR-AUC instead of accuracy. The
+**A key choice I made and why.** Leading with PR curve area instead of accuracy. The
 majority baseline is 82% accurate while never identifying a single delayed
-flight, so accuracy rewards exactly the model we do not want. PR-AUC measures
-performance on the minority class we care about, and reporting it as lift over
+flight, so accuracy rewards exactly the model we do not want. PR curve area measures
+performance on the minority class we care about, and reporting it as a ratio to
 the base rate keeps it comparable when that rate shifts between months.
 
 **A limitation I would raise.** Our headline numbers are uncalibrated, and the
@@ -483,14 +529,14 @@ without weather or inbound-aircraft state this problem has a low ceiling.
 The research question, the exclusion of cancelled and diverted flights, the
 decision not to reopen the test set after it had been scored once, and the
 reading of the results — including rewriting the "the models are equivalent"
-claim once the rolling-origin folds contradicted it.
+claim once the repeated held-out checks contradicted it.
 
 > **Check this matches what actually happened** and swap items if it does not.
 > Each of you is examined on your own half, so the description needs to match
-> what you can defend. Between you, be ready for: why a chronological split
-> rather than k-fold; why PR-AUC rather than accuracy; why October was dropped
+> what you can defend. Between you, be ready for: why we split by calendar
+> rather than at random; why PR curve area rather than accuracy; why October was dropped
 > and what it cost; why the threshold sits where it does and what moving it
-> would do; why the models were uncalibrated and how a monotonic correction
+> would do; why the models were uncalibrated and how a order-preserving correction
 > fixes the level without touching the ranking; and why the test set may not be
 > reopened.
 
@@ -535,11 +581,11 @@ checked for empty or malformed sections (`check_site_render`), and a leakage
 assertion runs before every model fit.
 
 One example of our review changing the conclusion. An early draft read the
-0.0009 PR-AUC test gap between gradient boosting and logistic regression as
+0.0009 PR curve area test gap between gradient boosting and logistic regression as
 "the models are equivalent, so prefer the interpretable one". We questioned
 whether a single validation month could support that, which led to the
-rolling-origin cross-validation in `step06`. It showed gradient boosting
-winning 5 of 5 folds against logistic regression, so the claim was wrong and
+repeated held-out validation in `step06`. It showed gradient boosting winning
+all five repeats against logistic regression, so the claim was wrong and
 was rewritten here and on the website. The weaker-but-honest version is the one
 that shipped.
 

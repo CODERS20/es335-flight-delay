@@ -240,7 +240,7 @@ N_PERM_ROWS, N_PERM_REPEATS = 40_000, 3
 sub = X_va.sample(n=N_PERM_ROWS, random_state=C.SEED)
 sub_y = y_va.loc[sub.index]
 base = average_precision_score(sub_y, model.predict_proba(sub)[:, 1])
-print(f"    baseline PR-AUC on the subsample: {base:.4f}")
+print(f"    baseline curve area on the subsample: {base:.4f}")
 
 imp = permutation_importance(
     model, sub, sub_y,
@@ -265,12 +265,12 @@ for row in importance:
 imp_json = {
     "model": chosen,
     "measured_on": f"validation subsample ({N_PERM_ROWS:,} rows)",
-    "metric": "average_precision (PR-AUC)",
+    "metric": "area under the precision-recall curve (scikit-learn average_precision)",
     "baseline_pr_auc": float(base),
     "n_repeats": N_PERM_REPEATS,
     "importance": importance,
     "interpretation": (
-        "Each value is how much PR-AUC falls when that single column is "
+        "Each value is how much the precision-recall curve area falls when that single column is "
         "randomly shuffled, breaking its relationship with the target while "
         "leaving every other column intact. Larger means more load-bearing."
     ),
@@ -285,8 +285,8 @@ vals = [r["drop_in_pr_auc"] for r in importance][::-1]
 errs = [r["std"] for r in importance][::-1]
 ax.barh(names, vals, xerr=errs, color="#2b5fd9", edgecolor="none",
         error_kw=dict(ecolor="#8b8b99", lw=1))
-ax.set_xlabel("Drop in PR-AUC when shuffled")
-ax.set_title(f"Permutation importance -- {chosen} (validation)")
+ax.set_xlabel("Drop in precision-recall curve area when shuffled")
+ax.set_title(f"Feature ablation by shuffling -- {chosen} (validation)")
 ax.spines[["top", "right"]].set_visible(False)
 fig.savefig(C.FIGURES_DIR / "importance.png", dpi=150, bbox_inches="tight")
 plt.close(fig)

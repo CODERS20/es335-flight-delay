@@ -1,5 +1,5 @@
 """
-Step 06 - Rolling-origin cross-validation (robustness check).
+Step 06 - Repeated held-out validation on earlier months (robustness check).
 
 WHY THIS EXISTS
 ---------------
@@ -8,10 +8,10 @@ had to be dropped for the airport-code defect. One month is thin evidence for
 choosing between models: the ranking could easily be the noise of one unusual
 September rather than a real difference.
 
-Ordinary k-fold cross-validation is not the fix. Shuffling flights at random
+Splitting the rows at random is not the fix. Shuffling flights at random
 puts December in the training folds and June in the held-out fold, so the model
 learns from the future -- exactly the leakage the chronological split exists to
-prevent. The time-aware equivalent is ROLLING-ORIGIN (expanding-window) CV:
+prevent. Keeping time order instead, each repeat is fitted on an expanding
 each fold trains on everything up to a month and validates on the month after.
 
   fold 1   train Jan-Apr   -> validate May
@@ -31,7 +31,7 @@ which would turn one honest test into a second round of tuning.
 The test months (November, December) are never loaded by this script, and an
 assertion enforces it.
 
-Metric: PR-AUC expressed as LIFT over each fold's own base rate. Raw PR-AUC is
+Metric: the precision-recall curve area, divided by each held-out month's own
 not comparable across months because it scales with the base rate, and the
 monthly delay rate varies a lot.
 
@@ -73,7 +73,7 @@ FOLDS = [
 ]
 
 print("=" * 72)
-print("STEP 06  Rolling-origin cross-validation (robustness check)")
+print("STEP 06  Repeated held-out validation on earlier months")
 print("=" * 72)
 
 # ---------------------------------------------------------------------------
@@ -179,7 +179,7 @@ for i, (tr_months, va_month) in enumerate(FOLDS, 1):
             "roc_auc": roc,
             "fit_seconds": round(time.time() - t0, 1),
         })
-        print(f"    {name:22s} PR-AUC {pr:.4f}  lift {pr/base:.3f}x  "
+        print(f"    {name:22s} curve area {pr:.4f}  {pr/base:.3f}x base rate  "
               f"ROC-AUC {roc:.4f}  ({time.time()-t0:.0f}s)")
 
 # ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ for i, (tr_months, va_month) in enumerate(FOLDS, 1):
 res = pd.DataFrame(rows)
 
 print("\n" + "=" * 72)
-print("LIFT BY FOLD  (PR-AUC / that month's base rate)")
+print("BY HELD-OUT MONTH  (curve area / that month's base rate)")
 print("=" * 72)
 piv = res.pivot(index="val_month", columns="model", values="lift")
 piv.index = [pd.Timestamp(2015, m, 1).strftime("%b") for m in piv.index]
@@ -229,17 +229,17 @@ within_noise = gap < max(ranked[0][1]["std_lift"], ranked[1][1]["std_lift"])
 
 print("\n" + "=" * 72)
 print(f"single-month choice (step 03) : {single_choice}")
-print(f"rolling-CV best mean lift     : {cv_best}")
+print(f"best mean ratio over repeats   : {cv_best}")
 print(f"agree?                        : {agrees}")
 print(f"gap to runner-up              : {gap:.3f} lift "
       f"({'inside' if within_noise else 'outside'} fold-to-fold noise)")
 print("=" * 72)
 
 verdict = (
-    f"Rolling-origin CV over {len(FOLDS)} folds agrees with the single-month "
+    f"Repeating the held-out check over {len(FOLDS)} earlier months agrees with the single-month "
     f"choice ({single_choice})."
     if agrees else
-    f"Rolling-origin CV favours {cv_best}, while the single September month "
+    f"The repeats favour {cv_best}, while the single September month "
     f"chose {single_choice}. We report the disagreement rather than re-pick: "
     f"the test set has been used once and re-scoring a newly chosen model "
     f"would invalidate it."
@@ -255,15 +255,15 @@ print("\n" + verdict)
 out = {
     "purpose": "robustness check on model selection; not used to re-select",
     "why_not_kfold": (
-        "Random k-fold would place later flights in training and earlier "
-        "flights in the held-out fold, learning from the future. Rolling-origin "
+        "Splitting the rows at random would place later flights in training and earlier "
+        "flights in the held-out set, learning from the future. Repeating the check in time order "
         "CV preserves time order: each fold trains on all months before the "
         "month it validates on."
     ),
     "test_months_touched": False,
     "max_train_per_fold": MAX_TRAIN,
     "seed": C.SEED,
-    "metric": "PR-AUC as lift over each fold's own base rate",
+    "metric": "precision-recall curve area, divided by each held-out month's own base rate",
     "folds": rows,
     "summary": summary,
     "single_month_choice": single_choice,
@@ -290,9 +290,9 @@ for name, g in res.groupby("model"):
             g["lift"], "o-", lw=2, markersize=7, color=colors[name],
             label=name.replace("_", " "))
 ax.axhline(1.0, ls="--", color="#86857f", lw=1.2, label="baseline (no skill)")
-ax.set_ylabel("PR-AUC lift over base rate")
+ax.set_ylabel("Precision-recall curve area, as a ratio to the base rate")
 ax.set_xlabel("Validation month (trained on everything before it)")
-ax.set_title("Rolling-origin cross-validation — months Jan-Sep only")
+ax.set_title("Repeated held-out validation — months Jan-Sep only")
 ax.legend(frameon=False, fontsize=8.5)
 ax.spines[["top", "right"]].set_visible(False)
 fig.savefig(C.FIGURES_DIR / "rolling_cv.png", dpi=150, bbox_inches="tight")

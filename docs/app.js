@@ -101,16 +101,18 @@ function renderHero(metrics) {
 
   const cards = [
     {
-      k: "Best model PR-AUC",
+      k: "Precision-recall curve area",
       v: n4(best.pr_auc),
       s: `${MODEL_LABEL[test.chosen_model]}, our final model`,
-      x: `95% CI ${n3(ci[0])} to ${n3(ci[1])}, from ${test.n_bootstrap} bootstrap
-          resamples. PR-AUC summarises precision against recall for the minority
-          class, which is the class we care about here.`,
+      x: `Range ${n3(ci[0])} to ${n3(ci[1])}: we re-drew the test flights at
+          random ${test.n_bootstrap} times and re-measured, and that is where
+          the middle 95% of those runs fell. The curve traces precision against
+          recall as the threshold moves, so its area scores the model on the
+          rare class, which is the class we care about.`,
       hero: true,
     },
     {
-      k: "Baseline PR-AUC",
+      k: "Baseline curve area",
       v: n4(base.pr_auc),
       s: "always predicts &ldquo;on time&rdquo;",
       x: `Equal to the test delay rate of ${pct(test.test_delay_rate, 2)} &mdash;
@@ -119,10 +121,10 @@ function renderHero(metrics) {
           accuracy is not our headline metric.`,
     },
     {
-      k: "Lift over baseline",
+      k: "Times the base rate",
       v: best.pr_auc_lift_over_baseline.toFixed(2) + "&times;",
       s: "what the model adds over knowing nothing",
-      x: `PR-AUC divided by the period's base rate. The same model reached
+      x: `The curve area divided by the period's base rate. The same model reached
           ${best.val_pr_auc_lift_over_baseline.toFixed(2)}&times; on validation, so
           performance fell on the harder holiday months.`,
     },
@@ -130,9 +132,9 @@ function renderHero(metrics) {
       k: "Test flights",
       v: num(test.test_rows),
       s: `${months} 2015, scored once`,
-      x: `Held back from every modelling decision. Models, hyperparameters and the
-          decision threshold were all fixed on earlier months before this set was
-          opened.`,
+      x: `Held back from every modelling decision. The choice of model, its
+          settings and the decision threshold were all fixed on earlier months
+          before this set was opened.`,
     },
   ];
 
@@ -323,7 +325,7 @@ function renderMethods(metrics) {
   document.getElementById("methods-table").appendChild(
     table(["Method", "Why it fits this problem", "Chosen settings", "Candidates"], rows, {
       caption:
-        "Settings were chosen by PR-AUC on the validation month. Every candidate tried is recorded in artifacts/validation.json.",
+        "Settings were chosen by the precision-recall curve area on the validation month. Every candidate tried is recorded in artifacts/validation.json.",
     })
   );
   document.getElementById("gb-note").innerHTML =
@@ -357,7 +359,8 @@ function renderEvaluation(summary, metrics) {
         `Training used a seeded ${num(s.n_train_used)}-row sample of the ` +
         `${num(s.n_train_available)} available, so the tree models finish on a ` +
         `laptop; all models share the same rows. Note the base rate moves a lot ` +
-        `between periods &mdash; which is why PR-AUC cannot be compared across them.`,
+        `between periods &mdash; which is why the curve areas cannot be ` +
+        `compared across them directly.`,
     })
   );
   document.getElementById("october-note").innerHTML =
@@ -407,12 +410,13 @@ function renderRollingCV(cv, metrics) {
 
   root.appendChild(
     table(
-      ["Validation month", ...models.map((k) => MODEL_LABEL[k])],
+      ["Held-out month", ...models.map((k) => MODEL_LABEL[k])],
       rows,
       {
         caption:
-          "PR-AUC as lift over each month's own base rate, because raw PR-AUC " +
-          "scales with the base rate and the monthly delay rate varies widely.",
+          "The precision-recall curve area, divided by each month's own base " +
+          "rate, because that area grows with the base rate and the monthly " +
+          "delay rate varies widely.",
       }
     )
   );
@@ -430,31 +434,39 @@ function renderRollingCV(cv, metrics) {
     el(
       "div",
       "verdict",
-      `<p><strong>${cv.verdict}</strong></p>
+      `<p><strong>The repeats agree with the choice made on September alone:
+        ${MODEL_LABEL[cv.rolling_cv_best].toLowerCase()} comes out on top. But
+        the gap to the runner-up
+        (${cv.gap_to_runner_up.toFixed(3)}) is smaller than the spread between
+        repeats, so the fair reading is that the three models are not far
+        apart.</strong></p>
        ${
          gbBeatsLr
            ? `<p>One thing the single test set hid: gradient boosting beats
-              logistic regression in <strong>all ${months.length} of
-              ${months.length} folds</strong>, by about
+              logistic regression in <strong>every one of the
+              ${months.length} repeats</strong>, by about
               ${(cv.summary.gradient_boosting.mean_lift -
-                cv.summary.logistic_regression.mean_lift).toFixed(3)} lift on
-              average. On the test months the two landed within 0.0009 PR-AUC of
-              each other, which made them look interchangeable. Across folds the
-              boosted model has a small but consistent edge, so preferring the
-              interpretable linear model is a real trade-off rather than a free
-              choice.</p>`
+                cv.summary.logistic_regression.mean_lift).toFixed(3)} on
+              average. On the test months the two landed within 0.0009 curve
+              area of each other, which made them look interchangeable. Across
+              the repeats the boosted model has a small but consistent edge, so
+              preferring the readable linear model is a real trade-off rather
+              than a free choice.</p>`
            : ""
        }
-       <p>Every fold scored between
+       <p>Every repeat scored between
         ${worstFold.toFixed(2)}&times; and
-        ${Math.max(...cv.folds.map((f) => f.lift)).toFixed(2)}&times; lift. The
-        test months returned <strong>${testLift.toFixed(2)}&times;</strong>
-        &mdash; below the worst fold. That is independent confirmation that
-        November and December are genuinely harder than anything the model
-        trained on, rather than a quirk of one split.</p>
-       <p class="muted">${cv.why_not_kfold} This check was run after the test
-        set had been used, so it deliberately did <em>not</em> re-select the
-        model: ${cv.purpose}.</p>`
+        ${Math.max(...cv.folds.map((f) => f.lift)).toFixed(2)}&times; the base
+        rate. The test months returned
+        <strong>${testLift.toFixed(2)}&times;</strong> &mdash; below the weakest
+        repeat. That is independent evidence that November and December are
+        genuinely harder than anything the model was fitted on, rather than a
+        quirk of one split: the conditions shifted between the two periods.</p>
+       <p class="muted">Splitting the rows at random instead would put later
+        flights in training and earlier ones in the held-out set, which is
+        leakage from the future. This check was run after the test set had been
+        used, so it deliberately did <em>not</em> re-select the model; it is a
+        robustness check only.</p>`
     )
   );
 }
@@ -471,13 +483,13 @@ function renderGridSearch(gs) {
       "p",
       null,
       `Step 03 tuned over a deliberately small grid. The fair question is whether
-       a wider search would have found something materially better, so we ran
-       <strong>${gs.n_configs_stage1} configurations</strong> on the validation
-       month, then re-ran the best few per model &mdash; plus the configuration we
-       had actually chosen &mdash; across ${gs.cv_folds.length} rolling-origin
-       folds. The margin that would count as a real improvement
-       (${gs.material_margin_fixed_in_advance} mean lift) was fixed
-       <em>before</em> any result was seen, and the test months were never
+       a wider search would have found something materially better, so we tried
+       <strong>${gs.n_configs_stage1} sets of settings</strong> on the validation
+       month, then re-ran the best few per model &mdash; plus the settings we had
+       actually chosen &mdash; as ${gs.cv_folds.length} repeated held-out checks
+       on earlier months. The margin that would count as a real improvement
+       (${gs.material_margin_fixed_in_advance}, as a ratio to the base rate) was
+       fixed <em>before</em> any result was seen, and the test months were never
        loaded.`
     )
   );
@@ -492,9 +504,10 @@ function renderGridSearch(gs) {
     ],
   }));
   root.appendChild(
-    table(["Model", "Configuration", "Mean rolling-CV lift"], rows, {
-      caption: `Top ${rows.length} of ${gs.n_configs_stage2} configurations carried
-                into the rolling-fold stage, ranked by mean lift.`,
+    table(["Model", "Settings", "Mean times the base rate"], rows, {
+      caption: `Top ${rows.length} of ${gs.n_configs_stage2} sets of settings
+                carried into the repeated held-out stage, ranked by their mean
+                ratio to the base rate.`,
     })
   );
 
@@ -504,11 +517,17 @@ function renderGridSearch(gs) {
       "verdict",
       `<p><strong>Best found: ${gs.gain_over_incumbent >= 0 ? "+" : ""}${gs.gain_over_incumbent.toFixed(
         4
-      )} mean lift over the configuration we had already chosen</strong>
+      )} over the settings we had already chosen</strong>
         &mdash; ${gs.materially_better ? "above" : "below"} the
         ${gs.material_margin_fixed_in_advance} margin set in advance, so it
-        ${gs.materially_better ? "counts as material" : "does not count as material"}.</p>
-       <p>${gs.verdict}</p>`
+        ${gs.materially_better ? "counts as a real gain" : "does not count as a real gain"}.</p>
+       <p>A search ${gs.n_configs_stage1} sets of settings wide found nothing
+        meaningfully better than our original choice. The settings are not what
+        limits this problem &mdash; the features are. Our original choice stands,
+        and the published test numbers stand with it. We did not re-score the
+        test months with any of these settings: that set has been used once, and
+        re-scoring it after more searching would turn an honest held-out estimate
+        into one we had tuned against.</p>`
     )
   );
 }
@@ -524,9 +543,11 @@ function renderResults(metrics, summary) {
     `All four methods were scored once on November and December &mdash;
      ${num(test.test_rows)} flights the models had never seen, with thresholds
      fixed beforehand on validation. ${MODEL_LABEL[test.chosen_model]} came out
-     ahead on PR-AUC at <strong>${n4(best.pr_auc)}</strong> against the
-     baseline's ${n4(test.results.majority_baseline.pr_auc)}, a lift of
-     <strong>${best.pr_auc_lift_over_baseline.toFixed(2)}&times;</strong>.`;
+     ahead on the precision-recall curve area at
+     <strong>${n4(best.pr_auc)}</strong> against the baseline's
+     ${n4(test.results.majority_baseline.pr_auc)} &mdash;
+     <strong>${best.pr_auc_lift_over_baseline.toFixed(2)}&times;</strong> the
+     base rate.`;
 
   const rows = ORDER.map((k) => {
     const r = test.results[k];
@@ -548,7 +569,8 @@ function renderResults(metrics, summary) {
   });
   document.getElementById("results-table").appendChild(
     table(
-      ["Method", "PR-AUC", "95% CI", "Lift", "ROC-AUC", "Precision", "Recall", "F1", "Accuracy"],
+      ["Method", "PR curve area", "95% range", "× base rate", "ROC curve area",
+       "Precision", "Recall", "P/R balance", "Accuracy"],
       rows
     )
   );
@@ -561,16 +583,23 @@ function renderResults(metrics, summary) {
       "div",
       "verdict",
       `<p><strong>${MODEL_LABEL[c.better]} beats ${MODEL_LABEL[c.than]} by
-        ${c.mean_pr_auc_difference.toFixed(4)} PR-AUC</strong>, with a 95%
-        interval of ${c.ci95[0].toFixed(4)} to ${c.ci95[1].toFixed(4)} from
-        paired bootstrap resampling.</p>
-       <p>${c.conclusion}</p>
-       <p class="muted">With ${num(test.test_rows)} test rows, a gap can be
-        statistically detectable and still far too small to act on. We set
-        ${c.practical_margin_used} PR-AUC as the margin that would count as
-        material before looking, and this gap does not reach it. The honest
-        summary is that the three models perform about equally, and all three
-        clearly beat the baseline.</p>`
+        ${c.mean_pr_auc_difference.toFixed(4)} of curve area</strong>, with a 95%
+        range of ${c.ci95[0].toFixed(4)} to ${c.ci95[1].toFixed(4)}. We re-drew
+        the test flights at random and re-measured both models on the same drawn
+        flights each time, so the comparison is not confounded by which flights
+        happened to be picked.</p>
+       <p>The ordering is real but the size of the gap is not worth acting on:
+        ${MODEL_LABEL[c.better]} is ahead, yet by less than
+        ${c.practical_margin_used} of curve area. We treat the two as
+        performing about equally on this evidence. The repeated held-out
+        checks under Evaluation sharpen this: there the boosted model wins
+        every repeat, so the gap is consistent even though it is small.</p>
+       <p class="muted">With ${num(test.test_rows)} test rows, a gap can show up
+        consistently in that resampling and still be far too small to act on. We
+        set ${c.practical_margin_used} of curve area as the margin that would
+        count as a real difference before looking, and this gap does not reach
+        it. The honest summary is that the three models perform about equally,
+        and all three clearly beat the baseline.</p>`
     )
   );
 
@@ -578,7 +607,7 @@ function renderResults(metrics, summary) {
   const imp = summary.importance;
   const top = imp.importance[0];
   document.getElementById("importance-text").innerHTML =
-    `Shuffling one column at a time and watching PR-AUC fall shows
+    `Shuffling one column at a time and watching the curve area fall shows
      <strong>${top.feature}</strong> doing most of the work (&minus;${n3(top.drop_in_pr_auc)}),
      followed by the route and the carrier. This matches the exploratory
      picture: time of day is the strongest schedule-time signal there is.
@@ -597,9 +626,18 @@ function renderResults(metrics, summary) {
         <strong>18%</strong> of the time &mdash; not 45%. The predicted values
         run systematically high, by up to
         <strong>${n3(cw.max_abs_gap)}</strong> in absolute terms
-        (Brier score ${n4(cw.brier)}).</p>
-       <p><strong>Why:</strong> ${cw.cause}</p>
-       <p><strong>What we did about it:</strong> ${cw.consequence}</p>`
+        (the mean squared error of the predicted probability is
+        ${n4(cw.brier)}, against ${n4(test.results.majority_baseline.brier)} for
+        simply predicting the base rate every time &mdash; worse, on this
+        measure, than a model that ranks nothing).</p>
+       <p><strong>Why:</strong> we deliberately weighted delayed flights more
+        heavily in the loss, so that the models would not ignore the rare class.
+        That raises recall, and in exchange it pushes every predicted probability
+        up. It is a known consequence of the choice, not a bug.</p>
+       <p><strong>What we did about it:</strong> the page reports a corrected
+        probability, measured on held-out days, and shows the table below so a
+        visitor can read what a raw score corresponds to. We did not re-score
+        the test months after correcting it: that set has been used once.</p>`
     )
   );
   const crows = test.calibration.map((c) => ({
@@ -618,10 +656,10 @@ function renderCalibrationFix(cal) {
   const h = cal.honest_measurement;
 
   const rows = [
-    ["Brier score", h.raw.brier, h.calibrated.brier, "lower is better"],
-    ["Expected calibration error", h.raw.ece, h.calibrated.ece, "mean gap between predicted and observed"],
-    ["PR-AUC", h.raw.pr_auc, h.calibrated.pr_auc, "ranking — must not change"],
-    ["ROC-AUC", h.raw.roc_auc, h.calibrated.roc_auc, "ranking — must not change"],
+    ["Mean squared error of the probability", h.raw.brier, h.calibrated.brier, "lower is better"],
+    ["Average predicted-minus-observed gap", h.raw.avg_gap, h.calibrated.avg_gap, "averaged over the flights in each band"],
+    ["PR curve area", h.raw.pr_auc, h.calibrated.pr_auc, "ordering — must not change"],
+    ["ROC curve area", h.raw.roc_auc, h.calibrated.roc_auc, "ordering — must not change"],
   ].map(([k, raw, calv, note]) => ({
     cells: [
       `${k} <span class="muted">${note}</span>`,
@@ -652,14 +690,16 @@ function renderCalibrationFix(cal) {
     el(
       "div",
       "verdict",
-      `<p><strong>The Brier score falls from ${n3(h.raw.brier)} to
-        ${n3(h.calibrated.brier)}, and the expected calibration error from
-        ${n3(h.raw.ece)} to ${n3(h.calibrated.ece)}</strong> &mdash; roughly a
-        thirtyfold improvement in how closely the stated probability matches
-        reality, on days the mapping never saw.</p>
-       <p>Ranking is unaffected: ROC-AUC moves from ${n4(h.raw.roc_auc)} to
-        ${n4(h.calibrated.roc_auc)}, which is what a monotonic transform
-        guarantees. The predictor above now reports the calibrated number.</p>
+      `<p><strong>The mean squared error of the predicted probability falls
+        from ${n3(h.raw.brier)} to ${n3(h.calibrated.brier)}, and the average
+        gap between predicted and observed from ${n3(h.raw.avg_gap)} to
+        ${n3(h.calibrated.avg_gap)}</strong> &mdash; roughly a thirtyfold improvement
+        in how closely the stated probability matches reality, on days the
+        mapping never saw.</p>
+       <p>The ordering of flights is unaffected: the ROC curve area moves from
+        ${n4(h.raw.roc_auc)} to ${n4(h.calibrated.roc_auc)}, which is what any
+        order-preserving mapping guarantees. The predictor above reports the
+        corrected number.</p>
        <p class="muted"><strong>Caveat.</strong> ${cal.caveat}</p>`
     )
   );
@@ -677,34 +717,36 @@ function renderCalibrationMethods(v2) {
     el(
       "p",
       null,
-      `Two methods, both models, judged on the same held-out days.
-       <strong>Isotonic</strong> fits any monotone shape &mdash; flexible, but
-       hundreds of parameters from one month. <strong>Platt scaling</strong>
-       fits two: <code>p = &sigma;(a&middot;logit(s) + b)</code>, where
-       <em>b</em> absorbs the level error that class weighting introduces and
-       <em>a</em> corrects how far the scores are spread. Each model gets its own
-       calibrator, fitted on ${num(pr.n_fit)} flights from ${pr.fit_days} and
-       scored on ${num(pr.n_assess)} flights from ${pr.assess_days}.`
+      `Two ways of mapping a score to a probability, both models, judged on the
+       same held-out days. The <strong>step mapping</strong> fits an increasing
+       step function, free to take any rising shape but with one step per
+       distinct score &mdash; hundreds of pieces learned from one month. The
+       <strong>log-odds fit</strong> is a logistic regression on the model's own
+       log-odds, <code>p = &sigma;(a&middot;log-odds + b)</code>: just two
+       numbers, where <em>b</em> moves the whole level and <em>a</em> stretches
+       or shrinks how far the scores spread. Each model gets its own mapping,
+       fitted on ${num(pr.n_fit)} flights from ${pr.fit_days} and scored on
+       ${num(pr.n_assess)} flights from ${pr.assess_days}.`
     )
   );
 
   const LABEL = {
-    raw: "Raw (no calibration)",
-    isotonic: "Isotonic regression",
-    platt: "Platt scaling",
-    prior_shift_diagnostic: "Class-weight correction (diagnostic)",
+    raw: "Raw score (no correction)",
+    step_mapping: "Step mapping",
+    logodds_fit: "Log-odds fit",
+    base_rate_correction: "Base-rate correction (diagnostic)",
   };
 
   Object.entries(v2.models).forEach(([name, m]) => {
     root.appendChild(el("h4", null, MODEL_LABEL[name]));
-    const rows = ["raw", "isotonic", "platt", "prior_shift_diagnostic"].map((k) => {
+    const rows = ["raw", "step_mapping", "logodds_fit", "base_rate_correction"].map((k) => {
       const r = m.assessment[k];
       return {
         cls: k === m.chosen_method ? "best" : null,
         cells: [
           LABEL[k] + (k === m.chosen_method ? ' <span class="pill">selected</span>' : ""),
           n4(r.brier),
-          n4(r.ece),
+          n4(r.avg_gap),
           n3(r.max_abs_gap),
           n3(r.calibration_slope),
           n4(r.pr_auc),
@@ -713,13 +755,16 @@ function renderCalibrationMethods(v2) {
     });
     root.appendChild(
       table(
-        ["Method", "Brier", "ECE", "Worst bin gap", "Slope", "PR-AUC"],
+        ["Method", "Mean sq. error", "Average gap", "Worst band gap",
+         "Spread (slope)", "PR curve area"],
         rows,
         {
           caption:
-            "Brier and ECE: lower is better. Slope 1.000 would mean the scores " +
-            "are spread exactly right; below 1 means still over-confident. " +
-            "PR-AUC must not move, because every method here is monotone.",
+            "The first three columns are errors, so lower is better. " +
+            "Spread is the slope of a logistic regression fitted on the " +
+            "model's log-odds: 1.000 would mean the scores are spread exactly " +
+            "right, and below 1 means still too confident. The curve area must " +
+            "not move, because every method here preserves the order of flights.",
         }
       )
     );
@@ -731,40 +776,57 @@ function renderCalibrationMethods(v2) {
     el(
       "div",
       "verdict",
-      `<p><strong>Platt scaling wins on average error, isotonic wins the worst
-        case.</strong> Platt reaches a lower ECE for both models
-        (${n4(lr.assessment.platt.ece)} against
-        ${n4(lr.assessment.isotonic.ece)} for logistic regression,
-        ${n4(gb.assessment.platt.ece)} against
-        ${n4(gb.assessment.isotonic.ece)} for gradient boosting), while
-        isotonic holds the smaller worst-bin gap
-        (${n3(gb.assessment.isotonic.max_abs_gap)} against
-        ${n3(gb.assessment.platt.max_abs_gap)}). We selected Platt by the rule
-        fixed before looking &mdash; lowest ECE among methods that preserve
-        ranking &mdash; and because two parameters are far less likely to be
-        fitting the noise of a single month than a few hundred knots are.</p>
-       <p>One detail decided it beyond the headline numbers: isotonic is a step
-        function, so it maps distinct scores onto identical probabilities and
-        costs a little ranking resolution
-        (PR-AUC ${n4(gb.assessment.isotonic.pr_auc)} against the raw
-        ${n4(gb.assessment.raw.pr_auc)}). Platt leaves PR-AUC untouched at
-        ${n4(gb.assessment.platt.pr_auc)}, because a smooth strictly-increasing
-        map cannot reorder or tie anything.</p>
-       <p><strong>Neither method fully fixes the spread.</strong> The calibration
-        slope improves from ${n3(gb.assessment.raw.calibration_slope)} to
-        ${n3(gb.assessment.platt.calibration_slope)} but stays below 1, so the
-        models remain slightly over-confident even after correction. That is a
-        limit of the features, not of the calibrator.</p>
-       <p class="muted"><strong>What the diagnostic row shows.</strong> Dividing
-        the predicted odds by the class-weight ratio
-        (${v2.class_weight_diagnostic.weight_ratio.toFixed(3)}, derived from the
-        training delay rate alone and fitted to nothing) already takes ECE from
-        ${n4(gb.assessment.raw.ece)} to
-        ${n4(gb.assessment.prior_shift_diagnostic.ece)}. That is the evidence
-        that class weighting is the <em>cause</em> of the miscalibration. It is
-        not the fix, because it corrects the level and not the spread.</p>
-       <p class="muted"><strong>${v2.independence_caveat}</strong></p>
-       <p class="muted">${v2.published_test_metrics_unchanged}</p>`
+      `<p><strong>The log-odds fit wins on average error; the step mapping wins
+        the worst case.</strong> The log-odds fit has the smaller average gap
+        between predicted and observed for both models
+        (${n4(lr.assessment.logodds_fit.avg_gap)} against
+        ${n4(lr.assessment.step_mapping.avg_gap)} for logistic regression,
+        ${n4(gb.assessment.logodds_fit.avg_gap)} against
+        ${n4(gb.assessment.step_mapping.avg_gap)} for gradient boosting), while the step
+        mapping holds the smaller worst-band gap
+        (${n3(gb.assessment.step_mapping.max_abs_gap)} against
+        ${n3(gb.assessment.logodds_fit.max_abs_gap)}). We chose the log-odds fit by
+        the rule we fixed before looking &mdash; smallest average gap among
+        methods that keep the ordering &mdash; and because two numbers are far
+        less likely to be fitting the accidents of a single month than hundreds
+        of steps are.</p>
+       <p>One further detail decided it. A step function gives the same
+        probability to a range of different scores, so it ties flights that the
+        model had actually ranked differently, and that costs a little ordering
+        information: the curve area drops to
+        ${n4(gb.assessment.step_mapping.pr_auc)} from the raw
+        ${n4(gb.assessment.raw.pr_auc)}. The log-odds fit leaves it at exactly
+        ${n4(gb.assessment.logodds_fit.pr_auc)}, because a smooth, strictly rising
+        mapping can neither reorder nor tie anything.</p>
+       <p><strong>Neither method fully fixes the over-confidence.</strong> The
+        spread improves from ${n3(gb.assessment.raw.calibration_slope)} to
+        ${n3(gb.assessment.logodds_fit.calibration_slope)} but stays below 1, so the
+        corrected probabilities are still a little too extreme. That is a limit
+        of the features, not of the mapping.</p>
+       <p class="muted"><strong>What the diagnostic row shows.</strong> We
+        weighted the rare class more heavily in the loss, which multiplies the
+        predicted odds by (1 &minus; base rate) / base rate on the training
+        months &mdash; ${v2.class_weight_diagnostic.weight_ratio.toFixed(3)}
+        here. Dividing the predicted odds by that single number, which is read
+        off the training base rate and fitted to nothing at all, already brings
+        the average gap from ${n4(gb.assessment.raw.avg_gap)} down to
+        ${n4(gb.assessment.base_rate_correction.avg_gap)}. That is the evidence
+        that our own weighting choice <em>causes</em> the miscalibration. It is
+        not the fix, because it corrects the level and leaves the spread
+        untouched, and because it assumes the months being scored have the same
+        base rate as the training months, which September does not.</p>
+       <p class="muted"><strong>This is not a fully independent check.</strong>
+        The model and its settings were themselves chosen on September, so the
+        scores being corrected here were already fitted to that month. Splitting
+        the month by date keeps the <em>mapping</em> honest, since it never sees
+        the days it is judged on, but it cannot undo that earlier choice. A
+        fully independent figure would need another untouched period, and we are
+        not willing to spend the test months on one.</p>
+       <p class="muted"><strong>The published test numbers are unchanged.</strong>
+        No correction is applied to November and December, and we make no claim
+        that the probabilities measured there have improved. Every mapping here
+        preserves the order of flights, so none of them could have moved the
+        test precision, recall, or either curve area in any case.</p>`
     )
   );
 }
@@ -794,7 +856,7 @@ function scoreFlight(model, f) {
   return sigmoid(z);
 }
 
-/* Evaluate the isotonic step function exported by step07, by linear
+/* Evaluate the increasing step mapping exported by step07, by linear
    interpolation between its knots. Outside the fitted range we clamp, which is
    what `out_of_bounds="clip"` does on the Python side. */
 function applyCalibration(cal, s) {
@@ -811,10 +873,11 @@ function applyCalibration(cal, s) {
   return y[lo] + t * (y[hi] - y[lo]);
 }
 
-/* Platt scaling: p = sigmoid(a * logit(s) + b). Two parameters, so the mapping
-   is smooth -- unlike the isotonic step function, which can map two different
-   scores to the same displayed percentage. */
-function applyPlatt(s, a, b) {
+/* A logistic regression fitted on the model's own log-odds:
+   p = sigmoid(a * log-odds + b). Two parameters, so the mapping is smooth --
+   unlike a step mapping, which can give two different scores the same displayed
+   percentage. */
+function applyLogOddsFit(s, a, b) {
   const q = Math.min(Math.max(s, 1e-6), 1 - 1e-6);
   return sigmoid(a * Math.log(q / (1 - q)) + b);
 }
@@ -827,7 +890,7 @@ function calibrate(v2, modelName, s, fallback) {
     ? v2.models[modelName].shipped_mapping
     : null;
   if (!m) return applyCalibration(fallback, s);
-  if (m.method === "platt") return applyPlatt(s, m.a, m.b);
+  if (m.method === "logodds_fit") return applyLogOddsFit(s, m.a, m.b);
   return applyCalibration({ mapping: { x: m.x, y: m.y } }, s);
 }
 
@@ -899,7 +962,7 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
       `Scored with <strong>logistic regression</strong>, the one model that
        exports to exact browser arithmetic. Our headline results use gradient
        boosting, which finished within
-       ${n4(Math.abs(bestPrAuc - lrPrAuc))} PR-AUC of it. The percentage is
+       ${n4(Math.abs(bestPrAuc - lrPrAuc))} of curve area of it. The percentage is
        corrected by the mapping step 09 selected on validation, fitted on
        September &mdash; a quieter month than the test period, so it understates
        risk in the busiest weeks.`
@@ -991,8 +1054,8 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
     const calInfo =
       v2 && v2.models && v2.models[model.model] ? v2.models[model.model] : null;
     const calMethod = calInfo
-      ? calInfo.chosen_method === "platt" ? "Platt-scaled" : "isotonic"
-      : "calibrated";
+      ? calInfo.chosen_method === "logodds_fit" ? "log-odds-fitted" : "step"
+      : "corrected";
     const calRaw = calInfo ? calInfo.assessment.raw.brier : null;
     const calDone = calInfo
       ? calInfo.assessment[calInfo.chosen_method].brier
@@ -1005,8 +1068,9 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
             rate of ${pct(baseline)}. The raw score of ${p.toFixed(3)} is not a
             probability &mdash; class weighting inflates it &mdash; so it is
             passed through a ${calMethod} mapping fitted on the validation
-            month, which cut the Brier score from ${n3(calRaw)} to
-            ${n3(calDone)} on days the mapping had never seen.</p>`) +
+            month, which cut the mean squared error of the predicted
+            probability from ${n3(calRaw)} to ${n3(calDone)} on days the mapping
+            had never seen.</p>`) +
       (b
         ? `<p class="muted">Independently: flights the model scored in the
             <strong>${b.bin}</strong> raw band were late
@@ -1082,7 +1146,7 @@ function renderThreshold(thr) {
     [
       ["Precision", s.precision, "of flights flagged, this share really were late"],
       ["Recall", s.recall, "of flights that were late, this share got flagged"],
-      ["F1", s.f1, "the balance between the two"],
+      ["P/R balance", s.f1, "the two combined into one number"],
       ["Accuracy", s.accuracy, "why this metric misleads here"],
     ].forEach(([k, v, sub]) => {
       const d = el("div", "tile");
@@ -1111,7 +1175,7 @@ function renderThreshold(thr) {
            ? "Nearly every delay is caught — by flagging almost everything, which tells a traveller nothing."
            : s.precision > 0.4
            ? "Flags are now fairly trustworthy, but most delays slip through unflagged."
-           : "This is roughly the balanced region, and it is where our F1 rule lands."
+           : "This is roughly the balanced region, and it is where our rule of maximising the precision/recall balance lands."
        }`;
   }
 
@@ -1216,9 +1280,9 @@ function renderConclusion(metrics, summary) {
     <p>
       <strong>The schedule carries real but limited signal.</strong> Knowing only
       the carrier, route, time of day and date, the best model reaches a test
-      PR-AUC of ${n4(best.pr_auc)} against a baseline of
-      ${n4(test.results.majority_baseline.pr_auc)} &mdash; a
-      ${best.pr_auc_lift_over_baseline.toFixed(2)}&times; lift. At our chosen
+      precision-recall curve area of ${n4(best.pr_auc)} against a baseline of
+      ${n4(test.results.majority_baseline.pr_auc)} &mdash;
+      ${best.pr_auc_lift_over_baseline.toFixed(2)}&times; the base rate. At our chosen
       threshold that means catching ${pct(best.recall, 0)} of delayed flights
       while being right about ${pct(best.precision, 0)} of the flights it flags.
       Useful for ranking risk; nowhere near reliable enough to promise an
@@ -1227,7 +1291,7 @@ function renderConclusion(metrics, summary) {
     <p>
       <strong>The complex models did not earn their complexity.</strong>
       Gradient boosting, random forest and logistic regression finished within
-      ${Math.abs(best.pr_auc - lr.pr_auc).toFixed(4)} PR-AUC of each other. On a
+      ${Math.abs(best.pr_auc - lr.pr_auc).toFixed(4)} of curve area of each other. On a
       problem where the inputs are this weak, the model class is not the
       bottleneck &mdash; the missing information is. We would ship the logistic
       regression: the same accuracy, and you can read its coefficients.
@@ -1244,9 +1308,9 @@ function renderConclusion(metrics, summary) {
       <strong>What we would do differently.</strong> Validate on more than one
       month &mdash; losing October to a data defect left us tuning on a single
       quiet September and testing on the holiday season, and performance fell
-      between the two (lift ${(best.val_pr_auc_lift_over_baseline ?? 0).toFixed(2)}&times;
-      on validation to ${best.pr_auc_lift_over_baseline.toFixed(2)}&times; on
-      test). We would also fit a calibrator on validation so the output could be
+      between the two (${(best.val_pr_auc_lift_over_baseline ?? 0).toFixed(2)}&times;
+      the base rate on validation, falling to
+      ${best.pr_auc_lift_over_baseline.toFixed(2)}&times; on test). We would also fit a calibrator on validation so the output could be
       read as a probability rather than a ranking.
     </p>`;
 
@@ -1255,10 +1319,12 @@ function renderConclusion(metrics, summary) {
       "div",
       "prov",
       `<p class="muted">Seed ${summary.config.seed} throughout.
-        Test set opened once, on ${num(test.test_rows)} flights, after models,
-        hyperparameters and thresholds were frozen on validation.
-        ${test.n_bootstrap} bootstrap resamples for every confidence interval.
-        ${test.provenance}</p>`
+        Test set opened once, on ${num(test.test_rows)} flights, after the choice
+        of model, its settings and the threshold were frozen on validation.
+        Every reported range comes from re-drawing those flights at random
+        ${test.n_bootstrap} times and re-measuring. The models, settings and
+        threshold were fixed in step 03 using the validation month only; the
+        final evaluation re-tuned nothing.</p>`
     )
   );
 }

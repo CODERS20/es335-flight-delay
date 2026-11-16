@@ -1,5 +1,5 @@
 {
-  "purpose": "Compare Platt scaling against isotonic regression for both models, on validation only, and export one calibrator per model.",
+  "purpose": "Compare a logistic regression on the log-odds against an increasing step mapping, for both models, on validation only; one mapping per model.",
   "test_set_touched": false,
   "protocol": {
     "fit_days": "September 1-15",
@@ -7,7 +7,7 @@
     "n_fit": 227442,
     "n_assess": 234711,
     "refit_for_deployment_on": "all of September",
-    "selection_rule_fixed_in_advance": "lowest ECE on the assessment half, Brier as tie-break, and |ROC-AUC change| < 0.005 required",
+    "selection_rule_fixed_in_advance": "smallest average gap on the assessment half, mean squared error as the tie-break, and |ROC curve area change| < 0.005 required",
     "binning": "10 equal-width bins, bins with fewer than 50 flights dropped"
   },
   "class_weight_diagnostic": {
@@ -17,20 +17,20 @@
     "assumptions": "It assumes three things. (1) The only effect of class weighting is to multiply the fitted odds by (1-p)/p -- exactly true for a logistic model with a free intercept, approximate for boosted trees. (2) The model is otherwise correctly specified, so a single intercept shift is enough; our residuals show it is not, because the scores are also over-dispersed. (3) The period being scored has the same base rate as training, which fails here: training runs at 0.2030 and September at 0.1300. So we report it as a diagnostic that confirms the CAUSE of the miscalibration, and let the fitted methods supply the correction.",
     "fitted_on_test_bins": false
   },
-  "independence_caveat": "The September assessment is not a fully independent end-to-end evaluation. Model choice and hyperparameters were selected on this same validation month in step 03, so the scores being calibrated here were already tuned against September. Splitting the month by date keeps the CALIBRATOR honest -- it never sees the days it is judged on -- but it cannot undo the earlier model selection. A fully independent figure would need a further untouched period, and we are not willing to spend the test set on it.",
-  "published_test_metrics_unchanged": "The November-December results in artifacts/test_results.json stand exactly as originally recorded. No calibrator is applied to them, and no claim is made that test Brier, test ECE or test probabilities have improved. Calibration is monotone, so it could not change test PR-AUC, ROC-AUC, precision, recall or F1 in any case.",
-  "supersedes": "Extends artifacts/calibration_fit.json (step 07, isotonic, logistic regression only). That artifact is kept unchanged so the earlier experiment stays reproducible.",
+  "independence_caveat": "The September assessment is not a fully independent end-to-end evaluation. The model and its settings were chosen on this same validation month in step 03, so the scores being calibrated here were already tuned against September. Splitting the month by date keeps the CALIBRATOR honest -- it never sees the days it is judged on -- but it cannot undo the earlier model selection. A fully independent figure would need a further untouched period, and we are not willing to spend the test set on it.",
+  "published_test_metrics_unchanged": "The November-December results in artifacts/test_results.json stand exactly as originally recorded. No calibrator is applied to them, and no claim is made that the mean squared error, the average gap or the probabilities measured there have improved. Every mapping here preserves the order of flights, so none could change the test curve areas, precision or recall in any case.",
+  "supersedes": "Extends artifacts/calibration_fit.json (step 07, step mapping, logistic regression only). That artifact is kept unchanged so the earlier experiment stays reproducible.",
   "models": {
     "logistic_regression": {
       "raw_score_source": "artifacts/models/logistic_regression.joblib, scored on validation",
-      "platt_fit_on_first_half": {
+      "logodds_fit_on_first_half": {
         "a": 0.920468562084628,
         "b": -1.8471638765805398
       },
       "assessment": {
         "raw": {
           "brier": 0.221874735247938,
-          "ece": 0.33450616485062473,
+          "avg_gap": 0.33450616485062473,
           "max_abs_gap": 0.49222,
           "pr_auc": 0.17460086862334484,
           "roc_auc": 0.6215385105904185,
@@ -98,9 +98,9 @@
             }
           ]
         },
-        "isotonic": {
+        "step_mapping": {
           "brier": 0.10297612144616848,
-          "ece": 0.011496096358521194,
+          "avg_gap": 0.011496096358521194,
           "max_abs_gap": 0.018933,
           "pr_auc": 0.17182415552947872,
           "roc_auc": 0.6212961363347531,
@@ -133,9 +133,9 @@
             }
           ]
         },
-        "platt": {
+        "logodds_fit": {
           "brier": 0.10288463444677709,
-          "ece": 0.00832376314382605,
+          "avg_gap": 0.00832376314382605,
           "max_abs_gap": 0.068163,
           "pr_auc": 0.17460086862334484,
           "roc_auc": 0.6215385105904185,
@@ -175,9 +175,9 @@
             }
           ]
         },
-        "prior_shift_diagnostic": {
+        "base_rate_correction": {
           "brier": 0.10843008848736069,
-          "ece": 0.06690072939391407,
+          "avg_gap": 0.06690072939391407,
           "max_abs_gap": 0.190224,
           "pr_auc": 0.17460086862334484,
           "roc_auc": 0.6215385105904185,
@@ -232,11 +232,11 @@
           ]
         }
       },
-      "chosen_method": "platt",
-      "chosen_because": "lowest ECE on September 16-30 among methods that preserve ranking (ECE 0.0083 vs 0.0115 for the alternative, against 0.3345 raw)",
-      "bins_where_platt_closer": "3/3",
+      "chosen_method": "logodds_fit",
+      "chosen_because": "smallest average gap on September 16-30 among methods that preserve the ordering of flights (gap 0.0083 vs 0.0115 for the alternative, against 0.3345 raw)",
+      "bins_where_logodds_fit_closer": "3/3",
       "shipped_mapping": {
-        "method": "platt",
+        "method": "logodds_fit",
         "a": 0.8716824728579101,
         "b": -1.8748847678665672
       },
@@ -273,14 +273,14 @@
     },
     "gradient_boosting": {
       "raw_score_source": "artifacts/models/gradient_boosting.joblib, scored on validation",
-      "platt_fit_on_first_half": {
+      "logodds_fit_on_first_half": {
         "a": 0.7809979720726985,
         "b": -1.8003734555945183
       },
       "assessment": {
         "raw": {
           "brier": 0.20272800411639058,
-          "ece": 0.2983952026247847,
+          "avg_gap": 0.2983952026247847,
           "max_abs_gap": 0.510321,
           "pr_auc": 0.17953321153224774,
           "roc_auc": 0.6255122297543543,
@@ -355,9 +355,9 @@
             }
           ]
         },
-        "isotonic": {
+        "step_mapping": {
           "brier": 0.10279405379207165,
-          "ece": 0.011683843989470281,
+          "avg_gap": 0.011683843989470281,
           "max_abs_gap": 0.018615,
           "pr_auc": 0.1760554776759507,
           "roc_auc": 0.6252708921672625,
@@ -390,9 +390,9 @@
             }
           ]
         },
-        "platt": {
+        "logodds_fit": {
           "brier": 0.10263953604596986,
-          "ece": 0.006673213793558744,
+          "avg_gap": 0.006673213793558744,
           "max_abs_gap": 0.062566,
           "pr_auc": 0.17953321153224774,
           "roc_auc": 0.6255122297543543,
@@ -432,9 +432,9 @@
             }
           ]
         },
-        "prior_shift_diagnostic": {
+        "base_rate_correction": {
           "brier": 0.10722747667921041,
-          "ece": 0.05039091744862247,
+          "avg_gap": 0.05039091744862247,
           "max_abs_gap": 0.231483,
           "pr_auc": 0.17953321153224774,
           "roc_auc": 0.6255122297543543,
@@ -489,11 +489,11 @@
           ]
         }
       },
-      "chosen_method": "platt",
-      "chosen_because": "lowest ECE on September 16-30 among methods that preserve ranking (ECE 0.0067 vs 0.0117 for the alternative, against 0.2984 raw)",
-      "bins_where_platt_closer": "2/3",
+      "chosen_method": "logodds_fit",
+      "chosen_because": "smallest average gap on September 16-30 among methods that preserve the ordering of flights (gap 0.0067 vs 0.0117 for the alternative, against 0.2984 raw)",
+      "bins_where_logodds_fit_closer": "2/3",
       "shipped_mapping": {
-        "method": "platt",
+        "method": "logodds_fit",
         "a": 0.7325450397968605,
         "b": -1.8093917741553605
       },

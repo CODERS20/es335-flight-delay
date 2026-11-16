@@ -107,12 +107,12 @@ for i in range(5):
 # ---------------------------------------------------------------------------
 cal_diff = None
 if JS_CAL.exists():
-    with open(C.ARTIFACTS_DIR / "calibration_platt.json", encoding="utf-8") as fh:
+    with open(C.ARTIFACTS_DIR / "calibration_compare.json", encoding="utf-8") as fh:
         shipped = json.load(fh)["models"]["logistic_regression"]["shipped_mapping"]
     with open(JS_CAL, encoding="utf-8") as fh:
         js_cal = np.array(json.load(fh), dtype=float)
 
-    if shipped["method"] == "platt":
+    if shipped["method"] == "logodds_fit":
         clipped = np.clip(py, 1e-6, 1 - 1e-6)
         z = shipped["a"] * np.log(clipped / (1 - clipped)) + shipped["b"]
         py_cal = 1.0 / (1.0 + np.exp(-z))

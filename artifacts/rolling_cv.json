@@ -1,10 +1,10 @@
 {
   "purpose": "robustness check on model selection; not used to re-select",
-  "why_not_kfold": "Random k-fold would place later flights in training and earlier flights in the held-out fold, learning from the future. Rolling-origin CV preserves time order: each fold trains on all months before the month it validates on.",
+  "why_not_kfold": "Splitting the rows at random would place later flights in training and earlier flights in the held-out set, learning from the future. Repeating the check in time order CV preserves time order: each fold trains on all months before the month it validates on.",
   "test_months_touched": false,
   "max_train_per_fold": 600000,
   "seed": 42,
-  "metric": "PR-AUC as lift over each fold's own base rate",
+  "metric": "precision-recall curve area, divided by each held-out month's own base rate",
   "folds": [
     {
       "fold": 1,
@@ -22,7 +22,7 @@
       "pr_auc": 0.23512921521080501,
       "lift": 1.2843,
       "roc_auc": 0.6072066073162266,
-      "fit_seconds": 14.2
+      "fit_seconds": 4.8
     },
     {
       "fold": 1,
@@ -40,7 +40,7 @@
       "pr_auc": 0.2521883738235536,
       "lift": 1.3775,
       "roc_auc": 0.6223429406333776,
-      "fit_seconds": 31.6
+      "fit_seconds": 9.5
     },
     {
       "fold": 1,
@@ -58,7 +58,7 @@
       "pr_auc": 0.2617889027095588,
       "lift": 1.4299,
       "roc_auc": 0.635966717634715,
-      "fit_seconds": 21.9
+      "fit_seconds": 7.3
     },
     {
       "fold": 2,
@@ -77,7 +77,7 @@
       "pr_auc": 0.34054880362561446,
       "lift": 1.4501,
       "roc_auc": 0.6546569121050746,
-      "fit_seconds": 14.7
+      "fit_seconds": 4.8
     },
     {
       "fold": 2,
@@ -96,7 +96,7 @@
       "pr_auc": 0.3740495009084206,
       "lift": 1.5928,
       "roc_auc": 0.677026664431587,
-      "fit_seconds": 31.7
+      "fit_seconds": 10.0
     },
     {
       "fold": 2,
@@ -115,7 +115,7 @@
       "pr_auc": 0.3670269809219081,
       "lift": 1.5629,
       "roc_auc": 0.6721152226730481,
-      "fit_seconds": 22.8
+      "fit_seconds": 7.1
     },
     {
       "fold": 3,
@@ -135,7 +135,7 @@
       "pr_auc": 0.31056812453990384,
       "lift": 1.4843,
       "roc_auc": 0.6580956510377152,
-      "fit_seconds": 12.7
+      "fit_seconds": 4.3
     },
     {
       "fold": 3,
@@ -154,8 +154,8 @@
       "base_rate": 0.20923473513950666,
       "pr_auc": 0.3347004930345945,
       "lift": 1.5996,
-      "roc_auc": 0.6707689983316658,
-      "fit_seconds": 31.4
+      "roc_auc": 0.6707689983316659,
+      "fit_seconds": 9.0
     },
     {
       "fold": 3,
@@ -175,7 +175,7 @@
       "pr_auc": 0.33389727714776335,
       "lift": 1.5958,
       "roc_auc": 0.6732075733942915,
-      "fit_seconds": 21.6
+      "fit_seconds": 7.4
     },
     {
       "fold": 4,
@@ -196,7 +196,7 @@
       "pr_auc": 0.2796926105052513,
       "lift": 1.4977,
       "roc_auc": 0.6473718374512651,
-      "fit_seconds": 12.6
+      "fit_seconds": 4.2
     },
     {
       "fold": 4,
@@ -217,7 +217,7 @@
       "pr_auc": 0.2916027075647427,
       "lift": 1.5615,
       "roc_auc": 0.6541991221318806,
-      "fit_seconds": 31.4
+      "fit_seconds": 8.9
     },
     {
       "fold": 4,
@@ -238,7 +238,7 @@
       "pr_auc": 0.3010106664554482,
       "lift": 1.6119,
       "roc_auc": 0.6585333556936768,
-      "fit_seconds": 21.4
+      "fit_seconds": 7.0
     },
     {
       "fold": 5,
@@ -260,7 +260,7 @@
       "pr_auc": 0.193855264568356,
       "lift": 1.4917,
       "roc_auc": 0.6326250839318636,
-      "fit_seconds": 12.5
+      "fit_seconds": 4.2
     },
     {
       "fold": 5,
@@ -282,7 +282,7 @@
       "pr_auc": 0.18676171387039545,
       "lift": 1.4371,
       "roc_auc": 0.6297962619933902,
-      "fit_seconds": 32.4
+      "fit_seconds": 9.3
     },
     {
       "fold": 5,
@@ -304,7 +304,7 @@
       "pr_auc": 0.19856884954918552,
       "lift": 1.5279,
       "roc_auc": 0.6402766180393235,
-      "fit_seconds": 20.7
+      "fit_seconds": 7.1
     }
   ],
   "summary": {
@@ -341,5 +341,5 @@
   "agrees_with_single_month": true,
   "gap_to_runner_up": 0.03198000000000012,
   "gap_within_fold_noise": true,
-  "verdict": "Rolling-origin CV over 5 folds agrees with the single-month choice (gradient_boosting). The gap to the runner-up is smaller than the fold-to-fold spread, so the fair reading is that the models are not meaningfully different from one another -- which is exactly what the test set also showed."
+  "verdict": "Repeating the held-out check over 5 earlier months agrees with the single-month choice (gradient_boosting). The gap to the runner-up is smaller than the fold-to-fold spread, so the fair reading is that the models are not meaningfully different from one another -- which is exactly what the test set also showed."
 }

@@ -1,5 +1,5 @@
 {
-  "purpose": "measure the headroom in hyperparameter tuning; test set untouched",
+  "purpose": "measure how much the choice of model settings could buy; test set untouched",
   "test_months_touched": false,
   "material_margin_fixed_in_advance": 0.005,
   "n_configs_stage1": 62,
@@ -844,7 +844,7 @@
       ],
       "cv_mean_lift": 1.568210587426222,
       "cv_std_lift": 0.027519487555014044,
-      "seconds": 33.6
+      "seconds": 72.8
     },
     {
       "model": "gradient_boosting",
@@ -863,7 +863,7 @@
       ],
       "cv_mean_lift": 1.5676051104715254,
       "cv_std_lift": 0.0414887810616321,
-      "seconds": 36.8
+      "seconds": 74.0
     },
     {
       "model": "gradient_boosting",
@@ -882,7 +882,7 @@
       ],
       "cv_mean_lift": 1.5661537723792178,
       "cv_std_lift": 0.03889902089885566,
-      "seconds": 31.1
+      "seconds": 75.4
     },
     {
       "model": "gradient_boosting",
@@ -901,7 +901,7 @@
       ],
       "cv_mean_lift": 1.5661537723792178,
       "cv_std_lift": 0.03889902089885566,
-      "seconds": 29.3
+      "seconds": 70.8
     },
     {
       "model": "random_forest",
@@ -919,7 +919,7 @@
       ],
       "cv_mean_lift": 1.548345843667347,
       "cv_std_lift": 0.07708247549445357,
-      "seconds": 138.4
+      "seconds": 154.4
     },
     {
       "model": "random_forest",
@@ -937,7 +937,7 @@
       ],
       "cv_mean_lift": 1.5446972607703784,
       "cv_std_lift": 0.07615933018825465,
-      "seconds": 34.5
+      "seconds": 93.3
     },
     {
       "model": "random_forest",
@@ -953,9 +953,9 @@
         1.5722,
         1.4399
       ],
-      "cv_mean_lift": 1.5444545518846968,
-      "cv_std_lift": 0.07189435548619315,
-      "seconds": 64.3
+      "cv_mean_lift": 1.5444545519275255,
+      "cv_std_lift": 0.07189435553315435,
+      "seconds": 181.7
     },
     {
       "model": "random_forest",
@@ -974,7 +974,7 @@
       ],
       "cv_mean_lift": 1.5424758529612506,
       "cv_std_lift": 0.079710383465581,
-      "seconds": 33.8
+      "seconds": 92.2
     },
     {
       "model": "logistic_regression",
@@ -991,7 +991,7 @@
       ],
       "cv_mean_lift": 1.488809333541415,
       "cv_std_lift": 0.027466334360986673,
-      "seconds": 44.6
+      "seconds": 18.9
     },
     {
       "model": "logistic_regression",
@@ -1008,7 +1008,7 @@
       ],
       "cv_mean_lift": 1.4884683607419187,
       "cv_std_lift": 0.02706736693128352,
-      "seconds": 39.2
+      "seconds": 36.9
     },
     {
       "model": "logistic_regression",
@@ -1025,7 +1025,7 @@
       ],
       "cv_mean_lift": 1.4876037357312648,
       "cv_std_lift": 0.026967380809093725,
-      "seconds": 42.7
+      "seconds": 40.2
     },
     {
       "model": "logistic_regression",
@@ -1042,7 +1042,7 @@
       ],
       "cv_mean_lift": 1.4808024091154208,
       "cv_std_lift": 0.023469939416150505,
-      "seconds": 16.4
+      "seconds": 39.4
     }
   ],
   "best": {
@@ -1062,7 +1062,7 @@
     ],
     "cv_mean_lift": 1.568210587426222,
     "cv_std_lift": 0.027519487555014044,
-    "seconds": 33.6
+    "seconds": 72.8
   },
   "incumbent": {
     "model": "gradient_boosting",
@@ -1081,9 +1081,9 @@
     ],
     "cv_mean_lift": 1.5661537723792178,
     "cv_std_lift": 0.03889902089885566,
-    "seconds": 29.3
+    "seconds": 70.8
   },
   "gain_over_incumbent": 0.002056815047004168,
   "materially_better": false,
-  "verdict": "A grid 62 configurations wide found nothing materially better than the step-03 choice (best gain +0.0021 mean CV lift, against a 0.005 threshold fixed in advance). Hyperparameters are not the binding constraint on this problem: the features are. Our original configuration stands, and the published test numbers stand with it."
+  "verdict": "A search 62 sets of settings wide found nothing meaningfully better than the step-03 choice (best gain +0.0021 in the mean ratio to the base rate, against a 0.005 margin fixed in advance). The model settings are not the binding constraint on this problem: the features are. Our original configuration stands, and the published test numbers stand with it."
 }

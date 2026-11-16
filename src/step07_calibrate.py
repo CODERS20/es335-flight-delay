@@ -19,8 +19,8 @@ never touches the test set.
 
 THE DESIGN
 ----------
-Isotonic regression maps raw score -> calibrated probability. It is monotonic,
-so it CANNOT change the ranking of flights: PR-AUC, ROC-AUC and the whole
+An increasing step mapping takes the raw score to a probability. It preserves order,
+so it CANNOT change the ordering of flights: both curve areas and the whole
 precision/recall trade-off are mathematically unchanged. It fixes only the
 level, which is exactly the defect.
 
@@ -117,9 +117,9 @@ print("MEASURED ON HELD-OUT HALF OF VALIDATION (Sep 16-30)")
 print("-" * 72)
 print(f"{'':28s} {'raw':>12s} {'calibrated':>12s}")
 print(f"{'Brier score (lower better)':28s} {raw_brier:>12.4f} {cal_brier:>12.4f}")
-print(f"{'Expected calib. error':28s} {raw_ece:>12.4f} {cal_ece:>12.4f}")
-print(f"{'PR-AUC (must not change)':28s} {raw_pr:>12.4f} {cal_pr:>12.4f}")
-print(f"{'ROC-AUC (must not change)':28s} {raw_roc:>12.4f} {cal_roc:>12.4f}")
+print(f"{'Avg predicted-obs gap':28s} {raw_ece:>12.4f} {cal_ece:>12.4f}")
+print(f"{'PR area (must not change)':28s} {raw_pr:>12.4f} {cal_pr:>12.4f}")
+print(f"{'ROC area (must not change)':28s} {raw_roc:>12.4f} {cal_roc:>12.4f}")
 
 print("\nworst bin gap:")
 print(f"  raw        {max(abs(r['mean_predicted']-r['observed_rate']) for r in raw_rows):.4f}")
@@ -152,26 +152,26 @@ for s in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]:
     print(f"  raw {s:.2f} -> calibrated {examples[-1]['calibrated']:.4f}")
 
 out = {
-    "method": "isotonic regression",
+    "method": "increasing step mapping (scikit-learn IsotonicRegression)",
     "fitted_on": "validation month only (September 2015)",
     "applies_to": "logistic_regression (the model the website scores in-browser)",
     "test_set_touched": False,
     "why": (
-        "Class weighting inflates predicted probabilities. Isotonic regression "
-        "is monotonic, so it corrects the level without reordering any flight: "
-        "PR-AUC, ROC-AUC and the precision/recall trade-off are unchanged."
+        "Weighting the rare class more heavily in the loss pushes the predicted "
+        "probabilities up. An order-preserving mapping corrects the level without "
+        "reordering any flight, so both curve areas and the precision/recall trade-off are unchanged."
     ),
     "honest_measurement": {
         "fit_days": "September 1-15",
         "assess_days": "September 16-30",
         "n_fit": int(fit_mask.sum()),
         "n_assess": int(ass_mask.sum()),
-        "raw": {"brier": raw_brier, "ece": raw_ece, "pr_auc": raw_pr, "roc_auc": raw_roc,
+        "raw": {"brier": raw_brier, "avg_gap": raw_ece, "pr_auc": raw_pr, "roc_auc": raw_roc,
                 "bins": raw_rows},
-        "calibrated": {"brier": cal_brier, "ece": cal_ece, "pr_auc": cal_pr,
+        "calibrated": {"brier": cal_brier, "avg_gap": cal_ece, "pr_auc": cal_pr,
                        "roc_auc": cal_roc, "bins": cal_rows},
         "brier_improvement": round(raw_brier - cal_brier, 4),
-        "ece_improvement": round(raw_ece - cal_ece, 4),
+        "avg_gap_improvement": round(raw_ece - cal_ece, 4),
         "ranking_preserved": bool(rank_ok),
     },
     "mapping": {"x": [round(v, 6) for v in xs.tolist()],
@@ -197,11 +197,11 @@ ax.plot([0, 1], [0, 1], "--", color="#86857f", lw=1.2, label="perfect calibratio
 ax.plot([r["mean_predicted"] for r in raw_rows],
         [r["observed_rate"] for r in raw_rows],
         "o-", color="#eb6834", lw=2, markersize=7,
-        label=f"raw (Brier {raw_brier:.3f})")
+        label=f"raw (mean sq. error {raw_brier:.3f})")
 ax.plot([r["mean_predicted"] for r in cal_rows],
         [r["observed_rate"] for r in cal_rows],
         "o-", color="#1baf7a", lw=2, markersize=7,
-        label=f"calibrated (Brier {cal_brier:.3f})")
+        label=f"calibrated (mean sq. error {cal_brier:.3f})")
 ax.set_xlabel("Mean predicted probability")
 ax.set_ylabel("Observed delay rate")
 ax.set_title("Calibration, measured on held-out days of September")

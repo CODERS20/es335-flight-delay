@@ -239,10 +239,10 @@
             <summary>Transformations, missing values and duplicates</summary>
             <ul class="plain">
               <li><strong>Derived from the schedule:</strong> departure and arrival hour from the published <code>hhmm</code> times, and a weekend flag. Pure arithmetic on fields printed on the ticket, so nothing is learned and nothing can leak.</li>
-              <li><strong>Missing values:</strong> the only gap among operated flights was scheduled duration, filled with the <em>training</em> median. Every missing arrival delay belonged to a cancelled or diverted flight, which we exclude outright.</li>
+              <li><strong>Missing values:</strong> the only gap among operated flights was scheduled duration, filled with the median of the <em>training</em> months. Every missing arrival delay belonged to a cancelled or diverted flight, which we exclude outright.</li>
               <li><strong>Duplicates:</strong> no de-duplication is applied. A flight leg is identified by carrier, flight number and date, and repeated legs across days are genuine separate flights, not duplicate records.</li>
-              <li><strong>Categoricals:</strong> one-hot for logistic regression, integer codes for the tree models. Airports seen rarely in training are pooled, because a handful of flights cannot support an estimate.</li>
-              <li><strong>Clock hours</strong> enter logistic regression as sine and cosine, so 23:00 sits next to 00:00 instead of 23 units away from it.</li>
+              <li><strong>Categorical features:</strong> for logistic regression, one indicator column per category; for the tree models, integer codes, since a tree splits on order and never on the size of the number. Airports seen rarely in training are pooled, because a handful of flights cannot support an estimate.</li>
+              <li><strong>Clock hours</strong> enter logistic regression as a sine and a cosine column, so 23:00 sits next to 00:00 instead of 23 units away from it.</li>
               <li><strong>Scaling</strong> for logistic regression only; trees split on order and do not care.</li>
               <li><strong>Every transformer is fitted on the training rows alone</strong> and then applied unchanged to validation and test.</li>
             </ul>
@@ -285,8 +285,8 @@
             <ul class="plain">
               <li><strong>Majority baseline.</strong> Predicts the majority class always. No assumptions, no learning, no parameters. It exists to make every other number interpretable.</li>
               <li><strong>Logistic regression.</strong> Assumes the log-odds of delay are a linear, additive function of the features. Cheap, stable and interpretable: each coefficient is a readable effect, which is why it is the model that runs in your browser.</li>
-              <li><strong>Random forest.</strong> Many deep decorrelated trees, averaged. Assumes nothing about functional form and captures interactions &mdash; a given carrier at a given hour &mdash; with no feature engineering. Averaging reduces variance.</li>
-              <li><strong>Gradient boosting.</strong> Trees fitted in sequence, each correcting the errors left by the last. Usually the strongest of these on tabular data, and the most prone to overfitting if tuned carelessly, which is why its settings were chosen on validation alone.</li>
+              <li><strong>Random forest.</strong> Many deep trees, each grown on a resampled set of rows and a random subset of features so they are not copies of one another, then averaged. It assumes nothing about the shape of the relationship and captures interactions &mdash; a given carrier at a given hour &mdash; with no extra feature design. Averaging is what reduces the variance of a single deep tree.</li>
+              <li><strong>Gradient boosting.</strong> Trees fitted in sequence, each one fitted to the errors the previous trees left behind. Usually the strongest of these on table-shaped data, and the easiest to overfit if its settings are chosen carelessly, which is why they were chosen on validation alone.</li>
             </ul>
             <p class="note" id="gb-note"></p>
           </details>
@@ -308,53 +308,54 @@
           <div class="splitviz" id="splitviz"></div>
 
           <div class="rules">
-            <div><span class="rule-k">Headline metric</span> PR-AUC, because delayed flights are the minority class and PR-AUC tracks performance on exactly that class. An uninformative model scores the base rate.</div>
-            <div><span class="rule-k">Threshold</span> The cut-off that maximises F1 on validation, as stated in our proposal.</div>
-            <div><span class="rule-k">Tuning</span> Hyperparameters and the threshold are chosen on the validation month only.</div>
+            <div><span class="rule-k">Headline metric</span> The area under the precision&ndash;recall curve, because delayed flights are the rare class and this curve is built from precision and recall on exactly that class. A model with no information scores the base rate.</div>
+            <div><span class="rule-k">Threshold</span> The cut-off that gives the best balance of precision and recall on validation, as stated in our proposal.</div>
+            <div><span class="rule-k">Model settings</span> The settings and the threshold are chosen on the validation month only.</div>
             <div><span class="rule-k">Test</span> November and December were scored exactly once, after everything was frozen. Nothing was re-tuned afterwards.</div>
-            <div><span class="rule-k">Accuracy</span> Reported only beside the baseline, to show why it misleads here.</div>
+            <div><span class="rule-k">Accuracy</span> Reported only beside the baseline, as a worked example of metric mismatch.</div>
           </div>
 
           <div id="split-table"></div>
           <p class="note" id="october-note"></p>
 
           <details>
-            <summary>Why not ordinary cross-validation? And the rolling-origin check we ran instead</summary>
+            <summary>Why we never shuffle, and the repeated held-out check we ran instead</summary>
             <p>
-              Ordinary k-fold cross-validation would be wrong here. Shuffling
-              flights at random puts December in the training folds and June in
-              the held-out fold, so the model learns from the future &mdash; the
-              exact leakage the chronological split exists to prevent. Its
-              estimate would also be optimistic in a way that never survives
-              contact with a real deployment.
+              Splitting the rows at random would be a leakage error. A random
+              split puts December flights in training and June flights in the
+              held-out set, so the model is fitted on data recorded after the
+              flights it is judged on. Delays cascade through a day and a season,
+              so that is real information from the future, and the resulting
+              estimate would be optimistic about a situation the model will never
+              be in.
             </p>
             <p>
-              But a single validation month is thin evidence for choosing between
-              models, so we also ran the time-aware equivalent:
-              <strong>rolling-origin cross-validation</strong>, where each fold
-              trains on every month before the one it validates on. Five folds,
-              September at the end, and the test months never loaded.
+              A single validation month is thin evidence for choosing between
+              models, so we repeated the held-out check on earlier months.
+              Each repeat is fitted on every month before the one it is scored
+              on &mdash; five repeats, September last, and the test months never
+              loaded.
             </p>
             <div id="rolling-cv"></div>
-            <figure class="fig"><img src="figures/rolling_cv.png" alt="Lift by validation month for the three models across five rolling-origin folds." loading="lazy"></figure>
+            <figure class="fig"><img src="figures/rolling_cv.png" alt="Ratio to the base rate by validation month for the three models across five repeated held-out checks." loading="lazy"></figure>
           </details>
 
           <details>
-            <summary>How much was hyperparameter tuning ever going to buy?</summary>
+            <summary>How much were the model settings ever going to buy?</summary>
             <div id="grid-search"></div>
-            <figure class="fig"><img src="figures/grid_search.png" alt="PR-AUC lift for every configuration tried, grouped by model." loading="lazy"></figure>
+            <figure class="fig"><img src="figures/grid_search.png" alt="Ratio to the base rate for every set of settings tried, grouped by model." loading="lazy"></figure>
           </details>
 
           <details>
             <summary>Metrics in full, and why each one is here</summary>
             <ul class="plain">
-              <li><strong>PR-AUC (average precision).</strong> Headline. Summarises the precision/recall trade-off across every threshold, for the minority class. An uninformative model scores exactly the base rate, so the base rate is the floor to beat.</li>
-              <li><strong>Lift over baseline.</strong> PR-AUC divided by the period's base rate. Needed because the delay rate differs between September (quiet) and November&ndash;December (busy), which makes raw PR-AUC incomparable across periods.</li>
-              <li><strong>Precision, recall, F1.</strong> Reported at the single chosen threshold, because that is the only point at which a decision is actually made.</li>
-              <li><strong>ROC-AUC.</strong> Reported for completeness. It is optimistic under heavy imbalance, which is why it is not the headline.</li>
-              <li><strong>Accuracy.</strong> Reported only to demonstrate its failure: the baseline wins on it while catching zero delays.</li>
-              <li><strong>Brier score and calibration curves.</strong> Measure whether a stated probability means what it says, which precision and recall cannot see.</li>
-              <li><strong>Bootstrap confidence intervals.</strong> 200 resamples of the test set, plus a paired bootstrap for model-vs-model comparison, so we can say whether a gap is real as well as large.</li>
+              <li><strong>Area under the precision&ndash;recall curve.</strong> Our headline. The precision&ndash;recall curve traces the trade-off as the threshold moves; its area summarises that trade-off in one number, for the rare class. A model with no information scores exactly the base rate, so the base rate is the floor to beat.</li>
+              <li><strong>Ratio to the base rate.</strong> That area divided by the period's base rate. Needed because the delay rate differs between September (quiet) and November&ndash;December (busy), so the raw areas cannot be compared across periods.</li>
+              <li><strong>Precision, recall, and their balance.</strong> Reported at the single chosen threshold, because that is the only point at which a decision is actually made.</li>
+              <li><strong>Area under the ROC curve.</strong> Reported for completeness. It flatters a model when one class is rare, which is why it is not the headline.</li>
+              <li><strong>Accuracy.</strong> Reported only to demonstrate its failure here: the baseline wins on it while catching zero delays.</li>
+              <li><strong>Mean squared error of the predicted probability, and calibration curves.</strong> These ask whether a stated probability means what it says, which precision and recall cannot see.</li>
+              <li><strong>A resampling range.</strong> We drew the test flights again at random, with replacement, 200 times and re-measured each time; the reported range is where the middle 95% of those runs fell. For comparing two models we resampled the same flights for both, so the comparison is not confounded by which flights were drawn.</li>
             </ul>
           </details>
         </section>
@@ -367,9 +368,10 @@
           <p id="results-intro"></p>
           <div id="results-table"></div>
           <p class="caption">
-            95% confidence intervals come from 200 bootstrap resamples of the
-            test set. Lift is PR-AUC divided by the base rate: what the model
-            adds over knowing nothing.
+            The ranges come from re-drawing the test flights at random 200 times
+            and re-measuring; the middle 95% of those runs is shown. The ratio
+            is the curve area divided by the base rate: what the model adds over
+            knowing nothing.
           </p>
 
           <h4>Is the best model actually better?</h4>
@@ -377,13 +379,19 @@
 
           <details>
             <summary>Precision&ndash;recall and ROC curves</summary>
+            <p>
+              The precision&ndash;recall curve is the one to read here. Each point
+              is one threshold: moving along it trades precision against recall,
+              and the dashed line is the base rate a model with no information
+              would achieve. The ROC curve is shown beside it for completeness.
+            </p>
             <figure class="fig"><img src="figures/curves.png" alt="Precision-recall and ROC curves for the three models on the test set." loading="lazy"></figure>
           </details>
 
           <details>
-            <summary>Which schedule fields carry the signal?</summary>
+            <summary>Which schedule fields carry the signal? (feature ablation)</summary>
             <p id="importance-text"></p>
-            <figure class="fig"><img src="figures/importance.png" alt="Permutation importance of each feature." loading="lazy"></figure>
+            <figure class="fig"><img src="figures/importance.png" alt="Feature ablation: the drop in the precision-recall curve area when each feature is shuffled." loading="lazy"></figure>
           </details>
 
           <details>
@@ -396,11 +404,11 @@
           <details>
             <summary>Fixing calibration, without spending the test set</summary>
             <p>
-              The fix is a monotonic mapping from raw score to probability,
-              fitted by isotonic regression. Because it is monotonic it
-              <em>cannot</em> reorder any flight, so precision, recall and the
-              AUCs are untouched &mdash; only the level changes, which is
-              precisely the defect.
+              The fix is an order-preserving mapping from the model's score to a
+              probability, fitted as an increasing step function. Because it only
+              ever preserves the order, it <em>cannot</em> reorder any flight, so
+              precision, recall and both curve areas are untouched &mdash; only
+              the level changes, which is precisely the defect.
             </p>
             <p>
               We fitted it on the <strong>validation month only</strong>, and
@@ -411,13 +419,13 @@
               measured.
             </p>
             <div id="calibration-fix"></div>
-            <figure class="fig"><img src="figures/calibration_fix.png" alt="Calibration curve before and after isotonic correction, measured on held-out September days." loading="lazy"></figure>
+            <figure class="fig"><img src="figures/calibration_fix.png" alt="Calibration curve before and after the correction, measured on held-out September days." loading="lazy"></figure>
           </details>
 
           <details>
-            <summary>Choosing a calibration method: Platt scaling vs isotonic, for both models</summary>
+            <summary>Choosing between two calibration methods, for both models</summary>
             <div id="calibration-methods"></div>
-            <figure class="fig"><img src="figures/calibration_methods.png" alt="Reliability curves for raw, isotonic, Platt and class-weight-corrected predictions, for both models, on held-out September days." loading="lazy"></figure>
+            <figure class="fig"><img src="figures/calibration_methods.png" alt="Calibration curves for raw, step-mapped, log-odds-fitted and base-rate-corrected predictions, for both models, on held-out September days." loading="lazy"></figure>
           </details>
         </section>
       </div>
@@ -448,11 +456,11 @@
           <ul class="limits">
             <li><strong>No weather.</strong> One of the largest real causes of delay is absent from the dataset. This is the ceiling on everything above.</li>
             <li><strong>No inbound-aircraft state.</strong> The single best predictor of a delayed departure is the aircraft arriving late from its previous leg, and at scheduling time that is unknowable.</li>
-            <li><strong>Uncalibrated probabilities.</strong> Raw scores are relative risk, not probabilities; the predictor shows a corrected value fitted on September, which under-states risk in busier months.</li>
+            <li><strong>The raw scores are not calibrated.</strong> On their own they rank flights but overstate the chance of delay; the predictor shows a corrected value, and the correction is fitted on September, so it understates risk in busier months.</li>
             <li><strong>One year.</strong> 2015 schedules, fleets and carriers. Fleet mixes, fuel prices and airline on-time behaviour have all moved since, so we make no claim about today or about other years.</li>
             <li><strong>Operated flights only.</strong> Cancellations and diversions are excluded by construction, so this does not predict disruption in general.</li>
             <li><strong>October is missing entirely</strong> because of the airport-code defect, so validation rests on a single month, September &mdash; a quiet one.</li>
-            <li><strong>An atypical test period.</strong> November and December carry holiday traffic, and performance measurably degraded there.</li>
+            <li><strong>Distribution shift into the test period.</strong> November and December carry holiday traffic and winter weather, the base rate moves from 13.0% to 17.95%, and performance measurably degraded there. The training months are not drawn from the same conditions as the test months.</li>
             <li><strong>One million training rows, not 3.8 million,</strong> so the tree models finish on a laptop. All models share the same rows, so the comparison is fair, but more data might have helped them.</li>
             <li><strong>US domestic only.</strong> Nothing here generalises to international routes, other countries' air-traffic systems, or carriers absent from the 2015 US schedule.</li>
             <li><strong>Association, not causation.</strong> Evening flights are riskier; evening does not <em>cause</em> delay. The schedule is a proxy for accumulated upstream disruption, so no number here supports an intervention &mdash; moving a flight to the morning would not transfer the morning delay rate to it.</li>
@@ -482,8 +490,9 @@
                 <li><code>step04_export_model.py</code> &mdash; coefficients to JSON for this page, feature importance</li>
                 <li><code>step05_final_eval.py</code> &mdash; the test set, opened once</li>
                 <li><code>step06_rolling_cv.py</code> &mdash; rolling-origin CV (no test data)</li>
-                <li><code>step07_calibrate.py</code> &mdash; isotonic calibration (validation only)</li>
-                <li><code>step08_grid_search.py</code> &mdash; optional: the wide tuning search (no test data)</li>
+                <li><code>step07_calibrate.py</code> &mdash; the first calibration mapping (validation only)</li>
+                <li><code>step08_grid_search.py</code> &mdash; optional: the wide search over model settings (no test data)</li>
+                <li><code>step09_calibrate_compare.py</code> &mdash; the two calibration mappings compared, one chosen per model (validation only)</li>
               </ul>
             </li>
             <li>Verify:

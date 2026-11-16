@@ -1,9 +1,9 @@
 {
-  "method": "isotonic regression",
+  "method": "increasing step mapping (scikit-learn IsotonicRegression)",
   "fitted_on": "validation month only (September 2015)",
   "applies_to": "logistic_regression (the model the website scores in-browser)",
   "test_set_touched": false,
-  "why": "Class weighting inflates predicted probabilities. Isotonic regression is monotonic, so it corrects the level without reordering any flight: PR-AUC, ROC-AUC and the precision/recall trade-off are unchanged.",
+  "why": "Weighting the rare class more heavily in the loss pushes the predicted probabilities up. An order-preserving mapping corrects the level without reordering any flight, so both curve areas and the precision/recall trade-off are unchanged.",
   "honest_measurement": {
     "fit_days": "September 1-15",
     "assess_days": "September 16-30",
@@ -11,7 +11,7 @@
     "n_assess": 234711,
     "raw": {
       "brier": 0.221874735247938,
-      "ece": 0.33450616485062473,
+      "avg_gap": 0.33450616485062473,
       "pr_auc": 0.17460086862334484,
       "roc_auc": 0.6215385105904185,
       "bins": [
@@ -67,7 +67,7 @@
     },
     "calibrated": {
       "brier": 0.10297612144616848,
-      "ece": 0.011496096358521194,
+      "avg_gap": 0.011496096358521194,
       "pr_auc": 0.17182415552947872,
       "roc_auc": 0.6212961363347531,
       "bins": [
@@ -92,7 +92,7 @@
       ]
     },
     "brier_improvement": 0.1189,
-    "ece_improvement": 0.323,
+    "avg_gap_improvement": 0.323,
     "ranking_preserved": true
   },
   "mapping": {

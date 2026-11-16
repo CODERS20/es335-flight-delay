@@ -94,35 +94,96 @@ function renderHero(metrics) {
   const test = metrics.test;
   const best = test.results[test.chosen_model];
   const base = test.results.majority_baseline;
-  const tiles = [
+  const ci = best.pr_auc_ci95 || [];
+  const months = test.test_months
+    .map((m) => new Date(2015, m - 1).toLocaleString("en-US", { month: "long" }))
+    .join(" and ");
+
+  const cards = [
     {
-      k: "Best test PR-AUC",
-      v: n3(best.pr_auc),
-      s: `${MODEL_LABEL[test.chosen_model]}, vs ${n3(base.pr_auc)} for the baseline`,
+      k: "Best model PR-AUC",
+      v: n4(best.pr_auc),
+      s: `${MODEL_LABEL[test.chosen_model]}, our final model`,
+      x: `95% CI ${n3(ci[0])} to ${n3(ci[1])}, from ${test.n_bootstrap} bootstrap
+          resamples. PR-AUC summarises precision against recall for the minority
+          class, which is the class we care about here.`,
+      hero: true,
+    },
+    {
+      k: "Baseline PR-AUC",
+      v: n4(base.pr_auc),
+      s: "always predicts &ldquo;on time&rdquo;",
+      x: `Equal to the test delay rate of ${pct(test.test_delay_rate, 2)} &mdash;
+          the score any uninformative model gets. This baseline is
+          ${pct(base.accuracy, 1)} accurate and catches zero delays, which is why
+          accuracy is not our headline metric.`,
     },
     {
       k: "Lift over baseline",
-      v: best.pr_auc_lift_over_baseline.toFixed(2) + "×",
+      v: best.pr_auc_lift_over_baseline.toFixed(2) + "&times;",
       s: "what the model adds over knowing nothing",
+      x: `PR-AUC divided by the period's base rate. The same model reached
+          ${best.val_pr_auc_lift_over_baseline.toFixed(2)}&times; on validation, so
+          performance fell on the harder holiday months.`,
     },
     {
-      k: "Delays caught",
-      v: pct(best.recall, 0),
-      s: `at ${pct(best.precision, 0)} precision, on ${num(test.test_rows)} unseen flights`,
+      k: "Test flights",
+      v: num(test.test_rows),
+      s: `${months} 2015, scored once`,
+      x: `Held back from every modelling decision. Models, hyperparameters and the
+          decision threshold were all fixed on earlier months before this set was
+          opened.`,
     },
   ];
+
   const box = document.getElementById("hero-stats");
-  tiles.forEach((t) => {
-    const d = el("div", "tile");
-    d.appendChild(el("p", "tile-k", t.k));
-    d.appendChild(el("p", "tile-v", t.v));
-    d.appendChild(el("p", "tile-s", t.s));
+  cards.forEach((c) => {
+    const d = el("div", c.hero ? "stat-card is-hero" : "stat-card");
+    d.appendChild(el("p", "stat-k", c.k));
+    d.appendChild(el("p", "stat-v", c.v));
+    d.appendChild(el("p", "stat-s", c.s));
+    d.appendChild(el("p", "stat-x", c.x));
     box.appendChild(d);
   });
+
   document.getElementById("hero-foot").innerHTML =
     `A modest result, honestly measured. The schedule carries real signal, but ` +
     `most of what makes a flight late &mdash; weather, and the aircraft arriving ` +
     `late from its last leg &mdash; is invisible at booking time.`;
+}
+
+/* The chronological split, drawn as twelve months so the design is visible at a
+   glance rather than only readable in the table below it. */
+function renderSplitViz(summary) {
+  const root = document.getElementById("splitviz");
+  if (!root) return;
+  const cfg = summary.config;
+  const role = (m) => {
+    if (cfg.train_months.includes(m)) return ["train", "Train"];
+    if (cfg.val_months_effective.includes(m)) return ["val", "Validation"];
+    if (cfg.test_months.includes(m)) return ["test", "Test"];
+    return ["out", "Excluded"];
+  };
+  const strip = el("div", "split-strip");
+  for (let m = 1; m <= 12; m++) {
+    const [cls, label] = role(m);
+    const cell = el("div", `split-cell is-${cls}`);
+    cell.appendChild(
+      el("span", "split-m", new Date(2015, m - 1).toLocaleString("en-US", { month: "short" }))
+    );
+    cell.appendChild(el("span", "split-r", label));
+    strip.appendChild(cell);
+  }
+  root.appendChild(strip);
+  root.appendChild(
+    el(
+      "p",
+      "caption",
+      `January to August trains, September tunes, November and December are
+       scored once. October is excluded for the airport-code defect described
+       under Data, which is why validation rests on a single month.`
+    )
+  );
 }
 
 function renderData(summary) {
@@ -399,6 +460,60 @@ function renderRollingCV(cv, metrics) {
 }
 
 /* ===================================================================== */
+/* tuning headroom (step 08)                                             */
+/* ===================================================================== */
+function renderGridSearch(gs) {
+  const root = document.getElementById("grid-search");
+  if (!root) return;
+
+  root.appendChild(
+    el(
+      "p",
+      null,
+      `Step 03 tuned over a deliberately small grid. The fair question is whether
+       a wider search would have found something materially better, so we ran
+       <strong>${gs.n_configs_stage1} configurations</strong> on the validation
+       month, then re-ran the best few per model &mdash; plus the configuration we
+       had actually chosen &mdash; across ${gs.cv_folds.length} rolling-origin
+       folds. The margin that would count as a real improvement
+       (${gs.material_margin_fixed_in_advance} mean lift) was fixed
+       <em>before</em> any result was seen, and the test months were never
+       loaded.`
+    )
+  );
+
+  const rows = gs.stage2.slice(0, 6).map((r) => ({
+    cls: r.incumbent ? "best" : null,
+    cells: [
+      `<span class="dot" style="background:${SERIES[r.model]}"></span>${MODEL_LABEL[r.model]}` +
+        (r.incumbent ? ' <span class="pill">our choice</span>' : ""),
+      `<code>${JSON.stringify(r.params).replace(/[{}"]/g, "").replace(/,/g, ", ")}</code>`,
+      `${r.cv_mean_lift.toFixed(4)}&times; <span class="muted">&plusmn;${r.cv_std_lift.toFixed(4)}</span>`,
+    ],
+  }));
+  root.appendChild(
+    table(["Model", "Configuration", "Mean rolling-CV lift"], rows, {
+      caption: `Top ${rows.length} of ${gs.n_configs_stage2} configurations carried
+                into the rolling-fold stage, ranked by mean lift.`,
+    })
+  );
+
+  root.appendChild(
+    el(
+      "div",
+      "verdict",
+      `<p><strong>Best found: ${gs.gain_over_incumbent >= 0 ? "+" : ""}${gs.gain_over_incumbent.toFixed(
+        4
+      )} mean lift over the configuration we had already chosen</strong>
+        &mdash; ${gs.materially_better ? "above" : "below"} the
+        ${gs.material_margin_fixed_in_advance} margin set in advance, so it
+        ${gs.materially_better ? "counts as material" : "does not count as material"}.</p>
+       <p>${gs.verdict}</p>`
+    )
+  );
+}
+
+/* ===================================================================== */
 /* results                                                               */
 /* ===================================================================== */
 function renderResults(metrics, summary) {
@@ -592,7 +707,7 @@ function applyCalibration(cal, s) {
   return y[lo] + t * (y[hi] - y[lo]);
 }
 
-function renderPredictor(model, options, calib, cal) {
+function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAuc) {
   const root = document.getElementById("predictor");
   document.getElementById("verify-err").textContent =
     model.verified_max_abs_error_vs_sklearn.toExponential(1);
@@ -635,18 +750,37 @@ function renderPredictor(model, options, calib, cal) {
     i + 1, new Date(2015, i).toLocaleString("en-US", { month: "long" }),
   ]));
 
-  form.appendChild(field("Carrier", selCarrier));
-  form.appendChild(field("From", selOrigin));
-  form.appendChild(field("To", selDest));
-  form.appendChild(field("Scheduled departure", selHour));
-  form.appendChild(field("Day of week", selDow));
+  form.appendChild(field("Airline", selCarrier));
+  form.appendChild(field("Origin airport", selOrigin));
+  form.appendChild(field("Destination airport", selDest));
+  form.appendChild(field("Scheduled departure hour", selHour));
+  form.appendChild(field("Day of the week", selDow));
   form.appendChild(field("Month", selMonth));
-  root.appendChild(form);
 
-  const out = el("div", "pout");
-  root.appendChild(out);
+  const left = el("div", "pcol pcol-form");
+  left.appendChild(el("h3", "pcol-h", "Flight details"));
+  left.appendChild(form);
   const routeInfo = el("p", "hint route-info");
-  root.appendChild(routeInfo);
+  left.appendChild(routeInfo);
+  root.appendChild(left);
+
+  const right = el("div", "pcol pcol-out");
+  right.appendChild(el("h3", "pcol-h", "Estimated delay risk"));
+  const out = el("div", "pout");
+  right.appendChild(out);
+  right.appendChild(
+    el(
+      "p",
+      "pfoot",
+      `Scored with <strong>logistic regression</strong>, the one model that
+       exports to exact browser arithmetic. Our headline results use gradient
+       boosting, which finished within
+       ${n4(Math.abs(bestPrAuc - lrPrAuc))} PR-AUC of it. The percentage is
+       corrected by a mapping fitted on September, a quieter month than the test
+       period, so it understates risk in the busiest weeks.`
+    )
+  );
+  root.appendChild(right);
 
   function fillDests() {
     const o = selOrigin.value;
@@ -728,7 +862,7 @@ function renderPredictor(model, options, calib, cal) {
     out.appendChild(gauge);
 
     const expl = el("div", "pexpl");
-    const baseline = 0.1795;
+    const baseline = baseRate;
     const rel = shown / baseline;
     expl.innerHTML =
       (cp == null
@@ -996,10 +1130,99 @@ function renderConclusion(metrics, summary) {
 }
 
 /* ===================================================================== */
+/* dashboard tabs + hash routing                                         */
+/* ===================================================================== */
+const TAB_NAMES = [
+  "question", "data", "methods", "evaluation", "results", "errors", "conclusion",
+];
+
+/* Every anchor the site has ever published maps to the tab that now holds it,
+   so old links keep working. */
+const ANCHOR_TAB = {
+  question: "question",
+  data: "data",
+  preprocessing: "data",
+  methods: "methods",
+  evaluation: "evaluation",
+  results: "results",
+  errors: "errors",
+  limitations: "errors",
+  conclusion: "conclusion",
+  reproduce: "conclusion",
+};
+
+function activateTab(name, moveFocus) {
+  if (!TAB_NAMES.includes(name)) return;
+  TAB_NAMES.forEach((t) => {
+    const on = t === name;
+    const btn = document.getElementById("tab-" + t);
+    const panel = document.getElementById("panel-" + t);
+    if (btn) {
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+      btn.setAttribute("tabindex", on ? "0" : "-1");
+      btn.className = on ? "tab is-active" : "tab";
+    }
+    if (panel) {
+      if (on) panel.removeAttribute("hidden");
+      else panel.setAttribute("hidden", "hidden");
+    }
+  });
+  if (moveFocus) {
+    const btn = document.getElementById("tab-" + name);
+    if (btn && btn.focus) btn.focus();
+  }
+}
+
+function currentHash(win) {
+  const h = (win && win.location && win.location.hash) || "";
+  return h.replace(/^#/, "");
+}
+
+function routeFromHash(win, scroll) {
+  const id = currentHash(win);
+  if (!id) return;
+  const tab = ANCHOR_TAB[id];
+  if (tab) activateTab(tab);
+  const target = document.getElementById(id);
+  if (scroll && target && target.scrollIntoView) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function initTabs(win) {
+  TAB_NAMES.forEach((t, i) => {
+    const btn = document.getElementById("tab-" + t);
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+      activateTab(t);
+      if (win && win.history && win.history.replaceState) {
+        win.history.replaceState(null, "", "#" + t);
+      }
+    });
+    btn.addEventListener("keydown", (e) => {
+      let j = null;
+      if (e.key === "ArrowRight") j = (i + 1) % TAB_NAMES.length;
+      else if (e.key === "ArrowLeft") j = (i - 1 + TAB_NAMES.length) % TAB_NAMES.length;
+      else if (e.key === "Home") j = 0;
+      else if (e.key === "End") j = TAB_NAMES.length - 1;
+      if (j == null) return;
+      if (e.preventDefault) e.preventDefault();
+      activateTab(TAB_NAMES[j], true);
+    });
+  });
+  if (win && win.addEventListener) {
+    win.addEventListener("hashchange", () => routeFromHash(win, true));
+  }
+  routeFromHash(win, false);
+}
+
+/* ===================================================================== */
 /* boot                                                                  */
 /* ===================================================================== */
 document.addEventListener("DOMContentLoaded", async () => {
-  const [summary, metrics, thr, errors, model, options, rollingCV, calibration] = await Promise.all([
+  initTabs(typeof window === "undefined" ? null : window);
+
+  const [summary, metrics, thr, errors, model, options, rollingCV, calibration, gridSearch] = await Promise.all([
     loadJSON("summary.json"),
     loadJSON("metrics.json"),
     loadJSON("threshold.json"),
@@ -1008,6 +1231,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadJSON("options.json"),
     loadJSON("rolling_cv.json"),
     loadJSON("calibration.json"),
+    loadJSON("grid_search.json"),
   ]);
 
   if (!metrics || !summary) {
@@ -1022,6 +1246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try { renderPreprocessing(summary); } catch (e) { console.error(e); }
   try { renderMethods(metrics); } catch (e) { console.error(e); }
   try { renderEvaluation(summary, metrics); } catch (e) { console.error(e); }
+  try { renderSplitViz(summary); } catch (e) { console.error(e); }
   try { renderResults(metrics, summary); } catch (e) { console.error(e); }
   if (calibration) {
     try { renderCalibrationFix(calibration); } catch (e) { console.error(e); }
@@ -1029,10 +1254,23 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (rollingCV) {
     try { renderRollingCV(rollingCV, metrics); } catch (e) { console.error(e); }
   } else fail("rolling-cv", "data/rolling_cv.json");
+  if (gridSearch) {
+    try { renderGridSearch(gridSearch); } catch (e) { console.error(e); }
+  } else fail("grid-search", "data/grid_search.json");
   try { renderConclusion(metrics, summary); } catch (e) { console.error(e); }
 
   if (model && options) {
-    try { renderPredictor(model, options, metrics.test.calibration, calibration); }
+    try {
+      renderPredictor(
+        model,
+        options,
+        metrics.test.calibration,
+        calibration,
+        metrics.test.test_delay_rate,
+        metrics.test.results[metrics.test.chosen_model].pr_auc,
+        metrics.test.results.logistic_regression.pr_auc
+      );
+    }
     catch (e) { console.error(e); fail("predictor", "data/model.json"); }
   } else fail("predictor", "data/model.json");
 
@@ -1043,4 +1281,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (errors) {
     try { renderErrors(errors); } catch (e) { console.error(e); }
   }
+
+  // Sections render asynchronously, so an incoming #anchor can only be scrolled
+  // to once its panel actually has content.
+  try { routeFromHash(typeof window === "undefined" ? null : window, true); }
+  catch (e) { console.error(e); }
 });

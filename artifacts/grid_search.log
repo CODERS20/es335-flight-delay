@@ -1,0 +1,136 @@
+========================================================================
+STEP 08  Wide grid search (validation + rolling CV; test untouched)
+========================================================================
+
+decision rule fixed in advance: a config must beat the step-03 choice
+by >= 0.005 mean CV lift to count as materially better.
+
+train 1,000,000   validation 462,153 (base rate 0.1300)
+step-03 incumbent: gradient_boosting {'max_iter': 200, 'learning_rate': 0.05, 'max_leaf_nodes': 31}
+
+stage 1: 62 configurations (logistic 8, random 18, gradient 36)
+
+--- logistic_regression (8 configs) ---
+  [ 1/62] {'C': 0.01, 'class_weight': 'balanced'}                        PR-AUC 0.1947  lift 1.498x  (21s)
+  [ 2/62] {'C': 0.01, 'class_weight': None}                              PR-AUC 0.1953  lift 1.503x  (16s)
+  [ 3/62] {'C': 0.1, 'class_weight': 'balanced'}                         PR-AUC 0.1952  lift 1.502x  (19s)
+  [ 4/62] {'C': 0.1, 'class_weight': None}                               PR-AUC 0.1962  lift 1.510x  (19s)
+  [ 5/62] {'C': 1.0, 'class_weight': 'balanced'}                         PR-AUC 0.1954  lift 1.503x  (20s)
+  [ 6/62] {'C': 1.0, 'class_weight': None}                               PR-AUC 0.1961  lift 1.509x  (20s)
+  [ 7/62] {'C': 10.0, 'class_weight': 'balanced'}                        PR-AUC 0.1952  lift 1.502x  (21s)
+  [ 8/62] {'C': 10.0, 'class_weight': None}                              PR-AUC 0.1959  lift 1.508x  (20s)
+
+--- random_forest (18 configs) ---
+  [ 9/62] {'n_estimators': 60, 'max_depth': 14, 'min_samples_leaf': 20}  PR-AUC 0.1878  lift 1.445x  (88s)
+  [10/62] {'n_estimators': 60, 'max_depth': 14, 'min_samples_leaf': 50}  PR-AUC 0.1882  lift 1.448x  (92s)
+  [11/62] {'n_estimators': 60, 'max_depth': 14, 'min_samples_leaf': 100} PR-AUC 0.1876  lift 1.443x  (85s)
+  [12/62] {'n_estimators': 60, 'max_depth': 20, 'min_samples_leaf': 20}  PR-AUC 0.1895  lift 1.458x  (100s)
+  [13/62] {'n_estimators': 60, 'max_depth': 20, 'min_samples_leaf': 50}  PR-AUC 0.1884  lift 1.449x  (97s)
+  [14/62] {'n_estimators': 60, 'max_depth': 20, 'min_samples_leaf': 100} PR-AUC 0.1880  lift 1.447x  (90s)
+  [15/62] {'n_estimators': 60, 'max_depth': 28, 'min_samples_leaf': 20}  PR-AUC 0.1881  lift 1.447x  (99s)
+  [16/62] {'n_estimators': 60, 'max_depth': 28, 'min_samples_leaf': 50}  PR-AUC 0.1890  lift 1.454x  (91s)
+  [17/62] {'n_estimators': 60, 'max_depth': 28, 'min_samples_leaf': 100} PR-AUC 0.1879  lift 1.446x  (79s)
+  [18/62] {'n_estimators': 120, 'max_depth': 14, 'min_samples_leaf': 20} PR-AUC 0.1889  lift 1.453x  (156s)
+  [19/62] {'n_estimators': 120, 'max_depth': 14, 'min_samples_leaf': 50} PR-AUC 0.1888  lift 1.453x  (174s)
+  [20/62] {'n_estimators': 120, 'max_depth': 14, 'min_samples_leaf': 100} PR-AUC 0.1874  lift 1.442x  (164s)
+  [21/62] {'n_estimators': 120, 'max_depth': 20, 'min_samples_leaf': 20} PR-AUC 0.1907  lift 1.467x  (186s)
+  [22/62] {'n_estimators': 120, 'max_depth': 20, 'min_samples_leaf': 50} PR-AUC 0.1890  lift 1.454x  (213s)
+  [23/62] {'n_estimators': 120, 'max_depth': 20, 'min_samples_leaf': 100} PR-AUC 0.1889  lift 1.453x  (208s)
+  [24/62] {'n_estimators': 120, 'max_depth': 28, 'min_samples_leaf': 20} PR-AUC 0.1892  lift 1.456x  (250s)
+  [25/62] {'n_estimators': 120, 'max_depth': 28, 'min_samples_leaf': 50} PR-AUC 0.1884  lift 1.450x  (237s)
+  [26/62] {'n_estimators': 120, 'max_depth': 28, 'min_samples_leaf': 100} PR-AUC 0.1890  lift 1.454x  (205s)
+
+--- gradient_boosting (36 configs) ---
+  [27/62] {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1995  lift 1.535x  (53s)
+  [28/62] {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.2006  lift 1.543x  (24130s)
+  [29/62] {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1978  lift 1.522x  (154s)
+  [30/62] {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1986  lift 1.529x  (97s)
+  [31/62] {'learning_rate': 0.03, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1991  lift 1.532x  (77s)
+  [32/62] {'learning_rate': 0.03, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1995  lift 1.535x  (69s)
+  [33/62] {'learning_rate': 0.03, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1967  lift 1.513x  (117s)
+  [34/62] {'learning_rate': 0.03, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1989  lift 1.530x  (120s)
+  [35/62] {'learning_rate': 0.03, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1989  lift 1.530x  (90s)
+  [36/62] {'learning_rate': 0.03, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1976  lift 1.521x  (92s)
+  [37/62] {'learning_rate': 0.03, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1964  lift 1.511x  (153s)
+  [38/62] {'learning_rate': 0.03, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1958  lift 1.506x  (148s)
+  [39/62] {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.2001  lift 1.539x  (55s)
+  [40/62] {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1998  lift 1.537x  (53s)
+  [41/62] {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1969  lift 1.515x  (79s)
+  [42/62] {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1957  lift 1.506x  (80s)
+  [43/62] {'learning_rate': 0.05, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1989  lift 1.530x  (60s)
+  [44/62] {'learning_rate': 0.05, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1987  lift 1.529x  (311s)
+  [45/62] {'learning_rate': 0.05, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1962  lift 1.510x  (95s)
+  [46/62] {'learning_rate': 0.05, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1972  lift 1.518x  (37s)
+  [47/62] {'learning_rate': 0.05, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1983  lift 1.526x  (18s)
+  [48/62] {'learning_rate': 0.05, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1968  lift 1.514x  (18s)
+  [49/62] {'learning_rate': 0.05, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1961  lift 1.509x  (28s)
+  [50/62] {'learning_rate': 0.05, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1942  lift 1.494x  (85s)
+  [51/62] {'learning_rate': 0.1, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1955  lift 1.505x  (24s)
+  [52/62] {'learning_rate': 0.1, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1970  lift 1.516x  (28s)
+  [53/62] {'learning_rate': 0.1, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1961  lift 1.509x  (41s)
+  [54/62] {'learning_rate': 0.1, 'max_leaf_nodes': 31, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1951  lift 1.501x  (44s)
+  [55/62] {'learning_rate': 0.1, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1971  lift 1.517x  (27s)
+  [56/62] {'learning_rate': 0.1, 'max_leaf_nodes': 63, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1945  lift 1.496x  (30s)
+  [57/62] {'learning_rate': 0.1, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1957  lift 1.505x  (48s)
+  [58/62] {'learning_rate': 0.1, 'max_leaf_nodes': 63, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1951  lift 1.502x  (49s)
+  [59/62] {'learning_rate': 0.1, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 0.0} PR-AUC 0.1948  lift 1.499x  (39s)
+  [60/62] {'learning_rate': 0.1, 'max_leaf_nodes': 127, 'max_iter': 200, 'l2_regularization': 1.0} PR-AUC 0.1938  lift 1.491x  (23s)
+  [61/62] {'learning_rate': 0.1, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 0.0} PR-AUC 0.1939  lift 1.492x  (28s)
+  [62/62] {'learning_rate': 0.1, 'max_leaf_nodes': 127, 'max_iter': 400, 'l2_regularization': 1.0} PR-AUC 0.1925  lift 1.481x  (28s)
+
+stage 1 complete in 490.0 min -- cached
+
+best per model on September:
+  gradient_boosting      0.2006  {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 1.0}
+  logistic_regression    0.1962  {'C': 0.1, 'class_weight': None}
+  random_forest          0.1907  {'n_estimators': 120, 'max_depth': 20, 'min_samples_leaf': 20}
+
+stage 2: 12 configs x 4 rolling folds
+loading months [1, 2, 3, 4, 5, 6, 7, 8, 9] (test months never loaded) ...
+  [ 1/12] gradient_boosting    mean lift 1.5682 +/- 0.0275  (34s)
+  [ 2/12] gradient_boosting    mean lift 1.5662 +/- 0.0389  (31s)
+  [ 3/12] gradient_boosting    mean lift 1.5676 +/- 0.0415  (37s)
+  [ 4/12] logistic_regression  mean lift 1.4885 +/- 0.0271  (39s)
+  [ 5/12] logistic_regression  mean lift 1.4876 +/- 0.0270  (43s)
+  [ 6/12] logistic_regression  mean lift 1.4888 +/- 0.0275  (45s)
+  [ 7/12] random_forest        mean lift 1.5483 +/- 0.0771  (138s)
+  [ 8/12] random_forest        mean lift 1.5447 +/- 0.0762  (34s)
+  [ 9/12] random_forest        mean lift 1.5445 +/- 0.0719  (64s)
+  [10/12] logistic_regression  mean lift 1.4808 +/- 0.0235  <- step-03 choice  (16s)
+  [11/12] random_forest        mean lift 1.5425 +/- 0.0797  <- step-03 choice  (34s)
+  [12/12] gradient_boosting    mean lift 1.5662 +/- 0.0389  <- step-03 choice  (29s)
+
+========================================================================
+RANKING BY MEAN ROLLING-CV LIFT
+========================================================================
+  1.5682 +/- 0.0275  gradient_boosting    {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 
+  1.5676 +/- 0.0415  gradient_boosting    {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 
+  1.5662 +/- 0.0389  gradient_boosting    {'learning_rate': 0.05, 'max_leaf_nodes': 31, 'max_iter': 
+  1.5662 +/- 0.0389  gradient_boosting    {'max_iter': 200, 'learning_rate': 0.05, 'max_leaf_nodes': <- step-03 choice
+  1.5483 +/- 0.0771  random_forest        {'n_estimators': 120, 'max_depth': 20, 'min_samples_leaf':
+  1.5447 +/- 0.0762  random_forest        {'n_estimators': 60, 'max_depth': 20, 'min_samples_leaf': 
+  1.5445 +/- 0.0719  random_forest        {'n_estimators': 120, 'max_depth': 28, 'min_samples_leaf':
+  1.5425 +/- 0.0797  random_forest        {'n_estimators': 60, 'max_depth': 20, 'min_samples_leaf': 
+  1.4888 +/- 0.0275  logistic_regression  {'C': 10.0, 'class_weight': None}
+  1.4885 +/- 0.0271  logistic_regression  {'C': 0.1, 'class_weight': None}
+  1.4876 +/- 0.0270  logistic_regression  {'C': 1.0, 'class_weight': None}
+  1.4808 +/- 0.0235  logistic_regression  {'C': 1.0}
+
+========================================================================
+best found        : gradient_boosting {'learning_rate': 0.03, 'max_leaf_nodes': 31, 'max_iter': 200, 'l2_regularization': 1.0}
+                    mean CV lift 1.5682
+step-03 incumbent : gradient_boosting {'max_iter': 200, 'learning_rate': 0.05, 'max_leaf_nodes': 31}
+                    mean CV lift 1.5662
+gain              : +0.0021 lift
+material (>= 0.005)? False
+========================================================================
+
+A grid 62 configurations wide found nothing materially better than the step-03 choice (best gain +0.0021 mean CV lift, against a 0.005 threshold fixed in advance). Hyperparameters are not the binding constraint on this problem: the features are. Our original configuration stands, and the published test numbers stand with it.
+wrote artifacts\grid_search.json
+wrote docs\data\grid_search.json
+wrote artifacts/figures/grid_search.png
+
+========================================================================
+STEP 08 complete -- test set untouched
+========================================================================
+EXIT=0

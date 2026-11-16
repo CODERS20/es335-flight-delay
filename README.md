@@ -175,11 +175,74 @@ honestly by splitting September in half — learn from 1–15 September, score o
 | ROC-AUC *(must not change)* | 0.6215 | 0.6213 |
 
 A raw score of 0.50 maps to a true **13.7%** chance of being late; 0.80 maps to
-31.0%. The website's predictor now reports the calibrated figure.
+31.0%. Step 09 below then compared this against Platt scaling and selected
+Platt, so the website's predictor reports the Platt-calibrated figure; both
+artifacts are kept.
 
 **Caveat:** the mapping is fitted on September (13.0% delay rate), so on a
 busier period such as the test months (17.9%) it would under-predict. The test
 results above remain the uncalibrated ones, measured once, as published.
+
+### Choosing a calibration method, and calibrating both models (step 09)
+
+Isotonic fitted several hundred knots on a single month, and our headline model
+had no calibrator at all. So we fitted **both** methods for **both** models on
+the same protocol (fit 1–15 September, assess 16–30 September, each model with
+its own calibrator) and selected per model by a rule fixed in advance: lowest
+ECE among methods that preserve ranking.
+
+Platt scaling fits two parameters, `p = σ(a·logit(s) + b)`, one for each defect
+we diagnosed — `b` for the level error that class weighting introduces, `a` for
+how far the scores are spread.
+
+Gradient boosting, measured on 16–30 September:
+
+| Method | Brier | ECE | Worst bin gap | Slope | PR-AUC |
+|---|---|---|---|---|---|
+| Raw | 0.2027 | 0.2984 | 0.510 | 0.669 | 0.1795 |
+| Isotonic | 0.1028 | 0.0117 | **0.019** | 0.768 | 0.1761 |
+| **Platt** | **0.1026** | **0.0067** | 0.063 | **0.857** | **0.1795** |
+| Class-weight correction *(diagnostic)* | 0.1072 | 0.0504 | 0.232 | 0.668 | 0.1795 |
+
+Logistic regression behaves the same way: ECE 0.3345 raw → 0.0115 isotonic →
+**0.0083** Platt.
+
+**It is a genuine trade-off, not a clean win.** Platt has the lower average
+error (ECE) for both models; isotonic has the smaller worst-case bin gap. Three
+things decided it for Platt:
+
+1. **Two parameters generalise better from one month** than a few hundred knots.
+2. **Platt leaves PR-AUC exactly unchanged** (0.1795), while isotonic's step
+   function ties distinct scores together and costs a little ranking resolution
+   (0.1761). A smooth strictly-increasing map cannot reorder or tie anything.
+3. **It corrects the spread, not just the level** — the calibration slope moves
+   0.669 → 0.857, against isotonic's 0.768.
+
+**Neither method fully fixes the over-confidence.** The slope stays below 1
+after correction, so the models remain somewhat over-spread. That is a limit of
+the features, not of the calibrator.
+
+**The class-weight correction, as a diagnostic.** Dividing the predicted odds by
+(1 − p)/p = **3.927**, derived from the training delay rate alone with nothing
+fitted, already takes ECE from 0.2984 to 0.0504. That is the evidence that class
+weighting *causes* the miscalibration. It is not the fix, because it assumes a
+single intercept shift is enough — our residuals show the scores are also
+over-dispersed — and it assumes the scored period shares the training base rate,
+which September does not. No correction anywhere in this project was fitted
+using the test calibration bins.
+
+**An honesty note on independence.** The September assessment is *not* a fully
+independent end-to-end evaluation. Model choice and hyperparameters were
+selected on this same month in step 03, so the scores being calibrated here were
+already tuned against September. Splitting the month by date keeps the
+*calibrator* honest — it never sees the days it is judged on — but it cannot
+undo the earlier model selection. A fully independent figure would need another
+untouched period, and we are not willing to spend the test set on one.
+
+**The published test metrics are unchanged.** No calibrator is applied to
+November–December, and we make no claim that test Brier, test ECE or test
+probabilities have improved. Calibration is monotone, so it could not have moved
+test PR-AUC, ROC-AUC, precision, recall or F1 in any case.
 
 ### Rolling-origin cross-validation
 
@@ -270,6 +333,7 @@ es335-flight-delay/
 │   ├── step06_rolling_cv.py      rolling-origin CV (robustness; no test data)
 │   ├── step07_calibrate.py       isotonic calibration (validation only)
 │   ├── step08_grid_search.py     wide tuning search (validation + CV; no test data)
+│   ├── step09_calibrate_platt.py Platt vs isotonic, both models (validation only)
 │   ├── check_site_parity.py/.mjs verifies the site's JS == scikit-learn
 │   └── check_site_render.mjs     verifies the site renders and the predictor responds
 ├── artifacts/                    every number and figure the site shows
@@ -281,7 +345,9 @@ es335-flight-delay/
 **Every number on the website is read from a JSON file in `docs/data/` that
 these scripts wrote.** None are typed in by hand. Two checks enforce this:
 `check_site_parity` confirms the browser's predictor reproduces scikit-learn's
-`predict_proba` (agreement 2.2e-16 over 200 real routes), and
+`predict_proba` (agreement 2.2e-16 over 200 real routes) and that the
+calibrated probability the page displays matches the Python calibrator
+(1.4e-16), and
 `check_site_render` executes the page's renderers against the real data files
 and fails if any section is empty, contains `undefined`/`NaN`, references a
 missing asset, or if the landing-page predictor stops responding to its inputs
@@ -339,6 +405,7 @@ python src/step05_final_eval.py       # ~4 min  (opens the test set)
 python src/step06_rolling_cv.py       # ~6 min  (robustness; Jan-Sep only)
 python src/step07_calibrate.py        # ~1 min  (calibration; validation only)
 python src/step08_grid_search.py      # ~2 hrs (optional: tuning headroom; Jan-Sep only)
+python src/step09_calibrate_platt.py  # ~1 min  (Platt vs isotonic; validation only)
 
 # verification
 python src/check_site_parity.py --make && node src/check_site_parity.mjs

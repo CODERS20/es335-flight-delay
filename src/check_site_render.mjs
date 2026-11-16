@@ -160,7 +160,7 @@ const mustHaveContent = [
   "comparison", "calibration-warning", "calibration-table", "importance-text",
   "predictor", "threshold-tool", "errors-slices", "error-examples",
   "conclusion-body", "provenance", "october-note", "balance-text", "rolling-cv",
-  "calibration-fix", "splitviz", "grid-search",
+  "calibration-fix", "splitviz", "grid-search", "calibration-methods",
 ];
 for (const id of mustHaveContent) {
   const text = registry.get(id)?.rendered ?? "";

@@ -4,5 +4,6 @@
   "mean_abs_difference": 1.9428902930940238e-17,
   "tolerance": 1e-09,
   "passed": true,
-  "what_this_proves": "The JavaScript in docs/app.js, run on the coefficients in docs/data/model.json, reproduces scikit-learn's predict_proba for the fitted logistic-regression pipeline on 200 real routes."
+  "max_abs_difference_calibrated": 1.3877787807814457e-16,
+  "what_this_proves": "The JavaScript in docs/app.js, run on the coefficients in docs/data/model.json, reproduces scikit-learn's predict_proba for the fitted logistic-regression pipeline on 200 real routes -- and the calibrated probability the page displays reproduces the Python calibrator selected in step 09."
 }

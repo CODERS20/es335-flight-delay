@@ -35,9 +35,17 @@ function lift(name) {
   throw new Error(`unbalanced braces reading ${name}`);
 }
 
-const scoring = lift("sigmoid") + "\n" + lift("scoreFlight");
-const { sigmoid, scoreFlight } = new Function(
-  `${scoring}; return { sigmoid, scoreFlight };`
+// The number on the page is scoreFlight() passed through the calibrator, so
+// parity has to cover both halves of that path.
+const scoring = [
+  lift("sigmoid"),
+  lift("scoreFlight"),
+  lift("applyCalibration"),
+  lift("applyPlatt"),
+  lift("calibrate"),
+].join("\n");
+const { sigmoid, scoreFlight, calibrate } = new Function(
+  `${scoring}; return { sigmoid, scoreFlight, calibrate };`
 )();
 
 const model = JSON.parse(
@@ -47,10 +55,22 @@ const flights = JSON.parse(
   readFileSync(join(repo, "artifacts", "parity_flights.json"), "utf8")
 );
 
+const calV2 = JSON.parse(
+  readFileSync(join(repo, "docs", "data", "calibration_v2.json"), "utf8")
+);
+const calV1 = JSON.parse(
+  readFileSync(join(repo, "docs", "data", "calibration.json"), "utf8")
+);
+
 const out = flights.map((f) => scoreFlight(model, f));
+const calibrated = out.map((p) => calibrate(calV2, model.model, p, calV1));
 writeFileSync(
   join(repo, "artifacts", "parity_js.json"),
   JSON.stringify(out, null, 2)
+);
+writeFileSync(
+  join(repo, "artifacts", "parity_js_calibrated.json"),
+  JSON.stringify(calibrated, null, 2)
 );
 
 console.log(`scored ${out.length} flights with the shipped app.js functions`);
@@ -60,4 +80,4 @@ out.slice(0, 5).forEach((p, i) =>
       `${String(flights[i].SCHED_DEP_HOUR).padStart(2, "0")}:00  ${p.toFixed(6)}`
   )
 );
-console.log("wrote artifacts/parity_js.json");
+console.log("wrote artifacts/parity_js.json and parity_js_calibrated.json");

@@ -23,6 +23,7 @@ import config as C
 
 FLIGHTS = C.ARTIFACTS_DIR / "parity_flights.json"
 JS_OUT = C.ARTIFACTS_DIR / "parity_js.json"
+JS_CAL = C.ARTIFACTS_DIR / "parity_js_calibrated.json"
 TOL = 1e-9
 
 with open(C.DOCS_DATA_DIR / "options.json", encoding="utf-8") as fh:
@@ -101,6 +102,36 @@ for i in range(5):
     print(f"  {route:22s} {f['SCHED_DEP_HOUR']:>5d} "
           f"{js[i]:>12.8f} {py[i]:>12.8f} {diff[i]:>10.2e}")
 
+# ---------------------------------------------------------------------------
+# the calibrated path: what the visitor actually reads off the page
+# ---------------------------------------------------------------------------
+cal_diff = None
+if JS_CAL.exists():
+    with open(C.ARTIFACTS_DIR / "calibration_platt.json", encoding="utf-8") as fh:
+        shipped = json.load(fh)["models"]["logistic_regression"]["shipped_mapping"]
+    with open(JS_CAL, encoding="utf-8") as fh:
+        js_cal = np.array(json.load(fh), dtype=float)
+
+    if shipped["method"] == "platt":
+        clipped = np.clip(py, 1e-6, 1 - 1e-6)
+        z = shipped["a"] * np.log(clipped / (1 - clipped)) + shipped["b"]
+        py_cal = 1.0 / (1.0 + np.exp(-z))
+    else:
+        py_cal = np.interp(py, shipped["x"], shipped["y"])
+
+    cal_diff = np.abs(js_cal - py_cal)
+    print(f"CALIBRATED PATH ({shipped['method']})")
+    print(f"  max abs diff   : {cal_diff.max():.3e}")
+    print(f"  shown to users : {js_cal.min():.4f} to {js_cal.max():.4f}")
+    if cal_diff.max() > TOL:
+        raise SystemExit(
+            f"FAIL: the calibrated probability shown on the site differs from "
+            f"the Python calibrator by {cal_diff.max():.3e} "
+            f"(tolerance {TOL:.0e})."
+        )
+else:
+    print("NOTE: parity_js_calibrated.json absent -- run check_site_parity.mjs")
+
 if diff.max() > TOL:
     raise SystemExit(
         f"\nFAIL: the website and the Python model disagree by {diff.max():.3e} "
@@ -118,10 +149,15 @@ with open(C.ARTIFACTS_DIR / "parity_check.json", "w", encoding="utf-8") as fh:
         "mean_abs_difference": float(diff.mean()),
         "tolerance": TOL,
         "passed": True,
+        "max_abs_difference_calibrated": (
+            None if cal_diff is None else float(cal_diff.max())
+        ),
         "what_this_proves": (
             "The JavaScript in docs/app.js, run on the coefficients in "
             "docs/data/model.json, reproduces scikit-learn's predict_proba for "
-            "the fitted logistic-regression pipeline on 200 real routes."
+            "the fitted logistic-regression pipeline on 200 real routes -- and "
+            "the calibrated probability the page displays reproduces the Python "
+            "calibrator selected in step 09."
         ),
     }, fh, indent=2)
 print("wrote artifacts/parity_check.json")

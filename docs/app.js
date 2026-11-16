@@ -666,6 +666,110 @@ function renderCalibrationFix(cal) {
 }
 
 /* ===================================================================== */
+/* calibration: method comparison (step 09)                              */
+/* ===================================================================== */
+function renderCalibrationMethods(v2) {
+  const root = document.getElementById("calibration-methods");
+  if (!root) return;
+
+  const pr = v2.protocol;
+  root.appendChild(
+    el(
+      "p",
+      null,
+      `Two methods, both models, judged on the same held-out days.
+       <strong>Isotonic</strong> fits any monotone shape &mdash; flexible, but
+       hundreds of parameters from one month. <strong>Platt scaling</strong>
+       fits two: <code>p = &sigma;(a&middot;logit(s) + b)</code>, where
+       <em>b</em> absorbs the level error that class weighting introduces and
+       <em>a</em> corrects how far the scores are spread. Each model gets its own
+       calibrator, fitted on ${num(pr.n_fit)} flights from ${pr.fit_days} and
+       scored on ${num(pr.n_assess)} flights from ${pr.assess_days}.`
+    )
+  );
+
+  const LABEL = {
+    raw: "Raw (no calibration)",
+    isotonic: "Isotonic regression",
+    platt: "Platt scaling",
+    prior_shift_diagnostic: "Class-weight correction (diagnostic)",
+  };
+
+  Object.entries(v2.models).forEach(([name, m]) => {
+    root.appendChild(el("h4", null, MODEL_LABEL[name]));
+    const rows = ["raw", "isotonic", "platt", "prior_shift_diagnostic"].map((k) => {
+      const r = m.assessment[k];
+      return {
+        cls: k === m.chosen_method ? "best" : null,
+        cells: [
+          LABEL[k] + (k === m.chosen_method ? ' <span class="pill">selected</span>' : ""),
+          n4(r.brier),
+          n4(r.ece),
+          n3(r.max_abs_gap),
+          n3(r.calibration_slope),
+          n4(r.pr_auc),
+        ],
+      };
+    });
+    root.appendChild(
+      table(
+        ["Method", "Brier", "ECE", "Worst bin gap", "Slope", "PR-AUC"],
+        rows,
+        {
+          caption:
+            "Brier and ECE: lower is better. Slope 1.000 would mean the scores " +
+            "are spread exactly right; below 1 means still over-confident. " +
+            "PR-AUC must not move, because every method here is monotone.",
+        }
+      )
+    );
+  });
+
+  const lr = v2.models.logistic_regression;
+  const gb = v2.models.gradient_boosting;
+  root.appendChild(
+    el(
+      "div",
+      "verdict",
+      `<p><strong>Platt scaling wins on average error, isotonic wins the worst
+        case.</strong> Platt reaches a lower ECE for both models
+        (${n4(lr.assessment.platt.ece)} against
+        ${n4(lr.assessment.isotonic.ece)} for logistic regression,
+        ${n4(gb.assessment.platt.ece)} against
+        ${n4(gb.assessment.isotonic.ece)} for gradient boosting), while
+        isotonic holds the smaller worst-bin gap
+        (${n3(gb.assessment.isotonic.max_abs_gap)} against
+        ${n3(gb.assessment.platt.max_abs_gap)}). We selected Platt by the rule
+        fixed before looking &mdash; lowest ECE among methods that preserve
+        ranking &mdash; and because two parameters are far less likely to be
+        fitting the noise of a single month than a few hundred knots are.</p>
+       <p>One detail decided it beyond the headline numbers: isotonic is a step
+        function, so it maps distinct scores onto identical probabilities and
+        costs a little ranking resolution
+        (PR-AUC ${n4(gb.assessment.isotonic.pr_auc)} against the raw
+        ${n4(gb.assessment.raw.pr_auc)}). Platt leaves PR-AUC untouched at
+        ${n4(gb.assessment.platt.pr_auc)}, because a smooth strictly-increasing
+        map cannot reorder or tie anything.</p>
+       <p><strong>Neither method fully fixes the spread.</strong> The calibration
+        slope improves from ${n3(gb.assessment.raw.calibration_slope)} to
+        ${n3(gb.assessment.platt.calibration_slope)} but stays below 1, so the
+        models remain slightly over-confident even after correction. That is a
+        limit of the features, not of the calibrator.</p>
+       <p class="muted"><strong>What the diagnostic row shows.</strong> Dividing
+        the predicted odds by the class-weight ratio
+        (${v2.class_weight_diagnostic.weight_ratio.toFixed(3)}, derived from the
+        training delay rate alone and fitted to nothing) already takes ECE from
+        ${n4(gb.assessment.raw.ece)} to
+        ${n4(gb.assessment.prior_shift_diagnostic.ece)}. That is the evidence
+        that class weighting is the <em>cause</em> of the miscalibration. It is
+        not the fix, because it corrects the level and not the spread.</p>
+       <p class="muted"><strong>${v2.independence_caveat}</strong></p>
+       <p class="muted">${v2.published_test_metrics_unchanged}</p>`
+    )
+  );
+}
+
+/* ===================================================================== */
 /* interaction 1: the predictor                                          */
 /* ===================================================================== */
 function sigmoid(z) {
@@ -707,7 +811,27 @@ function applyCalibration(cal, s) {
   return y[lo] + t * (y[hi] - y[lo]);
 }
 
-function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAuc) {
+/* Platt scaling: p = sigmoid(a * logit(s) + b). Two parameters, so the mapping
+   is smooth -- unlike the isotonic step function, which can map two different
+   scores to the same displayed percentage. */
+function applyPlatt(s, a, b) {
+  const q = Math.min(Math.max(s, 1e-6), 1 - 1e-6);
+  return sigmoid(a * Math.log(q / (1 - q)) + b);
+}
+
+/* Apply whichever mapping step 09 selected for a given model. `v2` is
+   data/calibration_v2.json; `fallback` is the step-07 isotonic artifact, used
+   only if the newer file is missing. */
+function calibrate(v2, modelName, s, fallback) {
+  const m = v2 && v2.models && v2.models[modelName]
+    ? v2.models[modelName].shipped_mapping
+    : null;
+  if (!m) return applyCalibration(fallback, s);
+  if (m.method === "platt") return applyPlatt(s, m.a, m.b);
+  return applyCalibration({ mapping: { x: m.x, y: m.y } }, s);
+}
+
+function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAuc, v2) {
   const root = document.getElementById("predictor");
   document.getElementById("verify-err").textContent =
     model.verified_max_abs_error_vs_sklearn.toExponential(1);
@@ -776,8 +900,9 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
        exports to exact browser arithmetic. Our headline results use gradient
        boosting, which finished within
        ${n4(Math.abs(bestPrAuc - lrPrAuc))} PR-AUC of it. The percentage is
-       corrected by a mapping fitted on September, a quieter month than the test
-       period, so it understates risk in the busiest weeks.`
+       corrected by the mapping step 09 selected on validation, fitted on
+       September &mdash; a quieter month than the test period, so it understates
+       risk in the busiest weeks.`
     )
   );
   root.appendChild(right);
@@ -827,7 +952,7 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
       IS_WEEKEND: dow >= 6 ? 1 : 0,
     };
     const p = scoreFlight(model, f);
-    const cp = applyCalibration(cal, p);
+    const cp = calibrate(v2, model.model, p, cal);
     const b = band(p);
     const flagged = p >= model.threshold;
     const shown = cp == null ? p : cp;
@@ -863,6 +988,15 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
 
     const expl = el("div", "pexpl");
     const baseline = baseRate;
+    const calInfo =
+      v2 && v2.models && v2.models[model.model] ? v2.models[model.model] : null;
+    const calMethod = calInfo
+      ? calInfo.chosen_method === "platt" ? "Platt-scaled" : "isotonic"
+      : "calibrated";
+    const calRaw = calInfo ? calInfo.assessment.raw.brier : null;
+    const calDone = calInfo
+      ? calInfo.assessment[calInfo.chosen_method].brier
+      : null;
     const rel = shown / baseline;
     expl.innerHTML =
       (cp == null
@@ -870,9 +1004,9 @@ function renderPredictor(model, options, calib, cal, baseRate, bestPrAuc, lrPrAu
         : `<p>That is <strong>${rel.toFixed(2)}&times;</strong> the overall
             rate of ${pct(baseline)}. The raw score of ${p.toFixed(3)} is not a
             probability &mdash; class weighting inflates it &mdash; so it is
-            passed through a mapping fitted on the validation month, which cut
-            the Brier score from 0.222 to 0.103 on days the mapping had never
-            seen.</p>`) +
+            passed through a ${calMethod} mapping fitted on the validation
+            month, which cut the Brier score from ${n3(calRaw)} to
+            ${n3(calDone)} on days the mapping had never seen.</p>`) +
       (b
         ? `<p class="muted">Independently: flights the model scored in the
             <strong>${b.bin}</strong> raw band were late
@@ -1222,7 +1356,7 @@ function initTabs(win) {
 document.addEventListener("DOMContentLoaded", async () => {
   initTabs(typeof window === "undefined" ? null : window);
 
-  const [summary, metrics, thr, errors, model, options, rollingCV, calibration, gridSearch] = await Promise.all([
+  const [summary, metrics, thr, errors, model, options, rollingCV, calibration, gridSearch, calibrationV2] = await Promise.all([
     loadJSON("summary.json"),
     loadJSON("metrics.json"),
     loadJSON("threshold.json"),
@@ -1232,6 +1366,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     loadJSON("rolling_cv.json"),
     loadJSON("calibration.json"),
     loadJSON("grid_search.json"),
+    loadJSON("calibration_v2.json"),
   ]);
 
   if (!metrics || !summary) {
@@ -1254,6 +1389,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (rollingCV) {
     try { renderRollingCV(rollingCV, metrics); } catch (e) { console.error(e); }
   } else fail("rolling-cv", "data/rolling_cv.json");
+  if (calibrationV2) {
+    try { renderCalibrationMethods(calibrationV2); } catch (e) { console.error(e); }
+  } else fail("calibration-methods", "data/calibration_v2.json");
   if (gridSearch) {
     try { renderGridSearch(gridSearch); } catch (e) { console.error(e); }
   } else fail("grid-search", "data/grid_search.json");
@@ -1268,7 +1406,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         calibration,
         metrics.test.test_delay_rate,
         metrics.test.results[metrics.test.chosen_model].pr_auc,
-        metrics.test.results.logistic_regression.pr_auc
+        metrics.test.results.logistic_regression.pr_auc,
+        calibrationV2
       );
     }
     catch (e) { console.error(e); fail("predictor", "data/model.json"); }

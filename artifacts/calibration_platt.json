@@ -1,0 +1,532 @@
+{
+  "purpose": "Compare Platt scaling against isotonic regression for both models, on validation only, and export one calibrator per model.",
+  "test_set_touched": false,
+  "protocol": {
+    "fit_days": "September 1-15",
+    "assess_days": "September 16-30",
+    "n_fit": 227442,
+    "n_assess": 234711,
+    "refit_for_deployment_on": "all of September",
+    "selection_rule_fixed_in_advance": "lowest ECE on the assessment half, Brier as tie-break, and |ROC-AUC change| < 0.005 required",
+    "binning": "10 equal-width bins, bins with fewer than 50 flights dropped"
+  },
+  "class_weight_diagnostic": {
+    "training_delay_rate": 0.202978,
+    "weight_ratio": 3.9266422962094416,
+    "correction": "divide the predicted odds by the weight ratio",
+    "assumptions": "It assumes three things. (1) The only effect of class weighting is to multiply the fitted odds by (1-p)/p -- exactly true for a logistic model with a free intercept, approximate for boosted trees. (2) The model is otherwise correctly specified, so a single intercept shift is enough; our residuals show it is not, because the scores are also over-dispersed. (3) The period being scored has the same base rate as training, which fails here: training runs at 0.2030 and September at 0.1300. So we report it as a diagnostic that confirms the CAUSE of the miscalibration, and let the fitted methods supply the correction.",
+    "fitted_on_test_bins": false
+  },
+  "independence_caveat": "The September assessment is not a fully independent end-to-end evaluation. Model choice and hyperparameters were selected on this same validation month in step 03, so the scores being calibrated here were already tuned against September. Splitting the month by date keeps the CALIBRATOR honest -- it never sees the days it is judged on -- but it cannot undo the earlier model selection. A fully independent figure would need a further untouched period, and we are not willing to spend the test set on it.",
+  "published_test_metrics_unchanged": "The November-December results in artifacts/test_results.json stand exactly as originally recorded. No calibrator is applied to them, and no claim is made that test Brier, test ECE or test probabilities have improved. Calibration is monotone, so it could not change test PR-AUC, ROC-AUC, precision, recall or F1 in any case.",
+  "supersedes": "Extends artifacts/calibration_fit.json (step 07, isotonic, logistic regression only). That artifact is kept unchanged so the earlier experiment stays reproducible.",
+  "models": {
+    "logistic_regression": {
+      "raw_score_source": "artifacts/models/logistic_regression.joblib, scored on validation",
+      "platt_fit_on_first_half": {
+        "a": 0.920468562084628,
+        "b": -1.8471638765805398
+      },
+      "assessment": {
+        "raw": {
+          "brier": 0.221874735247938,
+          "ece": 0.33450616485062473,
+          "max_abs_gap": 0.49222,
+          "pr_auc": 0.17460086862334484,
+          "roc_auc": 0.6215385105904185,
+          "calibration_slope": 0.8001383369597685,
+          "calibration_intercept": -1.913564738399728,
+          "mean_prediction": 0.45346522514179133,
+          "sd_prediction": 0.12906387562742547,
+          "share_above_half": 0.39013936287604756,
+          "bins": [
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.176793,
+              "observed_rate": 0.040446,
+              "gap": 0.136347,
+              "n": 3140
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.260314,
+              "observed_rate": 0.060787,
+              "gap": 0.199527,
+              "n": 27950
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.352121,
+              "observed_rate": 0.083862,
+              "gap": 0.268259,
+              "n": 56474
+            },
+            {
+              "bin": "0.4-0.5",
+              "mean_predicted": 0.449407,
+              "observed_rate": 0.11001,
+              "gap": 0.339397,
+              "n": 55577
+            },
+            {
+              "bin": "0.5-0.6",
+              "mean_predicted": 0.55053,
+              "observed_rate": 0.146992,
+              "gap": 0.403538,
+              "n": 57180
+            },
+            {
+              "bin": "0.6-0.7",
+              "mean_predicted": 0.636748,
+              "observed_rate": 0.193598,
+              "gap": 0.44315,
+              "n": 30615
+            },
+            {
+              "bin": "0.7-0.8",
+              "mean_predicted": 0.730224,
+              "observed_rate": 0.239214,
+              "gap": 0.491011,
+              "n": 3662
+            },
+            {
+              "bin": "0.8-0.9",
+              "mean_predicted": 0.819653,
+              "observed_rate": 0.327434,
+              "gap": 0.49222,
+              "n": 113
+            }
+          ]
+        },
+        "isotonic": {
+          "brier": 0.10297612144616848,
+          "ece": 0.011496096358521194,
+          "max_abs_gap": 0.018933,
+          "pr_auc": 0.17182415552947872,
+          "roc_auc": 0.6212961363347531,
+          "calibration_slope": 0.8265257101952622,
+          "calibration_intercept": -0.3914934960589576,
+          "mean_prediction": 0.1262039698446883,
+          "sd_prediction": 0.055717048868252204,
+          "share_above_half": 0.0,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.075722,
+              "observed_rate": 0.080302,
+              "gap": -0.00458,
+              "n": 109237
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.152683,
+              "observed_rate": 0.13564,
+              "gap": 0.017043,
+              "n": 93645
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.221367,
+              "observed_rate": 0.202434,
+              "gap": 0.018933,
+              "n": 31793
+            }
+          ]
+        },
+        "platt": {
+          "brier": 0.10288463444677709,
+          "ece": 0.00832376314382605,
+          "max_abs_gap": 0.068163,
+          "pr_auc": 0.17460086862334484,
+          "roc_auc": 0.6215385105904185,
+          "calibration_slope": 0.8695221300251529,
+          "calibration_intercept": -0.30759345132058746,
+          "mean_prediction": 0.12573443858303796,
+          "sd_prediction": 0.0540923589381694,
+          "share_above_half": 0.0,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.073933,
+              "observed_rate": 0.07596,
+              "gap": -0.002027,
+              "n": 91101
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.144735,
+              "observed_rate": 0.133549,
+              "gap": 0.011186,
+              "n": 120473
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.226483,
+              "observed_rate": 0.210332,
+              "gap": 0.016151,
+              "n": 22184
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.327342,
+              "observed_rate": 0.259179,
+              "gap": 0.068163,
+              "n": 926
+            }
+          ]
+        },
+        "prior_shift_diagnostic": {
+          "brier": 0.10843008848736069,
+          "ece": 0.06690072939391407,
+          "max_abs_gap": 0.190224,
+          "pr_auc": 0.17460086862334484,
+          "roc_auc": 0.6215385105904185,
+          "calibration_slope": 0.7992651319513249,
+          "calibration_intercept": -0.820525113724743,
+          "mean_prediction": 0.18587317797061523,
+          "sd_prediction": 0.07979888467329371,
+          "share_above_half": 0.0005623937523166788,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.080477,
+              "observed_rate": 0.058617,
+              "gap": 0.02186,
+              "n": 32823
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.1466,
+              "observed_rate": 0.096652,
+              "gap": 0.049949,
+              "n": 107810
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.246215,
+              "observed_rate": 0.151391,
+              "gap": 0.094824,
+              "n": 73016
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.332017,
+              "observed_rate": 0.211226,
+              "gap": 0.120792,
+              "n": 19117
+            },
+            {
+              "bin": "0.4-0.5",
+              "mean_predicted": 0.432916,
+              "observed_rate": 0.242692,
+              "gap": 0.190224,
+              "n": 1813
+            },
+            {
+              "bin": "0.5-0.6",
+              "mean_predicted": 0.525936,
+              "observed_rate": 0.344262,
+              "gap": 0.181674,
+              "n": 122
+            }
+          ]
+        }
+      },
+      "chosen_method": "platt",
+      "chosen_because": "lowest ECE on September 16-30 among methods that preserve ranking (ECE 0.0083 vs 0.0115 for the alternative, against 0.3345 raw)",
+      "bins_where_platt_closer": "3/3",
+      "shipped_mapping": {
+        "method": "platt",
+        "a": 0.8716824728579101,
+        "b": -1.8748847678665672
+      },
+      "examples": [
+        {
+          "raw_score": 0.2,
+          "calibrated": 0.043801675884907264
+        },
+        {
+          "raw_score": 0.3,
+          "calibrated": 0.06827719962005854
+        },
+        {
+          "raw_score": 0.4,
+          "calibrated": 0.09723587350569375
+        },
+        {
+          "raw_score": 0.5,
+          "calibrated": 0.1329775252675105
+        },
+        {
+          "raw_score": 0.6,
+          "calibrated": 0.1792484018660574
+        },
+        {
+          "raw_score": 0.7,
+          "calibrated": 0.24299847990939924
+        },
+        {
+          "raw_score": 0.8,
+          "calibrated": 0.3392863111233706
+        }
+      ]
+    },
+    "gradient_boosting": {
+      "raw_score_source": "artifacts/models/gradient_boosting.joblib, scored on validation",
+      "platt_fit_on_first_half": {
+        "a": 0.7809979720726985,
+        "b": -1.8003734555945183
+      },
+      "assessment": {
+        "raw": {
+          "brier": 0.20272800411639058,
+          "ece": 0.2983952026247847,
+          "max_abs_gap": 0.510321,
+          "pr_auc": 0.17953321153224774,
+          "roc_auc": 0.6255122297543543,
+          "calibration_slope": 0.6691461108670852,
+          "calibration_intercept": -1.8338415132681343,
+          "mean_prediction": 0.4173542629159513,
+          "sd_prediction": 0.15244925324364444,
+          "share_above_half": 0.30014358082918996,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.088687,
+              "observed_rate": 0.018,
+              "gap": 0.070687,
+              "n": 500
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.163276,
+              "observed_rate": 0.04306,
+              "gap": 0.120215,
+              "n": 16442
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.25441,
+              "observed_rate": 0.072433,
+              "gap": 0.181978,
+              "n": 41183
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.350726,
+              "observed_rate": 0.099858,
+              "gap": 0.250868,
+              "n": 54277
+            },
+            {
+              "bin": "0.4-0.5",
+              "mean_predicted": 0.448736,
+              "observed_rate": 0.124099,
+              "gap": 0.324637,
+              "n": 51862
+            },
+            {
+              "bin": "0.5-0.6",
+              "mean_predicted": 0.546433,
+              "observed_rate": 0.150683,
+              "gap": 0.39575,
+              "n": 39447
+            },
+            {
+              "bin": "0.6-0.7",
+              "mean_predicted": 0.644056,
+              "observed_rate": 0.190663,
+              "gap": 0.453393,
+              "n": 21871
+            },
+            {
+              "bin": "0.7-0.8",
+              "mean_predicted": 0.737999,
+              "observed_rate": 0.240676,
+              "gap": 0.497323,
+              "n": 8339
+            },
+            {
+              "bin": "0.8-0.9",
+              "mean_predicted": 0.819182,
+              "observed_rate": 0.308861,
+              "gap": 0.510321,
+              "n": 790
+            }
+          ]
+        },
+        "isotonic": {
+          "brier": 0.10279405379207165,
+          "ece": 0.011683843989470281,
+          "max_abs_gap": 0.018615,
+          "pr_auc": 0.1760554776759507,
+          "roc_auc": 0.6252708921672625,
+          "calibration_slope": 0.7684084274764352,
+          "calibration_intercept": -0.45449890454763475,
+          "mean_prediction": 0.12071612126896834,
+          "sd_prediction": 0.059970768212064186,
+          "share_above_half": 0.0,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.06674,
+              "observed_rate": 0.078124,
+              "gap": -0.011384,
+              "n": 102222
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.145698,
+              "observed_rate": 0.135361,
+              "gap": 0.010337,
+              "n": 107217
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.233031,
+              "observed_rate": 0.214416,
+              "gap": 0.018615,
+              "n": 25264
+            }
+          ]
+        },
+        "platt": {
+          "brier": 0.10263953604596986,
+          "ece": 0.006673213793558744,
+          "max_abs_gap": 0.062566,
+          "pr_auc": 0.17953321153224774,
+          "roc_auc": 0.6255122297543543,
+          "calibration_slope": 0.856863182521396,
+          "calibration_intercept": -0.29090502063961493,
+          "mean_prediction": 0.12096724905794816,
+          "sd_prediction": 0.056780212296945465,
+          "share_above_half": 0.0,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.072048,
+              "observed_rate": 0.077575,
+              "gap": -0.005528,
+              "n": 98923
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.139218,
+              "observed_rate": 0.135243,
+              "gap": 0.003975,
+              "n": 112967
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.23475,
+              "observed_rate": 0.213232,
+              "gap": 0.021519,
+              "n": 20874
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.327272,
+              "observed_rate": 0.264706,
+              "gap": 0.062566,
+              "n": 1938
+            }
+          ]
+        },
+        "prior_shift_diagnostic": {
+          "brier": 0.10722747667921041,
+          "ece": 0.05039091744862247,
+          "max_abs_gap": 0.231483,
+          "pr_auc": 0.17953321153224774,
+          "roc_auc": 0.6255122297543543,
+          "calibration_slope": 0.6681724402698463,
+          "calibration_intercept": -0.9206829143380856,
+          "mean_prediction": 0.1693572890440077,
+          "sd_prediction": 0.09357701584959507,
+          "share_above_half": 0.003732249447192505,
+          "bins": [
+            {
+              "bin": "0.0-0.1",
+              "mean_predicted": 0.071422,
+              "observed_rate": 0.06453,
+              "gap": 0.006892,
+              "n": 60050
+            },
+            {
+              "bin": "0.1-0.2",
+              "mean_predicted": 0.145864,
+              "observed_rate": 0.111688,
+              "gap": 0.034177,
+              "n": 101954
+            },
+            {
+              "bin": "0.2-0.3",
+              "mean_predicted": 0.242036,
+              "observed_rate": 0.153996,
+              "gap": 0.08804,
+              "n": 49326
+            },
+            {
+              "bin": "0.3-0.4",
+              "mean_predicted": 0.341402,
+              "observed_rate": 0.203349,
+              "gap": 0.138053,
+              "n": 17320
+            },
+            {
+              "bin": "0.4-0.5",
+              "mean_predicted": 0.437996,
+              "observed_rate": 0.246095,
+              "gap": 0.191902,
+              "n": 5185
+            },
+            {
+              "bin": "0.5-0.6",
+              "mean_predicted": 0.532061,
+              "observed_rate": 0.300578,
+              "gap": 0.231483,
+              "n": 865
+            }
+          ]
+        }
+      },
+      "chosen_method": "platt",
+      "chosen_because": "lowest ECE on September 16-30 among methods that preserve ranking (ECE 0.0067 vs 0.0117 for the alternative, against 0.2984 raw)",
+      "bins_where_platt_closer": "2/3",
+      "shipped_mapping": {
+        "method": "platt",
+        "a": 0.7325450397968605,
+        "b": -1.8093917741553605
+      },
+      "examples": [
+        {
+          "raw_score": 0.2,
+          "calibrated": 0.05599258064675052
+        },
+        {
+          "raw_score": 0.3,
+          "calibrated": 0.08090784387404448
+        },
+        {
+          "raw_score": 0.4,
+          "calibrated": 0.1084750502824284
+        },
+        {
+          "raw_score": 0.5,
+          "calibrated": 0.14071165139631342
+        },
+        {
+          "raw_score": 0.6,
+          "calibrated": 0.18058777742574778
+        },
+        {
+          "raw_score": 0.7,
+          "calibrated": 0.23349010122745206
+        },
+        {
+          "raw_score": 0.8,
+          "calibrated": 0.31133858525512426
+        }
+      ]
+    }
+  }
+}

@@ -257,17 +257,22 @@ export function Chapter({
         {drawer ? <Drawer title={drawer.title}>{drawer.body}</Drawer> : null}
       </div>
 
-      <figure className="panel relative m-0 flex min-h-0 flex-col overflow-hidden px-6 pb-5 pt-5">
-        {legend ? <div className="mb-3 flex justify-end">{legend}</div> : null}
-        <div className="relative min-h-0 flex-1">{visual}</div>
-        {visualTitle || visualHint ? (
-          <figcaption className="mt-4 border-t border-line pt-3 font-serif text-[13.5px] leading-relaxed text-ink-soft">
-            {n != null ? <b className="font-semibold text-ink">Figure {n}. </b> : null}
-            {visualTitle ? <span className="text-ink">{visualTitle}{/[.?!]$/.test(visualTitle) ? "" : "."}</span> : null}
-            {visualHint ? <span className="text-ink-muted"> {visualHint}</span> : null}
-          </figcaption>
+      <div className="panel relative flex min-h-0 flex-col overflow-hidden p-6">
+        {visualTitle || legend ? (
+          <header className="mb-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
+            <div className="min-w-0">
+              {visualTitle ? (
+                <h2 className="font-serif text-[17px] font-semibold text-ink">{visualTitle}</h2>
+              ) : null}
+              {visualHint ? (
+                <p className="mt-1 max-w-[70ch] text-[12.5px] leading-relaxed text-ink-muted">{visualHint}</p>
+              ) : null}
+            </div>
+            {legend}
+          </header>
         ) : null}
-      </figure>
+        <div className="relative min-h-0 flex-1">{visual}</div>
+      </div>
     </div>
   );
 }

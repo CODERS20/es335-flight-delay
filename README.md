@@ -227,8 +227,7 @@ then one numbered section per pipeline step (the cleaning funnel, the
 correlation matrix, the calendar of held-out days, all five cross-validation
 folds, every candidate with its spread, an interactive threshold slider, the
 held-out results, the errors and the forecasting check). Each section pairs a
-short explanation and a ruled table of key numbers with a numbered, captioned
-figure; "See the numbers" opens the exact table behind it. The contents list on
+short explanation and a ruled table of key numbers with a titled chart; "See the numbers" opens the exact table behind it. The contents list on
 the left, or the arrow keys, move between sections. The last section lists the
 recent commits by `divyasaini-dot`, fetched live from GitHub with a saved copy
 (`cd site && npm run commits`) as the fallback.

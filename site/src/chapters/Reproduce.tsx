@@ -23,7 +23,7 @@ function Terminal({ data }: { data: Bundle }) {
   return (
     <div className="flex min-h-0 flex-col overflow-hidden rounded border border-line bg-[#F6F5F1]">
       <p className="border-b border-line px-5 py-2.5 font-serif text-[13px] italic text-ink-muted">
-        Listing 1. The whole pipeline, run from the repository root
+        The whole pipeline, run from the repository root
       </p>
       <div className="min-h-0 flex-1 space-y-2.5 overflow-hidden px-5 py-4 font-mono text-[12.5px]">
         {lines.map(([cmd, out]) => (

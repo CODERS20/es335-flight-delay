@@ -1,0 +1,196 @@
+{
+  "rows_raw": 5819079,
+  "rows_clean": 5231130,
+  "cleaning_log": [
+    {
+      "step": "cancelled flights",
+      "rows_removed": 89884,
+      "rows_left": 5729195,
+      "reason": "a cancelled flight never arrives, so it has no arrival delay to predict"
+    },
+    {
+      "step": "diverted flights",
+      "rows_removed": 15187,
+      "rows_left": 5714008,
+      "reason": "a diverted flight has no arrival at its scheduled destination"
+    },
+    {
+      "step": "missing arrival delay",
+      "rows_removed": 0,
+      "rows_left": 5714008,
+      "reason": "no label"
+    },
+    {
+      "step": "month(s) [10] excluded",
+      "rows_removed": 482878,
+      "rows_left": 5231130,
+      "reason": "airport codes are numeric DOT ids that airports.csv cannot translate"
+    }
+  ],
+  "airport_code_format_by_month": {
+    "1": {
+      "rows": 457013,
+      "pct_numeric_codes": 0.0
+    },
+    "2": {
+      "rows": 407663,
+      "pct_numeric_codes": 0.0
+    },
+    "3": {
+      "rows": 492138,
+      "pct_numeric_codes": 0.0
+    },
+    "4": {
+      "rows": 479251,
+      "pct_numeric_codes": 0.0
+    },
+    "5": {
+      "rows": 489641,
+      "pct_numeric_codes": 0.0
+    },
+    "6": {
+      "rows": 492847,
+      "pct_numeric_codes": 0.0
+    },
+    "7": {
+      "rows": 514384,
+      "pct_numeric_codes": 0.0
+    },
+    "8": {
+      "rows": 503956,
+      "pct_numeric_codes": 0.0
+    },
+    "9": {
+      "rows": 462153,
+      "pct_numeric_codes": 0.0
+    },
+    "10": {
+      "rows": 482878,
+      "pct_numeric_codes": 100.0
+    },
+    "11": {
+      "rows": 462367,
+      "pct_numeric_codes": 0.0
+    },
+    "12": {
+      "rows": 469717,
+      "pct_numeric_codes": 0.0
+    }
+  },
+  "months_excluded": [
+    10
+  ],
+  "target": {
+    "column": "IS_DELAYED",
+    "rule": "ARRIVAL_DELAY >= 15",
+    "delay_rate_overall": 0.19180559458472643
+  },
+  "delay_rate_by_month": {
+    "1": 0.2099524521184299,
+    "2": 0.23347470827619873,
+    "3": 0.19395372842576675,
+    "4": 0.1716157086787508,
+    "5": 0.18308311599723062,
+    "6": 0.23484367359444208,
+    "7": 0.20923473513950666,
+    "8": 0.18674844629293033,
+    "9": 0.12995912609027746,
+    "11": 0.1526298373370072,
+    "12": 0.2060219238392479
+  },
+  "rows_by_month": {
+    "1": 457013,
+    "2": 407663,
+    "3": 492138,
+    "4": 479251,
+    "5": 489641,
+    "6": 492847,
+    "7": 514384,
+    "8": 503956,
+    "9": 462153,
+    "11": 462367,
+    "12": 469717
+  },
+  "scheduled_time_median_train": 123.0,
+  "scheduled_time_missing": 0,
+  "identical_feature_rows": 11131,
+  "correlations": {
+    "SCHEDULED_TIME|DISTANCE": 0.9841753940110656,
+    "DAY_OF_WEEK|IS_WEEKEND": 0.7889248353678073,
+    "SCHED_DEP_HOUR|SCHED_ARR_HOUR": 0.7018002248704165,
+    "DAY|IS_WEEKEND": 0.039363298501530634,
+    "SCHED_ARR_HOUR|SCHEDULED_TIME": 0.032067629250149866,
+    "MONTH|DAY": 0.03126539663511993,
+    "SCHED_ARR_HOUR|DISTANCE": 0.027231449857147344,
+    "DAY|DAY_OF_WEEK": 0.021327219280731783,
+    "DISTANCE|IS_WEEKEND": 0.02099428776279807,
+    "SCHEDULED_TIME|IS_WEEKEND": 0.019593922646895055,
+    "DISTANCE|DAY_OF_WEEK": 0.01619933752150093,
+    "SCHEDULED_TIME|DAY_OF_WEEK": 0.015473117188500522,
+    "SCHED_DEP_HOUR|SCHEDULED_TIME": -0.015371337053574545,
+    "DISTANCE|MONTH": 0.013017998243818286,
+    "SCHEDULED_TIME|MONTH": 0.012971709699903333,
+    "SCHED_ARR_HOUR|MONTH": -0.012218393065352724,
+    "SCHED_DEP_HOUR|DISTANCE": -0.008297159609761557,
+    "SCHED_DEP_HOUR|DAY_OF_WEEK": 0.007242085808054501,
+    "MONTH|DAY_OF_WEEK": -0.006877161317326953,
+    "SCHED_ARR_HOUR|DAY_OF_WEEK": 0.0065715512574533765,
+    "SCHED_ARR_HOUR|DAY": -0.0062042061008489024,
+    "MONTH|IS_WEEKEND": 0.006124427927902429,
+    "DISTANCE|DAY": 0.005373524235561201,
+    "SCHEDULED_TIME|DAY": 0.004824531965537267,
+    "SCHED_ARR_HOUR|IS_WEEKEND": 0.0036920225183712965,
+    "SCHED_DEP_HOUR|DAY": -0.0031217513509619746,
+    "SCHED_DEP_HOUR|IS_WEEKEND": 0.0014196505357009336,
+    "SCHED_DEP_HOUR|MONTH": 0.0004429914005199191
+  },
+  "dropped_features": {
+    "IS_WEEKEND": "exactly determined by DAY_OF_WEEK, so it adds no information a model cannot already read off that column",
+    "SCHEDULED_TIME": "correlated +0.984 with DISTANCE; the two carry the same information, and DISTANCE is the more directly interpretable of them"
+  },
+  "final_features": [
+    "AIRLINE",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT",
+    "SCHED_DEP_HOUR",
+    "SCHED_ARR_HOUR",
+    "DISTANCE",
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK"
+  ],
+  "categorical_features": [
+    "AIRLINE",
+    "ORIGIN_AIRPORT",
+    "DESTINATION_AIRPORT"
+  ],
+  "numeric_features": [
+    "SCHED_DEP_HOUR",
+    "SCHED_ARR_HOUR",
+    "DISTANCE",
+    "MONTH",
+    "DAY",
+    "DAY_OF_WEEK"
+  ],
+  "forbidden_features": [
+    "DEPARTURE_TIME",
+    "DEPARTURE_DELAY",
+    "TAXI_OUT",
+    "WHEELS_OFF",
+    "WHEELS_ON",
+    "TAXI_IN",
+    "AIR_TIME",
+    "ELAPSED_TIME",
+    "ARRIVAL_TIME",
+    "ARRIVAL_DELAY",
+    "AIR_SYSTEM_DELAY",
+    "SECURITY_DELAY",
+    "AIRLINE_DELAY",
+    "LATE_AIRCRAFT_DELAY",
+    "WEATHER_DELAY",
+    "CANCELLATION_REASON",
+    "CANCELLED",
+    "DIVERTED"
+  ],
+  "csv_size_mb": 160.6
+}

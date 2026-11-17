@@ -1,0 +1,215 @@
+{
+  "design": "20% of flights held out as whole calendar days, drawn from every month with seed 42",
+  "why_whole_days": "If one day's flights were split across training and test, a model could learn that day's disruption from the training half and score the test half almost for free.",
+  "why_every_month": "Training on the earlier months and testing on the later ones would force the model to extrapolate: month values 11 and 12 would appear nowhere in training. Drawing days from every month means every MONTH, DAY and DAY_OF_WEEK value, and every carrier and airport, is present on both sides.",
+  "seed": 42,
+  "test_days_by_month": {
+    "1": [
+      3,
+      13,
+      19,
+      21,
+      27,
+      30
+    ],
+    "2": [
+      15,
+      18,
+      19,
+      20,
+      22,
+      23
+    ],
+    "3": [
+      5,
+      13,
+      19,
+      22,
+      26,
+      31
+    ],
+    "4": [
+      2,
+      9,
+      14,
+      24,
+      25,
+      29
+    ],
+    "5": [
+      2,
+      13,
+      21,
+      25,
+      26,
+      27
+    ],
+    "6": [
+      2,
+      5,
+      15,
+      20,
+      21,
+      28
+    ],
+    "7": [
+      3,
+      6,
+      11,
+      14,
+      24,
+      30
+    ],
+    "8": [
+      5,
+      6,
+      14,
+      16,
+      19,
+      28
+    ],
+    "9": [
+      12,
+      20,
+      22,
+      23,
+      25,
+      30
+    ],
+    "11": [
+      1,
+      4,
+      6,
+      22,
+      23,
+      24
+    ],
+    "12": [
+      8,
+      14,
+      16,
+      18,
+      22,
+      30
+    ]
+  },
+  "days_by_month": {
+    "1": 31,
+    "2": 28,
+    "3": 31,
+    "4": 30,
+    "5": 31,
+    "6": 30,
+    "7": 31,
+    "8": 31,
+    "9": 30,
+    "11": 30,
+    "12": 31
+  },
+  "train_rows": 4186663,
+  "test_rows": 1044467,
+  "train_delay_rate": 0.19063822428506905,
+  "test_delay_rate": 0.19648490569831312,
+  "per_month": [
+    {
+      "month": 1,
+      "train_rows": 367670,
+      "test_rows": 89343,
+      "train_delay_rate": 0.2112111404248375,
+      "test_delay_rate": 0.20477261788836282
+    },
+    {
+      "month": 2,
+      "train_rows": 316855,
+      "test_rows": 90808,
+      "train_delay_rate": 0.2270691641287024,
+      "test_delay_rate": 0.25582547793145977
+    },
+    {
+      "month": 3,
+      "train_rows": 395326,
+      "test_rows": 96812,
+      "train_delay_rate": 0.1959926744003683,
+      "test_delay_rate": 0.1856278147337107
+    },
+    {
+      "month": 4,
+      "train_rows": 383946,
+      "test_rows": 95305,
+      "train_delay_rate": 0.16479661202356582,
+      "test_delay_rate": 0.19908714128324853
+    },
+    {
+      "month": 5,
+      "train_rows": 394898,
+      "test_rows": 94743,
+      "train_delay_rate": 0.1796869064923094,
+      "test_delay_rate": 0.19723884614166745
+    },
+    {
+      "month": 6,
+      "train_rows": 395907,
+      "test_rows": 96940,
+      "train_delay_rate": 0.23617920370187948,
+      "test_delay_rate": 0.22938931297709925
+    },
+    {
+      "month": 7,
+      "train_rows": 416682,
+      "test_rows": 97702,
+      "train_delay_rate": 0.20789234956153613,
+      "test_delay_rate": 0.21495977564430616
+    },
+    {
+      "month": 8,
+      "train_rows": 402658,
+      "test_rows": 101298,
+      "train_delay_rate": 0.18683349144931927,
+      "test_delay_rate": 0.18641039309759325
+    },
+    {
+      "month": 9,
+      "train_rows": 369990,
+      "test_rows": 92163,
+      "train_delay_rate": 0.1354225789886213,
+      "test_delay_rate": 0.10802599741761879
+    },
+    {
+      "month": 11,
+      "train_rows": 368815,
+      "test_rows": 93552,
+      "train_delay_rate": 0.15527568021908003,
+      "test_delay_rate": 0.1421989909355225
+    },
+    {
+      "month": 12,
+      "train_rows": 373916,
+      "test_rows": 95801,
+      "train_delay_rate": 0.198143433284481,
+      "test_delay_rate": 0.23677205874677718
+    }
+  ],
+  "unseen_categories_in_test": {
+    "AIRLINE": 0,
+    "ORIGIN_AIRPORT": 0,
+    "DESTINATION_AIRPORT": 0
+  },
+  "secondary_check": {
+    "train_months": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "test_months": [
+      11,
+      12
+    ],
+    "purpose": "A harder, forecasting version of the same question, reported alongside the main result: fit on the earlier months and score the two later ones, where the base rate is higher and the month values are unseen."
+  }
+}

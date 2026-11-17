@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { BookOpen, Github } from "lucide-react";
 import type { Bundle } from "../lib/data";
 import { MODEL_LABEL } from "../lib/labels";
@@ -25,7 +24,7 @@ function Terminal({ data }: { data: Bundle }) {
       <p className="border-b border-line px-5 py-2.5 font-serif text-[13px] italic text-ink-muted">
         The whole pipeline, run from the repository root
       </p>
-      <div className="min-h-0 flex-1 space-y-2.5 overflow-hidden px-5 py-4 font-mono text-[12.5px]">
+      <div className="flex min-h-0 flex-1 flex-col justify-evenly overflow-hidden px-6 py-3 font-mono text-[14px] leading-relaxed">
         {lines.map(([cmd, out]) => (
           <div key={cmd}>
             <p>
@@ -38,85 +37,6 @@ function Terminal({ data }: { data: Bundle }) {
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-interface Commit {
-  sha: string;
-  url: string;
-  date: string;
-  message: string;
-  name: string;
-}
-const AUTHOR = "divyasaini-dot";
-
-/** The saved list ships with the site; a live answer from GitHub replaces it
- *  when one arrives, so the panel is current without depending on the API. */
-function useCommits() {
-  const [commits, setCommits] = useState<Commit[] | null>(null);
-  const [live, setLive] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    fetch(`${import.meta.env.BASE_URL}data/commits.json`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => alive && j && setCommits((c) => c ?? j.commits))
-      .catch(() => {});
-    fetch(`https://api.github.com/repos/coders20/es335-flight-delay/commits?author=${AUTHOR}&per_page=8`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (!alive || !Array.isArray(j)) return;
-        setCommits(
-          j.map((c: { sha: string; html_url: string; commit: { message: string; author: { date: string; name: string } } }) => ({
-            sha: c.sha.slice(0, 7),
-            url: c.html_url,
-            date: c.commit.author.date,
-            message: c.commit.message.split("\n")[0],
-            name: c.commit.author.name,
-          })),
-        );
-        setLive(true);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
-  return { commits, live };
-}
-
-function Commits() {
-  const { commits, live } = useCommits();
-  return (
-    <div className="rounded border border-line">
-      <div className="flex items-baseline justify-between border-b border-line px-5 py-2.5">
-        <p className="font-serif text-[14px] font-semibold text-ink">
-          Recent commits by{" "}
-          <a href={`https://github.com/${AUTHOR}`} className="text-accent underline-offset-2 hover:underline">
-            {AUTHOR}
-          </a>
-        </p>
-        <span className="text-[11px] text-ink-muted">{live ? "live from GitHub" : "saved at build time"}</span>
-      </div>
-      {commits === null ? (
-        <p className="px-5 py-3 text-[12.5px] text-ink-muted">Loading commits…</p>
-      ) : commits.length === 0 ? (
-        <p className="px-5 py-3 text-[12.5px] text-ink-muted">No commits found.</p>
-      ) : (
-        <ul className="max-h-[132px] divide-y divide-line overflow-y-auto">
-          {commits.map((c) => (
-            <li key={c.sha} className="grid grid-cols-[64px_1fr_auto] items-baseline gap-4 px-5 py-2 text-[12.5px]">
-              <a href={c.url} className="font-mono text-accent hover:underline">
-                {c.sha}
-              </a>
-              <span className="truncate font-serif text-[14px] text-ink">{c.message}</span>
-              <span className="tabular text-ink-muted">
-                {new Date(c.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
@@ -140,9 +60,8 @@ export default function Reproduce({ data }: { data: Bundle }) {
         <>Built by Divya Saini and Shikha Ajeet Singh for ES 335, with AI coding assistance disclosed in the README.</>,
       ]}
       visual={
-        <div className="flex h-full flex-col justify-center gap-4">
+        <div className="grid h-full grid-rows-[1fr_auto] gap-4">
           <Terminal data={data} />
-          <Commits />
           <div className="flex gap-3">
             <a href={REPO} className="flex flex-1 items-center justify-center gap-2 rounded bg-ink px-4 py-3 text-[13.5px] font-semibold text-white transition hover:bg-accent">
               <Github className="h-4 w-4" /> Source code

@@ -117,12 +117,9 @@ for (const vp of [
   });
   const page = await ctx.newPage();
   page.setDefaultTimeout(30000);
-  // The commits panel asks GitHub live; a rate-limited answer falls back to the
-  // saved list, so it is not a fault of the page.
-  const external = (u) => (u ?? "").startsWith("https://api.github.com/");
-  page.on("console", (m) => m.type() === "error" && !external(m.location()?.url) && problems.push(`[${vp.name}] console: ${m.text()}`));
+  page.on("console", (m) => m.type() === "error" && problems.push(`[${vp.name}] console: ${m.text()}`));
   page.on("pageerror", (e) => problems.push(`[${vp.name}] page error: ${e.message}`));
-  page.on("requestfailed", (r) => !external(r.url()) && problems.push(`[${vp.name}] failed request: ${r.url()}`));
+  page.on("requestfailed", (r) => problems.push(`[${vp.name}] failed request: ${r.url()}`));
 
   await page.goto(url, { waitUntil: "networkidle" });
   await page.waitForTimeout(1200);

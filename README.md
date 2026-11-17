@@ -41,8 +41,7 @@ forecast November–December from January–September, the same model scores
 
 **Deliverables.** Six pipeline scripts in `src/`, every number they produce in
 `artifacts/`, and an [interactive walkthrough](https://coders20.github.io/es335-flight-delay/)
-that explains each step with figures, lets you score a flight in the browser,
-and lists the latest commits.
+that explains each step with figures and lets you score a flight in the browser.
 
 ## The question
 
@@ -228,9 +227,7 @@ correlation matrix, the calendar of held-out days, all five cross-validation
 folds, every candidate with its spread, an interactive threshold slider, the
 held-out results, the errors and the forecasting check). Each section pairs a
 short explanation and a ruled table of key numbers with a titled chart; "See the numbers" opens the exact table behind it. The contents list on
-the left, or the arrow keys, move between sections. The last section lists the
-recent commits by `divyasaini-dot`, fetched live from GitHub with a saved copy
-(`cd site && npm run commits`) as the fallback.
+the left, or the arrow keys, move between sections.
 
 Built with Vite, React, TypeScript and Tailwind (charts are hand-drawn SVG) into
 `docs/`, which is what GitHub Pages serves. The predictor runs **in the

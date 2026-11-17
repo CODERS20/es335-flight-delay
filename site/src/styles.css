@@ -1,0 +1,197 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   One deliberate look: a night-time flight deck. Deep navy, glass panels, and
+   amber used sparingly as the single accent -- the colour of a departures
+   board. Data series use the colour-vision-safe blue / orange / green trio, so
+   the accent never competes with what the charts are saying.
+--------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+  --bg: 7 11 22;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #070b16;
+  color: #e8ecf5;
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glass panels: a hairline ring, a whisper of gradient, real depth. */
+.panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    #0b1122;
+  border: 1px solid rgba(148, 163, 205, 0.12);
+  border-radius: 20px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 30px 80px -40px rgba(0, 0, 0, 0.9);
+}
+
+/* The atmosphere behind everything: slow-moving light and a faint grid, so the
+   canvas never reads as an empty black rectangle. */
+.atmosphere::before,
+.atmosphere::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.atmosphere::before {
+  inset: -20%;
+  background:
+    radial-gradient(40% 35% at 20% 15%, rgba(57, 135, 229, 0.14), transparent 70%),
+    radial-gradient(35% 30% at 85% 80%, rgba(251, 191, 36, 0.07), transparent 70%),
+    radial-gradient(30% 30% at 70% 10%, rgba(25, 158, 112, 0.08), transparent 70%);
+  animation: drift 28s ease-in-out infinite alternate;
+}
+.atmosphere::after {
+  inset: 0;
+  background-image: radial-gradient(rgba(148, 163, 205, 0.11) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(80% 70% at 50% 40%, black, transparent 90%);
+}
+@keyframes drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.06);
+  }
+}
+
+/* Planes travelling along route arcs on the opening map. */
+.plane {
+  offset-rotate: auto;
+  animation: fly var(--dur, 6s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes fly {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* A soft pulse for whatever the screen wants you to look at first. */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+.pulse-ring {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* Blinking caret for the terminal on the last screen. */
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+.caret {
+  animation: caret 1s step-end infinite;
+}
+
+:where(a, button, select, input, summary, [tabindex]):focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A3ADC2' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
+}
+select option {
+  background: #0b1122;
+  color: #e8ecf5;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3987e5, #fbbf24);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -7px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e8ecf5;
+  border: 3px solid #fbbf24;
+  box-shadow: 0 0 0 6px rgba(251, 191, 36, 0.18);
+  cursor: grab;
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #3987e5, #fbbf24);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #e8ecf5;
+  border: 3px solid #fbbf24;
+  cursor: grab;
+}
+
+/* Thin, quiet scrollbars for the few places that scroll. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 205, 0.25) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere::before,
+  .plane,
+  .pulse-ring,
+  .caret {
+    animation: none;
+  }
+}

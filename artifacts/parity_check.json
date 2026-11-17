@@ -4,5 +4,5 @@
   "mean_abs_difference": 2.5419481334646815e-17,
   "tolerance": 1e-09,
   "passed": true,
-  "what_this_proves": "The JavaScript in site/src/components/Predictor.tsx, run on the coefficients in p4_model.json, reproduces scikit-learn's predict_proba for the fitted pipeline on 300 real routes."
+  "what_this_proves": "The JavaScript in site/src/lib/score.ts, run on the coefficients in p4_model.json, reproduces scikit-learn's predict_proba for the fitted pipeline on 300 real routes."
 }

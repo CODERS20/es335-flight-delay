@@ -30,7 +30,7 @@ import pandas as pd
 
 import pconfig as P
 
-SITE_PREDICTOR = P.REPO_ROOT / "site" / "src" / "components" / "Predictor.tsx"
+SITE_PREDICTOR = P.REPO_ROOT / "site" / "src" / "lib" / "score.ts"
 TOL = 1e-9
 N_FLIGHTS = 300
 
@@ -173,7 +173,7 @@ result = {
     "tolerance": TOL,
     "passed": bool(diff.max() <= TOL),
     "what_this_proves": (
-        "The JavaScript in site/src/components/Predictor.tsx, run on the "
+        "The JavaScript in site/src/lib/score.ts, run on the "
         "coefficients in p4_model.json, reproduces scikit-learn's predict_proba "
         f"for the fitted pipeline on {len(rows)} real routes."
     ),

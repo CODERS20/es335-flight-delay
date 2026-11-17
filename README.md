@@ -184,13 +184,16 @@ difference worth acting on.
 
 ## The website
 
-A landscape walkthrough of fourteen screens, one idea per screen: the cleaning
-funnel, the calendar of held-out days, all five cross-validation iterations side
-by side, every candidate with its spread, the threshold sweep, the held-out
-results, the errors, and the forecasting check. Arrow keys or the rail at the
-top move between steps.
+A landscape walkthrough of thirteen screens, one idea per screen: a live map of
+the busiest routes, an in-browser predictor, the cleaning funnel, the
+correlation matrix, the calendar of held-out days, all five cross-validation
+iterations, every candidate with its spread, an interactive threshold slider,
+the held-out results, the errors, and the forecasting check. Each screen pairs a
+short story on the left with an animated chart on the right; "See the numbers"
+opens the exact table behind it. Arrow keys or the rail on the left move between
+steps.
 
-Built with Vite, React, TypeScript, Tailwind and Recharts into `docs/`, which is
+Built with Vite, React, TypeScript, Tailwind and Framer Motion (charts are hand-drawn SVG) into `docs/`, which is
 what GitHub Pages serves. The predictor runs **in the browser** from exported
 coefficients, with no server.
 
@@ -199,7 +202,7 @@ coefficients, with no server.
 | Check | What it proves |
 |---|---|
 | `python src/check_parity.py` | the JavaScript the page ships reproduces scikit-learn on 300 real routes, to within 1e-9 |
-| `cd site && node shoot.mjs` | every slide renders in a real browser, with no console error, no placeholder, no empty slide and no horizontal overflow — and saves screenshots |
+| `cd site && node shoot.mjs` | every screen renders in a real browser at 1512×945 and 1366×768, with no console error, no placeholder, no empty screen, no clipped text and no horizontal overflow — and saves screenshots |
 | `assert_no_leakage()` | runs before every fit, so leakage stops the program instead of producing a flattering score |
 
 Those checks have already paid for themselves. `shoot.mjs` caught a grid column

@@ -75,813 +75,1489 @@
     {
       "code": "ABQ",
       "city": "Albuquerque",
-      "n_train": 15104
+      "n_train": 15104,
+      "lat": 35.04,
+      "lon": -106.609
     },
     {
       "code": "ACY",
       "city": "Atlantic City",
-      "n_train": 2840
+      "n_train": 2840,
+      "lat": 39.458,
+      "lon": -74.577
     },
     {
       "code": "AEX",
       "city": "Alexandria",
-      "n_train": 2447
+      "n_train": 2447,
+      "lat": 31.327,
+      "lon": -92.549
     },
     {
       "code": "ALB",
       "city": "Albany",
-      "n_train": 5876
+      "n_train": 5876,
+      "lat": 42.748,
+      "lon": -73.803
     },
     {
       "code": "AMA",
       "city": "Amarillo",
-      "n_train": 3262
+      "n_train": 3262,
+      "lat": 35.219,
+      "lon": -101.706
     },
     {
       "code": "ANC",
       "city": "Anchorage",
-      "n_train": 12710
+      "n_train": 12710,
+      "lat": 61.174,
+      "lon": -149.996
     },
     {
       "code": "ASE",
       "city": "Aspen",
-      "n_train": 2633
+      "n_train": 2633,
+      "lat": 39.223,
+      "lon": -106.869
     },
     {
       "code": "ATL",
       "city": "Atlanta",
-      "n_train": 274794
+      "n_train": 274794,
+      "lat": 33.64,
+      "lon": -84.427
     },
     {
       "code": "ATW",
       "city": "Appleton",
-      "n_train": 2197
+      "n_train": 2197,
+      "lat": 44.257,
+      "lon": -88.519
     },
     {
       "code": "AUS",
       "city": "Austin",
-      "n_train": 33119
+      "n_train": 33119,
+      "lat": 30.195,
+      "lon": -97.67
     },
     {
       "code": "AVL",
       "city": "Asheville",
-      "n_train": 2145
+      "n_train": 2145,
+      "lat": 35.436,
+      "lon": -82.542
     },
     {
       "code": "BDL",
       "city": "Windsor Locks",
-      "n_train": 14743
+      "n_train": 14743,
+      "lat": 41.939,
+      "lon": -72.683
     },
     {
       "code": "BFL",
       "city": "Bakersfield",
-      "n_train": 2074
+      "n_train": 2074,
+      "lat": 35.434,
+      "lon": -119.057
     },
     {
       "code": "BHM",
       "city": "Birmingham",
-      "n_train": 9816
+      "n_train": 9816,
+      "lat": 33.563,
+      "lon": -86.754
     },
     {
       "code": "BIL",
       "city": "Billings",
-      "n_train": 2283
+      "n_train": 2283,
+      "lat": 45.808,
+      "lon": -108.543
     },
     {
       "code": "BIS",
       "city": "Bismarck",
-      "n_train": 2721
+      "n_train": 2721,
+      "lat": 46.774,
+      "lon": -100.747
     },
     {
       "code": "BMI",
       "city": "Bloomington",
-      "n_train": 2091
+      "n_train": 2091,
+      "lat": 40.478,
+      "lon": -88.916
     },
     {
       "code": "BNA",
       "city": "Nashville",
-      "n_train": 37067
+      "n_train": 37067,
+      "lat": 36.124,
+      "lon": -86.678
     },
     {
       "code": "BOI",
       "city": "Boise",
-      "n_train": 9215
+      "n_train": 9215,
+      "lat": 43.564,
+      "lon": -116.223
     },
     {
       "code": "BOS",
       "city": "Boston",
-      "n_train": 83983
+      "n_train": 83983,
+      "lat": 42.364,
+      "lon": -71.005
     },
     {
       "code": "BTR",
       "city": "Baton Rouge",
-      "n_train": 5584
+      "n_train": 5584,
+      "lat": 30.533,
+      "lon": -91.15
     },
     {
       "code": "BTV",
       "city": "Burlington",
-      "n_train": 2302
+      "n_train": 2302,
+      "lat": 44.473,
+      "lon": -73.15
     },
     {
       "code": "BUF",
       "city": "Buffalo",
-      "n_train": 13199
+      "n_train": 13199,
+      "lat": 42.941,
+      "lon": -78.732
     },
     {
       "code": "BUR",
       "city": "Burbank",
-      "n_train": 14785
+      "n_train": 14785,
+      "lat": 34.201,
+      "lon": -118.359
     },
     {
       "code": "BWI",
       "city": "Baltimore",
-      "n_train": 67550
+      "n_train": 67550,
+      "lat": 39.175,
+      "lon": -76.668
     },
     {
       "code": "BZN",
       "city": "Bozeman",
-      "n_train": 2845
+      "n_train": 2845,
+      "lat": 45.777,
+      "lon": -111.153
     },
     {
       "code": "CAE",
       "city": "Columbia",
-      "n_train": 4015
+      "n_train": 4015,
+      "lat": 33.939,
+      "lon": -81.12
     },
     {
       "code": "CAK",
       "city": "Akron",
-      "n_train": 4787
+      "n_train": 4787,
+      "lat": 40.916,
+      "lon": -81.442
     },
     {
       "code": "CHA",
       "city": "Chattanooga",
-      "n_train": 3279
+      "n_train": 3279,
+      "lat": 35.035,
+      "lon": -85.204
     },
     {
       "code": "CHS",
       "city": "Charleston",
-      "n_train": 9253
+      "n_train": 9253,
+      "lat": 32.899,
+      "lon": -80.041
     },
     {
       "code": "CID",
       "city": "Cedar Rapids",
-      "n_train": 5246
+      "n_train": 5246,
+      "lat": 41.885,
+      "lon": -91.711
     },
     {
       "code": "CLE",
       "city": "Cleveland",
-      "n_train": 26985
+      "n_train": 26985,
+      "lat": 41.411,
+      "lon": -81.849
     },
     {
       "code": "CLT",
       "city": "Charlotte",
-      "n_train": 79298
+      "n_train": 79298,
+      "lat": 35.214,
+      "lon": -80.943
     },
     {
       "code": "CMH",
       "city": "Columbus",
-      "n_train": 18820
+      "n_train": 18820,
+      "lat": 39.998,
+      "lon": -82.892
     },
     {
       "code": "COS",
       "city": "Colorado Springs",
-      "n_train": 5399
+      "n_train": 5399,
+      "lat": 38.806,
+      "lon": -104.7
     },
     {
       "code": "CRP",
       "city": "Corpus Christi",
-      "n_train": 3765
+      "n_train": 3765,
+      "lat": 27.77,
+      "lon": -97.501
     },
     {
       "code": "CVG",
       "city": "Covington",
-      "n_train": 15547
+      "n_train": 15547,
+      "lat": 39.046,
+      "lon": -84.662
     },
     {
       "code": "DAL",
       "city": "Dallas",
-      "n_train": 46900
+      "n_train": 46900,
+      "lat": 32.847,
+      "lon": -96.852
     },
     {
       "code": "DAY",
       "city": "Dayton",
-      "n_train": 6673
+      "n_train": 6673,
+      "lat": 39.902,
+      "lon": -84.219
     },
     {
       "code": "DCA",
       "city": "Arlington",
-      "n_train": 57295
+      "n_train": 57295,
+      "lat": 38.852,
+      "lon": -77.038
     },
     {
       "code": "DEN",
       "city": "Denver",
-      "n_train": 154534
+      "n_train": 154534,
+      "lat": 39.858,
+      "lon": -104.667
     },
     {
       "code": "DFW",
       "city": "Dallas-Fort Worth",
-      "n_train": 186542
+      "n_train": 186542,
+      "lat": 32.896,
+      "lon": -97.037
     },
     {
       "code": "DSM",
       "city": "Des Moines",
-      "n_train": 6488
+      "n_train": 6488,
+      "lat": 41.535,
+      "lon": -93.661
     },
     {
       "code": "DTW",
       "city": "Detroit",
-      "n_train": 85445
+      "n_train": 85445,
+      "lat": 42.212,
+      "lon": -83.349
     },
     {
       "code": "ECP",
       "city": "Panama City",
-      "n_train": 3321
+      "n_train": 3321,
+      "lat": null,
+      "lon": null
     },
     {
       "code": "ELP",
       "city": "El Paso",
-      "n_train": 9435
+      "n_train": 9435,
+      "lat": 31.807,
+      "lon": -106.378
     },
     {
       "code": "EUG",
       "city": "Eugene",
-      "n_train": 2844
+      "n_train": 2844,
+      "lat": 44.123,
+      "lon": -123.219
     },
     {
       "code": "EVV",
       "city": "Evansville",
-      "n_train": 2965
+      "n_train": 2965,
+      "lat": 38.038,
+      "lon": -87.531
     },
     {
       "code": "EWR",
       "city": "Newark",
-      "n_train": 78766
+      "n_train": 78766,
+      "lat": 40.693,
+      "lon": -74.169
     },
     {
       "code": "FAR",
       "city": "Fargo",
-      "n_train": 4435
+      "n_train": 4435,
+      "lat": 46.919,
+      "lon": -96.815
     },
     {
       "code": "FAT",
       "city": "Fresno",
-      "n_train": 5539
+      "n_train": 5539,
+      "lat": 36.776,
+      "lon": -119.718
     },
     {
       "code": "FLL",
       "city": "Ft. Lauderdale",
-      "n_train": 58306
+      "n_train": 58306,
+      "lat": 26.073,
+      "lon": -80.153
     },
     {
       "code": "FNT",
       "city": "Flint",
-      "n_train": 3710
+      "n_train": 3710,
+      "lat": 42.965,
+      "lon": -83.743
     },
     {
       "code": "FSD",
       "city": "Sioux Falls",
-      "n_train": 4141
+      "n_train": 4141,
+      "lat": 43.581,
+      "lon": -96.742
     },
     {
       "code": "FWA",
       "city": "Fort Wayne",
-      "n_train": 4040
+      "n_train": 4040,
+      "lat": 40.978,
+      "lon": -85.195
     },
     {
       "code": "GEG",
       "city": "Spokane",
-      "n_train": 7549
+      "n_train": 7549,
+      "lat": 47.62,
+      "lon": -117.534
     },
     {
       "code": "GJT",
       "city": "Grand Junction",
-      "n_train": 2495
+      "n_train": 2495,
+      "lat": 39.122,
+      "lon": -108.527
     },
     {
       "code": "GNV",
       "city": "Gainesville",
-      "n_train": 2108
+      "n_train": 2108,
+      "lat": 29.69,
+      "lon": -82.272
     },
     {
       "code": "GPT",
       "city": "Gulfport-Biloxi",
-      "n_train": 2810
+      "n_train": 2810,
+      "lat": 30.407,
+      "lon": -89.07
     },
     {
       "code": "GRB",
       "city": "Green Bay",
-      "n_train": 3763
+      "n_train": 3763,
+      "lat": 44.485,
+      "lon": -88.13
     },
     {
       "code": "GRK",
       "city": "Killeen",
-      "n_train": 3107
+      "n_train": 3107,
+      "lat": 31.065,
+      "lon": -97.828
     },
     {
       "code": "GRR",
       "city": "Grand Rapids",
-      "n_train": 8420
+      "n_train": 8420,
+      "lat": 42.881,
+      "lon": -85.523
     },
     {
       "code": "GSO",
       "city": "Greensboro",
-      "n_train": 5139
+      "n_train": 5139,
+      "lat": 36.098,
+      "lon": -79.937
     },
     {
       "code": "GSP",
       "city": "Greer",
-      "n_train": 5091
+      "n_train": 5091,
+      "lat": 34.896,
+      "lon": -82.219
     },
     {
       "code": "HNL",
       "city": "Honolulu",
-      "n_train": 34437
+      "n_train": 34437,
+      "lat": 21.319,
+      "lon": -157.922
     },
     {
       "code": "HOU",
       "city": "Houston",
-      "n_train": 40825
+      "n_train": 40825,
+      "lat": 29.645,
+      "lon": -95.279
     },
     {
       "code": "HPN",
       "city": "White Plains",
-      "n_train": 5737
+      "n_train": 5737,
+      "lat": 41.067,
+      "lon": -73.708
     },
     {
       "code": "HRL",
       "city": "Harlingen",
-      "n_train": 2426
+      "n_train": 2426,
+      "lat": 26.229,
+      "lon": -97.654
     },
     {
       "code": "HSV",
       "city": "Huntsville",
-      "n_train": 3541
+      "n_train": 3541,
+      "lat": 34.64,
+      "lon": -86.773
     },
     {
       "code": "IAD",
       "city": "Chantilly",
-      "n_train": 26976
+      "n_train": 26976,
+      "lat": 38.945,
+      "lon": -77.456
     },
     {
       "code": "IAH",
       "city": "Houston",
-      "n_train": 115229
+      "n_train": 115229,
+      "lat": 29.98,
+      "lon": -95.34
     },
     {
       "code": "ICT",
       "city": "Wichita",
-      "n_train": 6265
+      "n_train": 6265,
+      "lat": 37.65,
+      "lon": -97.433
     },
     {
       "code": "IND",
       "city": "Indianapolis",
-      "n_train": 19989
+      "n_train": 19989,
+      "lat": 39.717,
+      "lon": -86.294
     },
     {
       "code": "ISP",
       "city": "Islip",
-      "n_train": 3408
+      "n_train": 3408,
+      "lat": 40.795,
+      "lon": -73.1
     },
     {
       "code": "ITO",
       "city": "Hilo",
-      "n_train": 4569
+      "n_train": 4569,
+      "lat": 19.72,
+      "lon": -155.048
     },
     {
       "code": "JAC",
       "city": "Jackson",
-      "n_train": 2768
+      "n_train": 2768,
+      "lat": 43.607,
+      "lon": -110.738
     },
     {
       "code": "JAN",
       "city": "Jackson",
-      "n_train": 5528
+      "n_train": 5528,
+      "lat": 32.311,
+      "lon": -90.076
     },
     {
       "code": "JAX",
       "city": "Jacksonville",
-      "n_train": 14233
+      "n_train": 14233,
+      "lat": 30.494,
+      "lon": -81.688
     },
     {
       "code": "JFK",
       "city": "New York",
-      "n_train": 73697
+      "n_train": 73697,
+      "lat": 40.64,
+      "lon": -73.779
     },
     {
       "code": "JNU",
       "city": "Juneau",
-      "n_train": 3227
+      "n_train": 3227,
+      "lat": 58.355,
+      "lon": -134.576
     },
     {
       "code": "KOA",
       "city": "Kailua/Kona",
-      "n_train": 8856
+      "n_train": 8856,
+      "lat": 19.739,
+      "lon": -156.046
     },
     {
       "code": "LAS",
       "city": "Las Vegas",
-      "n_train": 105634
+      "n_train": 105634,
+      "lat": 36.08,
+      "lon": -115.152
     },
     {
       "code": "LAX",
       "city": "Los Angeles",
-      "n_train": 153645
+      "n_train": 153645,
+      "lat": 33.943,
+      "lon": -118.408
     },
     {
       "code": "LBB",
       "city": "Lubbock",
-      "n_train": 3551
+      "n_train": 3551,
+      "lat": 33.664,
+      "lon": -101.823
     },
     {
       "code": "LEX",
       "city": "Lexington",
-      "n_train": 4641
+      "n_train": 4641,
+      "lat": 38.037,
+      "lon": -84.605
     },
     {
       "code": "LFT",
       "city": "Lafayette",
-      "n_train": 4004
+      "n_train": 4004,
+      "lat": 30.205,
+      "lon": -91.988
     },
     {
       "code": "LGA",
       "city": "New York",
-      "n_train": 76015
+      "n_train": 76015,
+      "lat": 40.777,
+      "lon": -73.873
     },
     {
       "code": "LGB",
       "city": "Long Beach",
-      "n_train": 6973
+      "n_train": 6973,
+      "lat": 33.818,
+      "lon": -118.152
     },
     {
       "code": "LIH",
       "city": "Lihue",
-      "n_train": 8418
+      "n_train": 8418,
+      "lat": 21.976,
+      "lon": -159.339
     },
     {
       "code": "LIT",
       "city": "Little Rock",
-      "n_train": 8085
+      "n_train": 8085,
+      "lat": 34.729,
+      "lon": -92.224
     },
     {
       "code": "LNK",
       "city": "Lincoln",
-      "n_train": 2047
+      "n_train": 2047,
+      "lat": 40.851,
+      "lon": -96.759
     },
     {
       "code": "MAF",
       "city": "Midland",
-      "n_train": 5802
+      "n_train": 5802,
+      "lat": 31.943,
+      "lon": -102.202
     },
     {
       "code": "MCI",
       "city": "Kansas City",
-      "n_train": 30431
+      "n_train": 30431,
+      "lat": 39.298,
+      "lon": -94.714
     },
     {
       "code": "MCO",
       "city": "Orlando",
-      "n_train": 87977
+      "n_train": 87977,
+      "lat": 28.429,
+      "lon": -81.316
     },
     {
       "code": "MDT",
       "city": "Harrisburg",
-      "n_train": 2564
+      "n_train": 2564,
+      "lat": 40.194,
+      "lon": -76.763
     },
     {
       "code": "MDW",
       "city": "Chicago",
-      "n_train": 62840
+      "n_train": 62840,
+      "lat": 41.786,
+      "lon": -87.752
     },
     {
       "code": "MEM",
       "city": "Memphis",
-      "n_train": 11496
+      "n_train": 11496,
+      "lat": 35.042,
+      "lon": -89.977
     },
     {
       "code": "MFE",
       "city": "McAllen",
-      "n_train": 2627
+      "n_train": 2627,
+      "lat": 26.176,
+      "lon": -98.239
     },
     {
       "code": "MGM",
       "city": "Montgomery",
-      "n_train": 2488
+      "n_train": 2488,
+      "lat": 32.301,
+      "lon": -86.394
     },
     {
       "code": "MHT",
       "city": "Manchester",
-      "n_train": 4912
+      "n_train": 4912,
+      "lat": 42.935,
+      "lon": -71.437
     },
     {
       "code": "MIA",
       "city": "Miami",
-      "n_train": 54825
+      "n_train": 54825,
+      "lat": 25.793,
+      "lon": -80.291
     },
     {
       "code": "MKE",
       "city": "Milwaukee",
-      "n_train": 23309
+      "n_train": 23309,
+      "lat": 42.947,
+      "lon": -87.897
     },
     {
       "code": "MLI",
       "city": "Moline",
-      "n_train": 2885
+      "n_train": 2885,
+      "lat": 41.449,
+      "lon": -90.508
     },
     {
       "code": "MLU",
       "city": "Monroe",
-      "n_train": 2299
+      "n_train": 2299,
+      "lat": 32.511,
+      "lon": -92.038
     },
     {
       "code": "MOB",
       "city": "Mobile",
-      "n_train": 3918
+      "n_train": 3918,
+      "lat": 30.691,
+      "lon": -88.243
     },
     {
       "code": "MRY",
       "city": "Monterey",
-      "n_train": 2266
+      "n_train": 2266,
+      "lat": 36.587,
+      "lon": -121.843
     },
     {
       "code": "MSN",
       "city": "Madison",
-      "n_train": 7044
+      "n_train": 7044,
+      "lat": 43.14,
+      "lon": -89.338
     },
     {
       "code": "MSP",
       "city": "Minneapolis",
-      "n_train": 88808
+      "n_train": 88808,
+      "lat": 44.881,
+      "lon": -93.217
     },
     {
       "code": "MSY",
       "city": "New Orleans",
-      "n_train": 30616
+      "n_train": 30616,
+      "lat": 29.993,
+      "lon": -90.258
     },
     {
       "code": "MYR",
       "city": "Myrtle Beach",
-      "n_train": 3778
+      "n_train": 3778,
+      "lat": 33.68,
+      "lon": -78.928
     },
     {
       "code": "OAK",
       "city": "Oakland",
-      "n_train": 33268
+      "n_train": 33268,
+      "lat": 37.721,
+      "lon": -122.221
     },
     {
       "code": "OGG",
       "city": "Kahului",
-      "n_train": 16427
+      "n_train": 16427,
+      "lat": 20.899,
+      "lon": -156.43
     },
     {
       "code": "OKC",
       "city": "Oklahoma City",
-      "n_train": 12604
+      "n_train": 12604,
+      "lat": 35.393,
+      "lon": -97.601
     },
     {
       "code": "OMA",
       "city": "Omaha",
-      "n_train": 13136
+      "n_train": 13136,
+      "lat": 41.303,
+      "lon": -95.894
     },
     {
       "code": "ONT",
       "city": "Ontario",
-      "n_train": 14196
+      "n_train": 14196,
+      "lat": 34.056,
+      "lon": -117.601
     },
     {
       "code": "ORD",
       "city": "Chicago",
-      "n_train": 220881
+      "n_train": 220881,
+      "lat": 41.98,
+      "lon": -87.904
     },
     {
       "code": "ORF",
       "city": "Norfolk",
-      "n_train": 7274
+      "n_train": 7274,
+      "lat": 36.895,
+      "lon": -76.201
     },
     {
       "code": "PBI",
       "city": "West Palm Beach",
-      "n_train": 17750
+      "n_train": 17750,
+      "lat": 26.683,
+      "lon": -80.096
     },
     {
       "code": "PDX",
       "city": "Portland",
-      "n_train": 37457
+      "n_train": 37457,
+      "lat": 45.589,
+      "lon": -122.597
     },
     {
       "code": "PHL",
       "city": "Philadelphia",
-      "n_train": 51975
+      "n_train": 51975,
+      "lat": 39.872,
+      "lon": -75.241
     },
     {
       "code": "PHX",
       "city": "Phoenix",
-      "n_train": 116580
+      "n_train": 116580,
+      "lat": 33.434,
+      "lon": -112.008
     },
     {
       "code": "PIA",
       "city": "Peoria",
-      "n_train": 3585
+      "n_train": 3585,
+      "lat": 40.664,
+      "lon": -89.693
     },
     {
       "code": "PIT",
       "city": "Pittsburgh",
-      "n_train": 18935
+      "n_train": 18935,
+      "lat": 40.491,
+      "lon": -80.233
     },
     {
       "code": "PNS",
       "city": "Pensacola",
-      "n_train": 5132
+      "n_train": 5132,
+      "lat": 30.473,
+      "lon": -87.187
     },
     {
       "code": "PSP",
       "city": "Palm Springs",
-      "n_train": 7117
+      "n_train": 7117,
+      "lat": 33.829,
+      "lon": -116.506
     },
     {
       "code": "PVD",
       "city": "Providence",
-      "n_train": 8628
+      "n_train": 8628,
+      "lat": 41.724,
+      "lon": -71.428
     },
     {
       "code": "PWM",
       "city": "Portland",
-      "n_train": 3640
+      "n_train": 3640,
+      "lat": 43.646,
+      "lon": -70.309
     },
     {
       "code": "RAP",
       "city": "Rapid City",
-      "n_train": 2556
+      "n_train": 2556,
+      "lat": 44.045,
+      "lon": -103.057
     },
     {
       "code": "RDU",
       "city": "Raleigh",
-      "n_train": 24854
+      "n_train": 24854,
+      "lat": 35.878,
+      "lon": -78.787
     },
     {
       "code": "RIC",
       "city": "Richmond",
-      "n_train": 11881
+      "n_train": 11881,
+      "lat": 37.505,
+      "lon": -77.32
     },
     {
       "code": "RNO",
       "city": "Reno",
-      "n_train": 10283
+      "n_train": 10283,
+      "lat": 39.499,
+      "lon": -119.768
     },
     {
       "code": "ROC",
       "city": "Rochester",
-      "n_train": 5775
+      "n_train": 5775,
+      "lat": 43.119,
+      "lon": -77.672
     },
     {
       "code": "RSW",
       "city": "Ft. Myers",
-      "n_train": 21597
+      "n_train": 21597,
+      "lat": 26.536,
+      "lon": -81.755
     },
     {
       "code": "SAN",
       "city": "San Diego",
-      "n_train": 55457
+      "n_train": 55457,
+      "lat": 32.734,
+      "lon": -117.19
     },
     {
       "code": "SAT",
       "city": "San Antonio",
-      "n_train": 23482
+      "n_train": 23482,
+      "lat": 29.534,
+      "lon": -98.47
     },
     {
       "code": "SAV",
       "city": "Savannah",
-      "n_train": 5902
+      "n_train": 5902,
+      "lat": 32.128,
+      "lon": -81.202
     },
     {
       "code": "SBA",
       "city": "Santa Barbara",
-      "n_train": 4719
+      "n_train": 4719,
+      "lat": 34.426,
+      "lon": -119.84
     },
     {
       "code": "SBN",
       "city": "South Bend",
-      "n_train": 3462
+      "n_train": 3462,
+      "lat": 41.709,
+      "lon": -86.318
     },
     {
       "code": "SBP",
       "city": "San Luis Obispo",
-      "n_train": 2456
+      "n_train": 2456,
+      "lat": 35.237,
+      "lon": -120.642
     },
     {
       "code": "SDF",
       "city": "Louisville",
-      "n_train": 7956
+      "n_train": 7956,
+      "lat": 38.174,
+      "lon": -85.736
     },
     {
       "code": "SEA",
       "city": "Seattle",
-      "n_train": 88255
+      "n_train": 88255,
+      "lat": 47.449,
+      "lon": -122.309
     },
     {
       "code": "SFO",
       "city": "San Francisco",
-      "n_train": 116419
+      "n_train": 116419,
+      "lat": 37.619,
+      "lon": -122.375
     },
     {
       "code": "SGF",
       "city": "Springfield",
-      "n_train": 4832
+      "n_train": 4832,
+      "lat": 37.244,
+      "lon": -93.387
     },
     {
       "code": "SHV",
       "city": "Shreveport",
-      "n_train": 4748
+      "n_train": 4748,
+      "lat": 32.447,
+      "lon": -93.826
     },
     {
       "code": "SJC",
       "city": "San Jose",
-      "n_train": 30091
+      "n_train": 30091,
+      "lat": 37.362,
+      "lon": -121.929
     },
     {
       "code": "SJU",
       "city": "San Juan",
-      "n_train": 19656
+      "n_train": 19656,
+      "lat": 18.439,
+      "lon": -66.002
     },
     {
       "code": "SLC",
       "city": "Salt Lake City",
-      "n_train": 77154
+      "n_train": 77154,
+      "lat": 40.788,
+      "lon": -111.978
     },
     {
       "code": "SMF",
       "city": "Sacramento",
-      "n_train": 29372
+      "n_train": 29372,
+      "lat": 38.695,
+      "lon": -121.591
     },
     {
       "code": "SNA",
       "city": "Santa Ana",
-      "n_train": 29306
+      "n_train": 29306,
+      "lat": 33.676,
+      "lon": -117.868
     },
     {
       "code": "SRQ",
       "city": "Sarasota",
-      "n_train": 2651
+      "n_train": 2651,
+      "lat": 27.395,
+      "lon": -82.554
     },
     {
       "code": "STL",
       "city": "St Louis",
-      "n_train": 36905
+      "n_train": 36905,
+      "lat": 38.748,
+      "lon": -90.36
     },
     {
       "code": "STT",
       "city": "Charlotte Amalie",
-      "n_train": 3373
+      "n_train": 3373,
+      "lat": 18.337,
+      "lon": -64.973
     },
     {
       "code": "SYR",
       "city": "Syracuse",
-      "n_train": 4350
+      "n_train": 4350,
+      "lat": 43.111,
+      "lon": -76.106
     },
     {
       "code": "TLH",
       "city": "Tallahassee",
-      "n_train": 2513
+      "n_train": 2513,
+      "lat": 30.397,
+      "lon": -84.35
     },
     {
       "code": "TPA",
       "city": "Tampa",
-      "n_train": 50547
+      "n_train": 50547,
+      "lat": 27.975,
+      "lon": -82.533
     },
     {
       "code": "TTN",
       "city": "Trenton",
-      "n_train": 2230
+      "n_train": 2230,
+      "lat": 40.277,
+      "lon": -74.813
     },
     {
       "code": "TUL",
       "city": "Tulsa",
-      "n_train": 10934
+      "n_train": 10934,
+      "lat": 36.198,
+      "lon": -95.888
     },
     {
       "code": "TUS",
       "city": "Tucson",
-      "n_train": 11950
+      "n_train": 11950,
+      "lat": 32.116,
+      "lon": -110.941
     },
     {
       "code": "TVC",
       "city": "Traverse City",
-      "n_train": 2116
+      "n_train": 2116,
+      "lat": 44.741,
+      "lon": -85.582
     },
     {
       "code": "TYS",
       "city": "Knoxville",
-      "n_train": 5405
+      "n_train": 5405,
+      "lat": 35.812,
+      "lon": -83.993
     },
     {
       "code": "VPS",
       "city": "Valparaiso",
-      "n_train": 3808
+      "n_train": 3808,
+      "lat": 30.483,
+      "lon": -86.525
     },
     {
       "code": "XNA",
       "city": "Fayetteville/Springdale/Rogers",
-      "n_train": 7131
+      "n_train": 7131,
+      "lat": 36.282,
+      "lon": -94.307
     }
+  ],
+  "top_routes": [
+    [
+      "SFO",
+      "LAX",
+      10706
+    ],
+    [
+      "LAX",
+      "SFO",
+      10485
+    ],
+    [
+      "JFK",
+      "LAX",
+      9526
+    ],
+    [
+      "LAX",
+      "JFK",
+      9500
+    ],
+    [
+      "LAS",
+      "LAX",
+      7713
+    ],
+    [
+      "LAX",
+      "LAS",
+      7615
+    ],
+    [
+      "LGA",
+      "ORD",
+      7359
+    ],
+    [
+      "ORD",
+      "LGA",
+      7281
+    ],
+    [
+      "JFK",
+      "SFO",
+      6652
+    ],
+    [
+      "SFO",
+      "JFK",
+      6643
+    ],
+    [
+      "OGG",
+      "HNL",
+      6633
+    ],
+    [
+      "HNL",
+      "OGG",
+      6613
+    ],
+    [
+      "MCO",
+      "ATL",
+      6524
+    ],
+    [
+      "ATL",
+      "MCO",
+      6520
+    ],
+    [
+      "LAX",
+      "ORD",
+      6503
+    ],
+    [
+      "ATL",
+      "LGA",
+      6392
+    ],
+    [
+      "LGA",
+      "ATL",
+      6387
+    ],
+    [
+      "SFO",
+      "LAS",
+      6366
+    ],
+    [
+      "ORD",
+      "LAX",
+      6272
+    ],
+    [
+      "LAS",
+      "SFO",
+      6269
+    ],
+    [
+      "SEA",
+      "LAX",
+      6191
+    ],
+    [
+      "LAX",
+      "SEA",
+      6156
+    ],
+    [
+      "DFW",
+      "ORD",
+      6132
+    ],
+    [
+      "ORD",
+      "DFW",
+      5948
+    ],
+    [
+      "DCA",
+      "BOS",
+      5937
+    ],
+    [
+      "BOS",
+      "DCA",
+      5934
+    ],
+    [
+      "ATL",
+      "FLL",
+      5919
+    ],
+    [
+      "FLL",
+      "ATL",
+      5902
+    ],
+    [
+      "PHX",
+      "LAX",
+      5837
+    ],
+    [
+      "ORD",
+      "SFO",
+      5818
+    ],
+    [
+      "LAX",
+      "PHX",
+      5788
+    ],
+    [
+      "SFO",
+      "ORD",
+      5787
+    ],
+    [
+      "DEN",
+      "PHX",
+      5720
+    ],
+    [
+      "PHX",
+      "DEN",
+      5703
+    ],
+    [
+      "ATL",
+      "TPA",
+      5629
+    ],
+    [
+      "TPA",
+      "ATL",
+      5615
+    ],
+    [
+      "DFW",
+      "ATL",
+      5558
+    ],
+    [
+      "ATL",
+      "DFW",
+      5555
+    ],
+    [
+      "SFO",
+      "SEA",
+      5511
+    ],
+    [
+      "SEA",
+      "SFO",
+      5442
+    ],
+    [
+      "SAN",
+      "SFO",
+      5418
+    ],
+    [
+      "SFO",
+      "SAN",
+      5402
+    ],
+    [
+      "LGA",
+      "BOS",
+      5305
+    ],
+    [
+      "BOS",
+      "LGA",
+      5293
+    ],
+    [
+      "LAX",
+      "DFW",
+      5252
+    ],
+    [
+      "DFW",
+      "LAX",
+      5251
+    ],
+    [
+      "ATL",
+      "PHL",
+      5222
+    ],
+    [
+      "PHL",
+      "ATL",
+      5219
+    ],
+    [
+      "ORD",
+      "BOS",
+      5115
+    ],
+    [
+      "BOS",
+      "ORD",
+      5113
+    ],
+    [
+      "HNL",
+      "KOA",
+      5110
+    ],
+    [
+      "SEA",
+      "ANC",
+      5101
+    ],
+    [
+      "ANC",
+      "SEA",
+      5097
+    ],
+    [
+      "ATL",
+      "ORD",
+      5088
+    ],
+    [
+      "DCA",
+      "ATL",
+      5070
+    ],
+    [
+      "ATL",
+      "DCA",
+      5070
+    ],
+    [
+      "KOA",
+      "HNL",
+      5066
+    ],
+    [
+      "CLT",
+      "ATL",
+      5020
+    ],
+    [
+      "ATL",
+      "CLT",
+      5017
+    ],
+    [
+      "ORD",
+      "ATL",
+      5016
+    ],
+    [
+      "ORD",
+      "MSP",
+      4982
+    ],
+    [
+      "DEN",
+      "LAS",
+      4962
+    ],
+    [
+      "LGA",
+      "MIA",
+      4948
+    ],
+    [
+      "LAS",
+      "DEN",
+      4947
+    ],
+    [
+      "LAX",
+      "SJC",
+      4937
+    ],
+    [
+      "SJC",
+      "LAX",
+      4936
+    ],
+    [
+      "MIA",
+      "LGA",
+      4914
+    ],
+    [
+      "MSP",
+      "ORD",
+      4912
+    ],
+    [
+      "SLC",
+      "DEN",
+      4874
+    ],
+    [
+      "LAX",
+      "OAK",
+      4839
+    ]
   ],
   "routes": {
     "ABQ": {

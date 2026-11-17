@@ -1,35 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
-  darkMode: ["class", '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        // Chart series colours are validated for colour-vision deficiency and
-        // stepped separately for the dark surface; see src/lib/theme.ts.
+        bg: "#070B16",
+        panel: "#0B1122",
+        raised: "#111A30",
+        line: "rgba(148, 163, 205, 0.12)",
+        "line-strong": "rgba(148, 163, 205, 0.22)",
         ink: {
-          DEFAULT: "rgb(var(--ink) / <alpha-value>)",
-          soft: "rgb(var(--ink-soft) / <alpha-value>)",
-          muted: "rgb(var(--ink-muted) / <alpha-value>)",
+          DEFAULT: "#E8ECF5",
+          soft: "#A3ADC2",
+          muted: "#6B7693",
         },
-        surface: {
-          DEFAULT: "rgb(var(--surface) / <alpha-value>)",
-          sunken: "rgb(var(--surface-sunken) / <alpha-value>)",
-          raised: "rgb(var(--surface-raised) / <alpha-value>)",
-        },
-        line: "rgb(var(--line) / <alpha-value>)",
-        accent: "rgb(var(--accent) / <alpha-value>)",
-        s1: "rgb(var(--s1) / <alpha-value>)",
-        s2: "rgb(var(--s2) / <alpha-value>)",
-        s3: "rgb(var(--s3) / <alpha-value>)",
-        good: "rgb(var(--good) / <alpha-value>)",
-        bad: "rgb(var(--bad) / <alpha-value>)",
+        // UI accent only -- never a data series. The departures-board amber.
+        amber: { DEFAULT: "#FBBF24", soft: "rgba(251, 191, 36, 0.12)" },
+        // Data series: the trio that passes the colour-vision checks on this
+        // surface for every pair, not just neighbours.
+        s1: "#3987E5",
+        s2: "#D95926",
+        s3: "#199E70",
+        good: "#2FB67C",
+        bad: "#E5484D",
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
+        display: ["'Space Grotesk'", "Inter", "system-ui", "sans-serif"],
+        sans: ["Inter", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        mono: ["'JetBrains Mono'", "ui-monospace", "Consolas", "monospace"],
       },
-      maxWidth: { prose: "72ch" },
+      boxShadow: {
+        panel: "0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 60px -30px rgba(0,0,0,0.8)",
+        glow: "0 0 0 1px rgba(251,191,36,0.35), 0 10px 40px -10px rgba(251,191,36,0.45)",
+      },
     },
   },
   plugins: [],

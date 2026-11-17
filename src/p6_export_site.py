@@ -50,6 +50,9 @@ def build_options() -> dict:
     apt = pd.read_csv(P.AIRPORTS_CSV)
     name_of = dict(zip(air["IATA_CODE"], air["AIRLINE"]))
     city_of = dict(zip(apt["IATA_CODE"], apt["CITY"]))
+    # Coordinates, for the map on the opening screen. Real airports, real routes.
+    lat_of = dict(zip(apt["IATA_CODE"], apt["LATITUDE"]))
+    lon_of = dict(zip(apt["IATA_CODE"], apt["LONGITUDE"]))
 
     counts = train["ORIGIN_AIRPORT"].value_counts()
     busy = [a for a in counts.index if counts[a] >= 2000]
@@ -84,8 +87,19 @@ def build_options() -> dict:
             for c, n in train["AIRLINE"].value_counts().items()
         ],
         "airports": [
-            {"code": a, "city": city_of.get(a, a), "n_train": int(counts[a])}
+            {
+                "code": a,
+                "city": city_of.get(a, a),
+                "n_train": int(counts[a]),
+                "lat": None if pd.isna(lat_of.get(a)) else round(float(lat_of[a]), 3),
+                "lon": None if pd.isna(lon_of.get(a)) else round(float(lon_of[a]), 3),
+            }
             for a in sorted(busy)
+        ],
+        # The busiest routes, drawn as arcs on the opening map.
+        "top_routes": [
+            [row.ORIGIN_AIRPORT, row.DESTINATION_AIRPORT, int(row.n)]
+            for row in agg.sort_values("n", ascending=False).head(70).itertuples()
         ],
         "routes": routes,
         "defaults": {"distance_median": float(train["DISTANCE"].median())},

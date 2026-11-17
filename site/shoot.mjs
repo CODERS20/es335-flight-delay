@@ -1,10 +1,14 @@
-/* Walk the built site in a real browser, capture every slide, and fail on
- * anything a reader would notice: a console error, a failed request, a
- * placeholder left on the page, an empty slide, or a slide that does not fit a
- * laptop screen.
+/* Walk the built site in a real browser, screenshot every screen once its
+ * animations have settled, and fail on anything a reader would notice:
+ *
+ *   - a console error, page error or failed request
+ *   - "undefined", "NaN" or "[object Object]" in the page text
+ *   - a screen with almost no content
+ *   - text clipped by its container (content that is cut off)
+ *   - horizontal overflow
  *
  *   node shoot.mjs            serve ../docs and capture
- *   node shoot.mjs <url>      capture a running dev server instead
+ *   node shoot.mjs <url>      capture a running server instead
  *
  * Screenshots land in ../artifacts/screenshots/.
  */
@@ -27,7 +31,6 @@ const TYPES = {
   ".json": "application/json",
   ".svg": "image/svg+xml",
   ".png": "image/png",
-  ".woff2": "font/woff2",
 };
 
 function serve(port) {
@@ -39,9 +42,7 @@ function serve(port) {
     if (!existsSync(file)) file = join(docs, "index.html");
     try {
       const body = await readFile(file);
-      res.writeHead(200, {
-        "content-type": TYPES[extname(file)] ?? "application/octet-stream",
-      });
+      res.writeHead(200, { "content-type": TYPES[extname(file)] ?? "application/octet-stream" });
       res.end(body);
     } catch (e) {
       res.writeHead(500);
@@ -51,32 +52,17 @@ function serve(port) {
   return new Promise((resolve) => server.listen(port, () => resolve(server)));
 }
 
-/** Every step of the walkthrough, in order. */
-const SLIDES = [
-  "top",
-  "predict",
-  "data",
-  "data-audit",
-  "split",
-  "select",
-  "select-folds",
-  "select-candidates",
-  "select-threshold",
-  "retrain",
-  "evaluate",
-  "evaluate-detail",
-  "evaluate-forecast",
-  "reproduce",
+const SCREENS = [
+  "overview", "predict", "clean", "features", "split", "folds", "compare",
+  "threshold", "retrain", "results", "errors", "forecast", "reproduce",
 ];
 
 const urlArg = process.argv[2];
 const port = 4178;
 const server = urlArg ? null : await serve(port);
 const url = urlArg ?? `http://localhost:${port}${BASE}`;
-
 await mkdir(outDir, { recursive: true });
 
-// Drive a browser that is already installed rather than downloading one.
 let browser = null;
 for (const channel of ["chrome", "msedge"]) {
   try {
@@ -84,78 +70,109 @@ for (const channel of ["chrome", "msedge"]) {
     console.log(`using installed browser: ${channel}`);
     break;
   } catch {
-    /* try the next one */
+    /* next */
   }
 }
 if (!browser) browser = await chromium.launch();
 
 const problems = [];
 
-for (const scheme of ["light", "dark"]) {
+/** Find text that its own container is cutting off. */
+async function clippedText(page) {
+  return page.evaluate(() => {
+    const main = document.querySelector("main");
+    if (!main) return [];
+    const out = [];
+    const leaves = main.querySelectorAll("p, span, h1, h2, h3, li, text, button, a, td, th, label");
+    for (const el of leaves) {
+      const t = (el.textContent || "").trim();
+      if (!t || el.children.length > 2) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      let a = el.parentElement;
+      while (a && a !== main.parentElement) {
+        const cs = getComputedStyle(a);
+        if (cs.overflowY !== "visible" || cs.overflowX !== "visible") {
+          const ar = a.getBoundingClientRect();
+          if (r.bottom > ar.bottom + 3 || r.right > ar.right + 3) {
+            out.push(`"${t.slice(0, 40)}" cut off by its container`);
+          }
+          break;
+        }
+        a = a.parentElement;
+      }
+    }
+    return [...new Set(out)].slice(0, 5);
+  });
+}
+
+for (const vp of [
+  { name: "laptop", width: 1512, height: 945, shots: true },
+  { name: "small-laptop", width: 1366, height: 768, shots: false },
+]) {
   const ctx = await browser.newContext({
-    viewport: { width: 1512, height: 945 }, // a laptop, in landscape
-    colorScheme: scheme,
-    deviceScaleFactor: 2,
+    viewport: { width: vp.width, height: vp.height },
+    colorScheme: "dark",
+    deviceScaleFactor: vp.shots ? 2 : 1,
   });
   const page = await ctx.newPage();
-
-  page.on("console", (m) => {
-    if (m.type() === "error") problems.push(`[${scheme}] console: ${m.text()}`);
-  });
-  page.on("pageerror", (e) => problems.push(`[${scheme}] page error: ${e.message}`));
-  page.on("requestfailed", (r) =>
-    problems.push(`[${scheme}] failed request: ${r.url()}`),
-  );
+  page.setDefaultTimeout(30000);
+  page.on("console", (m) => m.type() === "error" && problems.push(`[${vp.name}] console: ${m.text()}`));
+  page.on("pageerror", (e) => problems.push(`[${vp.name}] page error: ${e.message}`));
+  page.on("requestfailed", (r) => problems.push(`[${vp.name}] failed request: ${r.url()}`));
 
   await page.goto(url, { waitUntil: "networkidle" });
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1200);
 
-  for (const id of SLIDES) {
-    await page.evaluate((hash) => {
-      window.location.hash = hash;
-    }, id);
-    await page.waitForTimeout(scheme === "light" ? 700 : 450);
+  for (const id of SCREENS) {
+    const started = Date.now();
+    const guard = setTimeout(() => {
+      console.log(`  [${vp.name}] ${id} is taking over 25s`);
+    }, 25000);
+    await page.evaluate((h) => (window.location.hash = h), id);
+    // let every entrance animation finish before judging or capturing
+    await page.waitForTimeout(vp.shots ? 4200 : 3400);
 
-    const present = await page.evaluate((sel) => !!document.getElementById(sel), id);
-    if (!present) {
-      problems.push(`[${scheme}] slide #${id} did not render`);
+    if (!(await page.$(`section#${id}`))) {
+      problems.push(`[${vp.name}] screen #${id} did not render`);
       continue;
     }
-
-    await page.screenshot({ path: join(outDir, `${scheme}-${id}.png`) });
-    if (scheme === "light") console.log(`wrote ${scheme}-${id}.png`);
-
-    if (scheme !== "light") continue;
-
-    // ---- content checks, once ----
-    const text = await page.evaluate(() => document.body.innerText);
-    for (const bad of ["Not generated yet", "undefined", "NaN", "[object Object]"]) {
-      if (text.includes(bad)) problems.push(`slide ${id}: text contains "${bad}"`);
+    if (vp.shots) {
+      await page.screenshot({ path: join(outDir, `${id}.png`) });
+      console.log(`wrote ${id}.png`);
     }
 
-    const len = await page.evaluate(
-      (sel) => document.getElementById(sel)?.innerText.trim().length ?? 0,
-      id,
-    );
-    if (len < 120) problems.push(`slide #${id} is nearly empty (${len} chars)`);
-
-    // A slide much taller than the viewport is not a landscape slide any more.
-    const fit = await page.evaluate(() => {
-      const m = document.querySelector("main");
-      return m ? { h: m.scrollHeight, view: m.clientHeight } : null;
-    });
-    if (fit && fit.h > fit.view * 1.55) {
-      problems.push(
-        `slide ${id} is ${(fit.h / fit.view).toFixed(1)} screens tall - split it or tighten it`,
-      );
+    const text = await page.evaluate(() => document.querySelector("main")?.innerText ?? "");
+    for (const bad of ["undefined", "NaN", "[object Object]"]) {
+      if (text.includes(bad)) problems.push(`[${vp.name}] ${id}: text contains "${bad}"`);
     }
+    if (text.trim().length < 150) problems.push(`[${vp.name}] ${id}: almost empty`);
 
-    const overflow = await page.evaluate(
+    for (const c of await clippedText(page)) problems.push(`[${vp.name}] ${id}: ${c}`);
+
+    const over = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
-    if (overflow > 1) problems.push(`slide ${id}: ${overflow}px of horizontal overflow`);
+    if (over > 1) problems.push(`[${vp.name}] ${id}: ${over}px horizontal overflow`);
+    clearTimeout(guard);
+    console.log(`  [${vp.name}] ${id} checked in ${((Date.now() - started) / 1000).toFixed(1)}s`);
   }
 
+  // the drawer, open, on one screen
+  if (vp.shots) {
+    await page.evaluate(() => (window.location.hash = "folds"));
+    await page.waitForTimeout(1500);
+    const btn = await page.$("button:has-text('See the numbers')");
+    if (btn) {
+      await btn.click();
+      await page.waitForTimeout(900);
+      await page.screenshot({ path: join(outDir, "drawer.png") });
+      console.log("wrote drawer.png");
+      await page.keyboard.press("Escape");
+    } else {
+      problems.push("drawer button not found on #folds");
+    }
+  }
   await ctx.close();
 }
 
@@ -168,6 +185,6 @@ if (problems.length) {
   problems.forEach((p) => console.log("  - " + p));
   process.exitCode = 1;
 } else {
-  console.log("every slide renders, fits the screen, and reports no errors");
+  console.log("every screen renders cleanly at both laptop sizes");
 }
 console.log("screenshots in artifacts/screenshots/");

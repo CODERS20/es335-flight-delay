@@ -78,10 +78,11 @@ export default function Step4Retrain({
                 title="Which features carry the signal"
                 hint={
                   <>
-                    Feature ablation: shuffle one column at a time, breaking its link
-                    to the target while leaving everything else intact, and measure how
-                    far the curve area falls. A feature that matters hurts when it is
-                    shuffled.
+                    Feature ablation: shuffle one column at a time, breaking its
+                    link to the target while leaving everything else intact, and
+                    measure how far the curve area falls. A feature that matters hurts
+                    when it is shuffled; one at or below zero carries no signal the
+                    model was using.
                   </>
                 }
                 height={Math.max(170, p4.importance.length * 26)}
@@ -101,7 +102,7 @@ export default function Step4Retrain({
                     margin={{ top: 4, right: 52, bottom: 4, left: 4 }}
                   >
                     <CartesianGrid horizontal={false} stroke={COLOR.line} />
-                    <XAxis type="number" hide />
+                    <XAxis type="number" hide domain={[0, "dataMax"]} />
                     <YAxis
                       type="category"
                       dataKey="feature"

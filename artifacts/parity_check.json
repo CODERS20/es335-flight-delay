@@ -1,9 +1,8 @@
 {
-  "n_flights": 200,
-  "max_abs_difference": 2.220446049250313e-16,
-  "mean_abs_difference": 1.9428902930940238e-17,
+  "n_flights": 300,
+  "max_abs_difference": 1.1102230246251565e-16,
+  "mean_abs_difference": 2.5419481334646815e-17,
   "tolerance": 1e-09,
   "passed": true,
-  "max_abs_difference_calibrated": 1.3877787807814457e-16,
-  "what_this_proves": "The JavaScript in docs/app.js, run on the coefficients in docs/data/model.json, reproduces scikit-learn's predict_proba for the fitted logistic-regression pipeline on 200 real routes -- and the calibrated probability the page displays reproduces the Python calibrator selected in step 09."
+  "what_this_proves": "The JavaScript in site/src/components/Predictor.tsx, run on the coefficients in p4_model.json, reproduces scikit-learn's predict_proba for the fitted pipeline on 300 real routes."
 }

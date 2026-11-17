@@ -160,8 +160,12 @@ importance = sorted(
 )
 print(f"  measured on {n_probe:,} held-back flights, curve area {base_score:.4f}")
 for r in importance:
-    bar = "#" * max(1, int(round(r["drop_in_score"] / max(importance[0]['drop_in_score'], 1e-9) * 28)))
-    print(f"    {r['feature']:<22} -{r['drop_in_score']:.4f}  {bar}")
+    # A negative value means shuffling the column slightly improved the score,
+    # which is what a feature carrying no signal looks like. Print the sign the
+    # number actually has rather than assuming a drop.
+    share = r["drop_in_score"] / max(importance[0]["drop_in_score"], 1e-9)
+    bar = "#" * max(1, int(round(max(share, 0) * 28)))
+    print(f"    {r['feature']:<22} {-r['drop_in_score']:+.4f}  {bar}")
 
 # ---------------------------------------------------------------------------
 # the browser model
@@ -185,6 +189,9 @@ else:
         "sum of its inputs, so the browser can reproduce it to the last decimal."
     )
     print(f"  the winner is {CHOSEN}, so a logistic regression was fitted for the page")
+
+joblib.dump(browser_pipe, P.MODELS_DIR / "browser.joblib")
+print("  saved artifacts/models/browser.joblib (the pipeline behind the export)")
 
 prep = browser_pipe.named_steps["prep"]
 clf = browser_pipe.named_steps["clf"]

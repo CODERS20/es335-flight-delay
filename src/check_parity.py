@@ -18,8 +18,9 @@ Run:  python src/check_parity.py
 from __future__ import annotations
 
 import json
-import re
+import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -80,7 +81,12 @@ src = SITE_PREDICTOR.read_text(encoding="utf-8")
 
 
 def lift(name: str) -> str:
-    """Take a function out of the site source by matching its braces."""
+    """Take a function out of the site source by matching its braces.
+
+    The text is kept exactly as it ships, types and all; esbuild turns it into
+    runnable JavaScript below. Nothing is re-implemented here, so what gets
+    tested is what a visitor's browser runs.
+    """
     start = src.index(f"export function {name}(")
     i = src.index("{", start)
     depth = 0
@@ -90,40 +96,61 @@ def lift(name: str) -> str:
         elif src[j] == "}":
             depth -= 1
             if depth == 0:
-                body = src[start:j + 1]
-                # strip the TypeScript annotations; the arithmetic is unchanged
-                body = body.replace("export function", "function")
-                body = re.sub(r":\s*P4Model\[\"browser_model\"\]", "", body)
-                body = re.sub(r":\s*Record<string, string \| number>", "", body)
-                body = re.sub(r"\)\s*:\s*number\s*\{", ") {", body)
-                return body
+                return src[start:j + 1].replace("export function", "function")
     raise SystemExit(f"could not read {name} out of {SITE_PREDICTOR.name}")
 
 
-js = f"""
+ts = f"""
 {lift("sigmoid")}
 {lift("scoreFlight")}
 const model = {json.dumps(model)};
 const flights = {json.dumps(rows)};
 console.log(JSON.stringify(flights.map((f) => scoreFlight(model, f))));
 """
-with tempfile.NamedTemporaryFile("w", suffix=".mjs", delete=False, encoding="utf-8") as fh:
-    fh.write(js)
-    tmp = fh.name
-try:
-    out = subprocess.run(["node", tmp], capture_output=True, text=True, check=True)
-    from_js = np.array(json.loads(out.stdout), dtype=float)
-finally:
-    Path(tmp).unlink(missing_ok=True)
+# The snippet still carries its TypeScript types, so hand it to esbuild -- the
+# transpiler the site is already built with -- rather than stripping types by
+# hand and hoping the regular expressions caught every one.
+tmpdir = Path(tempfile.mkdtemp())
+ts_file = tmpdir / "score.ts"
+js_file = tmpdir / "score.mjs"
+ts_file.write_text(ts, encoding="utf-8")
+
+esbuild = P.REPO_ROOT / "site" / "node_modules" / ".bin" / (
+    "esbuild.cmd" if sys.platform == "win32" else "esbuild"
+)
+if not esbuild.exists():
+    raise SystemExit(
+        f"esbuild not found at {esbuild}. Run `npm install` in site/ first."
+    )
+
+build = subprocess.run(
+    [str(esbuild), str(ts_file), "--format=esm", f"--outfile={js_file}"],
+    capture_output=True, text=True,
+)
+if build.returncode != 0:
+    raise SystemExit("FAIL: could not transpile the site's scoring code.\n" + build.stderr)
+
+out = subprocess.run(["node", str(js_file)], capture_output=True, text=True)
+if out.returncode != 0:
+    raise SystemExit("FAIL: the site's scoring code did not run.\n" + out.stderr.strip())
+from_js = np.array(json.loads(out.stdout), dtype=float)
+shutil.rmtree(tmpdir, ignore_errors=True)
+
 print(f"scored them with the real sigmoid/scoreFlight from "
       f"{SITE_PREDICTOR.relative_to(P.REPO_ROOT)}")
 
 # ---------------------------------------------------------------------------
 # score them with scikit-learn
 # ---------------------------------------------------------------------------
-pipe_path = P.MODELS_DIR / ("logistic_regression.joblib"
-                            if (P.MODELS_DIR / "logistic_regression.joblib").exists()
-                            else "final.joblib")
+# The page runs the model p4 exported, which is not the same object as the
+# best-of-family logistic regression: it is refitted for the page with its own
+# settings. Comparing against the wrong one would make this check meaningless.
+pipe_path = P.MODELS_DIR / "browser.joblib"
+if not pipe_path.exists():
+    raise SystemExit(
+        "artifacts/models/browser.joblib is missing. Run p4_retrain.py, which "
+        "saves the exact pipeline whose coefficients the website ships."
+    )
 pipe = joblib.load(pipe_path)
 from_py = pipe.predict_proba(pd.DataFrame(rows)[FEATURES])[:, 1]
 print(f"scored them with {pipe_path.name}")

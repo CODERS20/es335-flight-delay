@@ -278,14 +278,34 @@ export default function Step5Evaluate({
               </SubHead>
               <Table
                 head={["Stage", "Curve area", "Base rate", "× base rate"]}
-                rows={p5.cv_to_test.map((s) => [
-                  s.stage,
-                  n4(s.score),
-                  pct(s.base_rate, 2),
-                  `${s.ratio.toFixed(3)}×`,
-                ])}
+                rows={p5.cv_to_test
+                  .filter((s) => !s.stage.startsWith("Cross-validation fold"))
+                  .map((s) => [
+                    s.stage,
+                    n4(s.score),
+                    pct(s.base_rate, 2),
+                    `${s.ratio.toFixed(3)}×`,
+                  ])}
                 caption="Raw curve areas cannot be compared across periods with different base rates, which is why the last column is the one to read."
               />
+              <details className="mt-3 rounded-lg border border-line bg-surface-sunken px-4">
+                <summary className="cursor-pointer py-2.5 text-[13px] font-medium text-ink-soft hover:text-ink">
+                  Show each fold separately
+                </summary>
+                <div className="pb-4">
+                  <Table
+                    head={["Fold", "Curve area", "Base rate", "× base rate"]}
+                    rows={p5.cv_to_test
+                      .filter((s) => s.stage.startsWith("Cross-validation fold"))
+                      .map((s) => [
+                        s.stage.replace("Cross-validation ", ""),
+                        n4(s.score),
+                        pct(s.base_rate, 2),
+                        `${s.ratio.toFixed(3)}×`,
+                      ])}
+                  />
+                </div>
+              </details>
               <div className="mt-4">
                 <Callout tone="warn" title="Why the held-out number is higher than cross-validation predicted">
                   <p>

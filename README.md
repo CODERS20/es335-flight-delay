@@ -189,7 +189,7 @@ the busiest routes, an in-browser predictor, the cleaning funnel, the
 correlation matrix, the calendar of held-out days, all five cross-validation
 iterations, every candidate with its spread, an interactive threshold slider,
 the held-out results, the errors, and the forecasting check. Each screen pairs a
-short story on the left with an animated chart on the right; "See the numbers"
+short story on the left with a chart on the right; "See the numbers"
 opens the exact table behind it. Arrow keys or the rail on the left move between
 steps.
 

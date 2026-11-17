@@ -76,19 +76,7 @@ function FoldStrips({ data }: { data: Bundle }) {
 
               <div className="relative" style={{ height: H }}>
                 <svg width={stripW} height={H} className="absolute inset-0 overflow-visible">
-                  <defs>
-                    <clipPath id={`sweep-${fi}`}>
-                      <motion.rect
-                        x={0}
-                        y={-4}
-                        height={H + 8}
-                        initial={{ width: 0 }}
-                        animate={{ width: stripW }}
-                        transition={{ duration: 1.0, delay, ease: [0.45, 0, 0.2, 1] }}
-                      />
-                    </clipPath>
-                  </defs>
-                  <g clipPath={`url(#sweep-${fi})`}>
+                  <g>
                     {days.map((d, i) => {
                       const isVal = val.has(d);
                       return (
@@ -105,16 +93,6 @@ function FoldStrips({ data }: { data: Bundle }) {
                       );
                     })}
                   </g>
-                  {/* the scanner line */}
-                  <motion.rect
-                    y={-4}
-                    width={2}
-                    height={H + 8}
-                    fill={COLOR.amber}
-                    initial={{ x: 0, opacity: 0 }}
-                    animate={{ x: stripW, opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 1.0, delay, ease: [0.45, 0, 0.2, 1] }}
-                  />
                 </svg>
               </div>
 

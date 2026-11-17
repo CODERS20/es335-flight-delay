@@ -5,7 +5,7 @@ import { COLOR, useSize } from "../lib/labels";
 
 /**
  * Real airports at their real coordinates, sized by how many training flights
- * left them, with the busiest routes drawn as arcs and planes flying them.
+ * left them, with the busiest routes drawn as arcs.
  * Every dot and every arc comes from the training data.
  */
 export default function FlightMap({ options, dim = false }: { options: Options; dim?: boolean }) {
@@ -118,32 +118,6 @@ export default function FlightMap({ options, dim = false }: { options: Options; 
               {p.r > 4 ? <circle cx={p.x} cy={p.y} r={p.r * 2.6} fill="url(#glow)" opacity={0.35} /> : null}
               <circle cx={p.x} cy={p.y} r={p.r} fill="#CFE0FF" fillOpacity={0.85} />
             </motion.g>
-          ))}
-
-          {/* planes flying the busiest routes */}
-          {geo.arcs.slice(0, 26).map((a, i) => (
-            <g key={`plane-${a.key}`}>
-              <circle r={5} fill={COLOR.amber} opacity={0}>
-                <set attributeName="opacity" to="0.18" begin={`${1.6 + i * 0.4}s`} />
-                <animateMotion
-                  dur={`${5 + (i % 5) * 1.3}s`}
-                  begin={`${1.6 + i * 0.4}s`}
-                  repeatCount="indefinite"
-                  path={a.d}
-                  rotate="auto"
-                />
-              </circle>
-              <circle r={1.9} fill="#FFF4D6" opacity={0}>
-                <set attributeName="opacity" to="1" begin={`${1.6 + i * 0.4}s`} />
-                <animateMotion
-                  dur={`${5 + (i % 5) * 1.3}s`}
-                  begin={`${1.6 + i * 0.4}s`}
-                  repeatCount="indefinite"
-                  path={a.d}
-                  rotate="auto"
-                />
-              </circle>
-            </g>
           ))}
 
           {/* the busiest airports, named */}

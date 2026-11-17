@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Github, Plane } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { EASE, page } from "../lib/motion";
+import { EASE } from "../lib/motion";
 
 export interface ChapterDef {
   id: string;
@@ -23,13 +23,11 @@ const REPO = "https://github.com/CODERS20/es335-flight-delay";
  */
 export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
   const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1);
 
   const go = useCallback(
     (next: number) => {
       const i = Math.max(0, Math.min(chapters.length - 1, next));
       if (i === index) return;
-      setDir(i > index ? 1 : -1);
       setIndex(i);
       history.replaceState(null, "", `#${chapters[i].id}`);
     },
@@ -200,19 +198,10 @@ export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
 
       {/* ----------------------------------------------------------- stage */}
       <main className="relative z-10 min-w-0 flex-1">
-        <AnimatePresence mode="wait" custom={dir} initial={false}>
-          <motion.section
-            key={current.id}
-            id={current.id}
-            custom={dir}
-            variants={page}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            className="absolute inset-0"
-          >
+        <AnimatePresence key={current.id} initial={false}>
+          <section id={current.id} className="absolute inset-0">
             {current.render()}
-          </motion.section>
+          </section>
         </AnimatePresence>
 
       </main>

@@ -130,8 +130,8 @@ for (const vp of [
       console.log(`  [${vp.name}] ${id} is taking over 25s`);
     }, 25000);
     await page.evaluate((h) => (window.location.hash = h), id);
-    // let every entrance animation finish before judging or capturing
-    await page.waitForTimeout(vp.shots ? 4200 : 3400);
+    // screens appear fully drawn; a short pause lets fonts and layout settle
+    await page.waitForTimeout(vp.shots ? 600 : 400);
 
     if (!(await page.$(`section#${id}`))) {
       problems.push(`[${vp.name}] screen #${id} did not render`);

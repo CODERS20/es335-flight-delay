@@ -255,6 +255,13 @@ es335-flight-delay/
 ├── artifacts/                 every number the website shows, plus screenshots
 └── data/                      the csvs (gitignored: large, and not ours to share)
 ```
+## Team responsibilities
+
+| Team Member | Core Responsibilities |
+| :--- | :--- |
+| **Divya Saini** (`25110110`) | Data cleaning, feature allow-list, leakage assertions & redundancy checks (`src/pconfig.py`, `src/p1_build_dataset.py`)<br>Whole-day stratified splitting & grouped 5-fold cross-validation (`src/p2_split.py`, `src/p3_select.py`)<br>Model parity verification (`src/check_parity.py`) & walkthrough story/data views (`site/src/components/`) |
+| **Shikha Ajeet Singh** (`25110292`) | Shared model definitions, final retraining & browser weight export (`src/pmodels.py`, `src/p4_retrain.py`)<br>Single held-out evaluation, bootstrap confidence intervals & site data export (`src/p5_evaluate.py`, `src/p6_export_site.py`)<br>Browser layout testing (`site/shoot.mjs`), interactive predictor UI & live deployment (`site/`, `docs/`) |
+| **Shared** | Research question formulation, leak-free split redesign (whole-day vs. Jan–Sep forecasting), decision threshold selection, error/limitation analysis, and documentation (`README.md`) |
 
 ## Use of AI assistance
 

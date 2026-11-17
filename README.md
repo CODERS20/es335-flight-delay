@@ -221,7 +221,7 @@ difference worth acting on.
   for the headline here were drawn fresh for this pipeline, and the earlier run
   remains in git history.
 
-  ## Representative errors
+## Representative errors
 
 Because the model uses only schedule-time features (`AIRLINE`, `ORIGIN_AIRPORT`, `DESTINATION_AIRPORT`, scheduled departure and arrival hours, `DISTANCE`, `MONTH`, `DAY`, `DAY_OF_WEEK`) with no live weather or inbound-aircraft state, its errors follow clear structural patterns:
 

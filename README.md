@@ -1,8 +1,11 @@
 # Flight Delay Prediction: Predicting Arrival Delays
 
 **Course:** ES 335 / ES 678 (Machine Learning), Semester I, 2026
+
 **Team:** Divya Saini (25110110), Shikha Ajeet Singh (25110292)
+
 **Live walkthrough:** <https://coders20.github.io/es335-flight-delay/>
+
 **Repository:** <https://github.com/CODERS20/es335-flight-delay>
 
 ---

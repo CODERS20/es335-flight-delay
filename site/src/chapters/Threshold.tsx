@@ -72,8 +72,8 @@ function Curves({
           ))}
 
           {/* the chosen cut-off */}
-          <line x1={x(chosen)} x2={x(chosen)} y1={pad.t} y2={pad.t + ih} stroke={COLOR.amber} strokeDasharray="4 4" strokeWidth={1.5} opacity={0.7} />
-          <text x={x(chosen) + 6} y={pad.t + 10} fontSize={10.5} fill={COLOR.amber}>chosen</text>
+          <line x1={x(chosen)} x2={x(chosen)} y1={pad.t} y2={pad.t + ih} stroke={COLOR.accent} strokeDasharray="4 4" strokeWidth={1.5} opacity={0.7} />
+          <text x={x(chosen) + 6} y={pad.t + 10} fontSize={10.5} fill={COLOR.accent}>chosen</text>
 
           {/* where the slider is */}
           <motion.line
@@ -92,7 +92,7 @@ function Curves({
                 key={s.key}
                 r={5.5}
                 fill={s.color}
-                stroke="#0B1122"
+                stroke="#FFFFFF"
                 strokeWidth={2}
                 initial={{ cx: x(pt.t), cy: y(pt[s.key]) }}
                 animate={{ cx: x(pt.t), cy: y(pt[s.key]) }}
@@ -118,7 +118,7 @@ function Matrix({ c, total }: { c: { tp: number; fp: number; fn: number; tn: num
       {cells.map((cell) => (
         <div
           key={cell.k}
-          className={`relative flex flex-col justify-between overflow-hidden rounded-2xl border p-3.5 ${
+          className={`relative flex flex-col justify-between overflow-hidden rounded border p-3.5 ${
             cell.good ? "border-good/30 bg-good/[0.07]" : "border-bad/30 bg-bad/[0.07]"
           }`}
         >
@@ -127,7 +127,7 @@ function Matrix({ c, total }: { c: { tp: number; fp: number; fn: number; tn: num
             animate={{ height: `${(cell.v / total) * 100}%` }}
             transition={{ type: "spring", stiffness: 120, damping: 22 }}
           />
-          <p className={`relative text-[11px] font-semibold uppercase tracking-[0.1em] ${cell.good ? "text-[#5CD6A5]" : "text-[#FF8A8D]"}`}>
+          <p className={`relative text-[11px] font-semibold uppercase tracking-[0.1em] ${cell.good ? "text-[#0B7A43]" : "text-[#B42318]"}`}>
             {cell.k}
           </p>
           <div className="relative">
@@ -158,10 +158,10 @@ function Explorer({ data }: { data: Bundle }) {
   return (
     <div className="flex h-full flex-col gap-4">
       {/* the control */}
-      <div className="flex items-center gap-5 rounded-2xl border border-line bg-white/[0.02] px-5 py-3.5">
+      <div className="flex items-center gap-5 rounded border border-line bg-ink/[0.02] px-5 py-3.5">
         <div className="w-[118px] flex-none">
           <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Cut-off</p>
-          <p className="font-mono text-[26px] font-semibold leading-none text-amber">
+          <p className="font-mono text-[26px] font-semibold leading-none text-accent">
             <Glide value={s.t} format={(v) => v.toFixed(2)} />
           </p>
         </div>
@@ -178,7 +178,7 @@ function Explorer({ data }: { data: Bundle }) {
         <button
           type="button"
           onClick={() => setI(start)}
-          className="flex flex-none items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 text-[12px] text-ink-soft transition hover:border-amber/50 hover:text-ink"
+          className="flex flex-none items-center gap-1.5 rounded-full border border-line-strong px-3 py-1.5 text-[12px] text-ink-soft transition hover:border-accent/50 hover:text-ink"
         >
           <RotateCcw className="h-3.5 w-3.5" /> chosen
         </button>
@@ -188,10 +188,10 @@ function Explorer({ data }: { data: Bundle }) {
       <div className="grid grid-cols-3 gap-3">
         {[
           { k: "Flights flagged", v: flagged, c: COLOR.ink },
-          { k: "Delays caught (recall)", v: s.recall, c: "#FF9466" },
-          { k: "Flags that are right (precision)", v: s.precision, c: "#8EC0FF" },
+          { k: "Delays caught (recall)", v: s.recall, c: "#C2471A" },
+          { k: "Flags that are right (precision)", v: s.precision, c: "#1F5FAF" },
         ].map((m) => (
-          <div key={m.k} className="rounded-2xl border border-line bg-white/[0.02] px-4 py-3">
+          <div key={m.k} className="rounded border border-line bg-ink/[0.02] px-4 py-3">
             <p className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink-muted">{m.k}</p>
             <p className="mt-1 font-mono text-[24px] font-semibold leading-none" style={{ color: m.c }}>
               <Glide value={m.v * 100} format={(v) => `${v.toFixed(1)}%`} />

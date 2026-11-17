@@ -27,7 +27,7 @@ function Funnel({ data }: { data: Bundle }) {
           sub="flights.csv, 31 columns"
           value={raw}
           widthPct={100}
-          color="linear-gradient(90deg, rgba(57,135,229,0.55), rgba(57,135,229,0.25))"
+          color={COLOR.s1}
           delay={0.1}
         />
 
@@ -44,7 +44,7 @@ function Funnel({ data }: { data: Bundle }) {
               widthPct={(before / raw) * 100}
               removedPct={(s.rows_removed / raw) * 100}
               removed={s.rows_removed}
-              color="linear-gradient(90deg, rgba(57,135,229,0.38), rgba(57,135,229,0.16))"
+              color="rgba(42,120,214,0.82)"
               delay={0.45 + i * 0.35}
             />
           );
@@ -56,7 +56,7 @@ function Funnel({ data }: { data: Bundle }) {
           sub="flights_clean.csv — every later step reads only this"
           value={p1.rows_clean}
           widthPct={(p1.rows_clean / raw) * 100}
-          color={`linear-gradient(90deg, ${COLOR.s3}, rgba(25,158,112,0.45))`}
+          color={COLOR.s3}
           delay={0.45 + steps.length * 0.35 + 0.2}
           final
         />
@@ -86,12 +86,12 @@ function Funnel({ data }: { data: Bundle }) {
                   duration: bad ? 0.6 : 0.4,
                   ease: EASE,
                 }}
-                className={`rounded-lg border px-1 py-2 text-center ${
-                  bad ? "border-bad/60 bg-bad/15" : "border-line bg-white/[0.025]"
+                className={`rounded border px-1 py-2 text-center ${
+                  bad ? "border-bad/60 bg-bad/15" : "border-line bg-ink/[0.025]"
                 }`}
               >
-                <p className={`text-[11px] font-semibold ${bad ? "text-[#FF8A8D]" : "text-ink-soft"}`}>{m}</p>
-                <p className={`mt-0.5 font-mono text-[10px] ${bad ? "text-[#FF8A8D]" : "text-ink-muted"}`}>
+                <p className={`text-[11px] font-semibold ${bad ? "text-[#B42318]" : "text-ink-soft"}`}>{m}</p>
+                <p className={`mt-0.5 font-mono text-[10px] ${bad ? "text-[#B42318]" : "text-ink-muted"}`}>
                   {bad ? "1234" : "ATL"}
                 </p>
               </motion.div>
@@ -138,30 +138,30 @@ function Row({
   return (
     <div className="grid grid-cols-[230px_1fr] items-center gap-5">
       <div className="min-w-0">
-        <p className={`flex items-center gap-2 text-[13.5px] font-semibold ${final ? "text-[#5CD6A5]" : "text-ink"}`}>
+        <p className={`flex items-center gap-2 text-[13.5px] font-semibold ${final ? "text-[#0B7A43]" : "text-ink"}`}>
           {icon}
           {label}
           {note ? (
-            <span className="ml-auto font-mono text-[12px] font-semibold text-[#FF9466]">{note}</span>
+            <span className="ml-auto font-mono text-[12px] font-semibold text-[#C2471A]">{note}</span>
           ) : null}
         </p>
         <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-ink-muted">{sub}</p>
       </div>
       <div className="relative h-12">
         <motion.div
-          className={`absolute inset-y-0 left-0 flex items-center rounded-lg px-3 ${final ? "shadow-[0_0_30px_-6px_rgba(25,158,112,0.7)]" : ""}`}
+          className={`absolute inset-y-0 left-0 flex items-center rounded px-3 `}
           style={{ background: color }}
           initial={{ width: 0 }}
           animate={{ width: `${widthPct - (removedPct ? slice : 0)}%` }}
           transition={{ duration: 0.9, delay, ease: EASE }}
         >
-          <span className="tabular whitespace-nowrap font-mono text-[13px] font-semibold text-white">
+          <span className={`tabular whitespace-nowrap font-mono text-[13px] font-semibold ${final ? "text-ink" : "text-white"}`}>
             {value.toLocaleString("en-US")}
           </span>
         </motion.div>
         {removedPct !== undefined ? (
           <motion.div
-            className="absolute inset-y-0 flex items-center rounded-lg bg-s2"
+            className="absolute inset-y-0 flex items-center rounded bg-s2"
             style={{ left: `${widthPct - slice}%`, width: `${slice}%` }}
             initial={{ opacity: 0, x: 0 }}
             animate={{ opacity: [0, 1, 1, 0.9], x: [0, 0, 0, 12] }}

@@ -58,7 +58,7 @@ function Gauge({ value, threshold }: { value: number; threshold: number }) {
         <defs>
           <linearGradient id="gauge" x1="0" y1="1" x2="1" y2="0">
             <stop offset="0%" stopColor={COLOR.s1} />
-            <stop offset="55%" stopColor={COLOR.amber} />
+            <stop offset="55%" stopColor={COLOR.accent} />
             <stop offset="100%" stopColor={COLOR.s2} />
           </linearGradient>
         </defs>
@@ -71,7 +71,7 @@ function Gauge({ value, threshold }: { value: number; threshold: number }) {
             <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={COLOR.muted} strokeWidth={1.2} />
           );
         })}
-        <path d={arc(c, c, r, START, START + SWEEP)} fill="none" stroke="rgba(148,163,205,0.12)" strokeWidth={18} strokeLinecap="round" />
+        <path d={arc(c, c, r, START, START + SWEEP)} fill="none" stroke="rgba(120,114,100,0.12)" strokeWidth={18} strokeLinecap="round" />
         <motion.path
           d={arc(c, c, r, START, START + SWEEP)}
           fill="none"
@@ -81,12 +81,12 @@ function Gauge({ value, threshold }: { value: number; threshold: number }) {
           style={{ pathLength: spring }}
         />
         {/* the decision cut-off */}
-        <line x1={t1.x} y1={t1.y} x2={t2.x} y2={t2.y} stroke={COLOR.amber} strokeWidth={2.5} strokeLinecap="round" />
-        <text x={tl.x} y={tl.y} fill={COLOR.amber} fontSize={10.5} textAnchor={anchor} dominantBaseline="middle" fontFamily="'JetBrains Mono', monospace">
+        <line x1={t1.x} y1={t1.y} x2={t2.x} y2={t2.y} stroke={COLOR.accent} strokeWidth={2.5} strokeLinecap="round" />
+        <text x={tl.x} y={tl.y} fill={COLOR.accent} fontSize={10.5} textAnchor={anchor} dominantBaseline="middle" fontFamily="'JetBrains Mono', monospace">
           cut-off
         </text>
         {/* the needle tip */}
-        <motion.circle r={9} fill="#0B1122" stroke={COLOR.ink} strokeWidth={3} style={{ transform: tip }} />
+        <motion.circle r={9} fill="#FFFFFF" stroke={COLOR.ink} strokeWidth={3} style={{ transform: tip }} />
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -101,8 +101,8 @@ function Gauge({ value, threshold }: { value: number; threshold: number }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           className={`mt-3 rounded-full px-3 py-1 text-[11.5px] font-semibold ring-1 ${
             over
-              ? "bg-s2/15 text-[#FF9466] ring-s2/40"
-              : "bg-s1/15 text-[#8EC0FF] ring-s1/40"
+              ? "bg-s2/15 text-[#C2471A] ring-s2/40"
+              : "bg-s1/15 text-[#1F5FAF] ring-s1/40"
           }`}
         >
           {over ? "Flagged as likely late" : "Not flagged"}
@@ -124,7 +124,7 @@ function Reasons({ parts }: { parts: { feature: string; value: number }[] }) {
         return (
           <motion.li layout key={p.feature} className="grid grid-cols-[118px_1fr_54px] items-center gap-3">
             <span className="truncate text-[12.5px] text-ink-soft">{FEATURE_LABEL[p.feature] ?? p.feature}</span>
-            <span className="relative h-[14px] rounded-full bg-white/[0.035]">
+            <span className="relative h-[14px] rounded-full bg-ink/[0.035]">
               <span className="absolute left-1/2 top-[-3px] h-[20px] w-px bg-line-strong" />
               <motion.span
                 className="absolute top-0 h-full rounded-full"
@@ -137,7 +137,7 @@ function Reasons({ parts }: { parts: { feature: string; value: number }[] }) {
                 transition={{ duration: 0.7, ease: EASE }}
               />
             </span>
-            <span className={`tabular text-right font-mono text-[11.5px] ${up ? "text-[#FF9466]" : "text-[#8EC0FF]"}`}>
+            <span className={`tabular text-right font-mono text-[11.5px] ${up ? "text-[#C2471A]" : "text-[#1F5FAF]"}`}>
               {up ? "+" : "−"}
               {Math.abs(p.value).toFixed(2)}
             </span>
@@ -162,7 +162,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 const input =
-  "w-full rounded-xl border border-line-strong bg-white/[0.03] px-3.5 py-2.5 text-[13.5px] text-ink transition hover:border-white/25 focus:border-amber/60";
+  "w-full rounded border border-line-strong bg-ink/[0.03] px-3.5 py-2.5 text-[13.5px] text-ink transition hover:border-ink/25 focus:border-accent/60";
 
 export default function Predict({ data }: { data: Bundle }) {
   const { options, p4, p5 } = data;
@@ -218,7 +218,7 @@ export default function Predict({ data }: { data: Bundle }) {
     <div className="grid h-full grid-cols-[minmax(360px,0.86fr)_1.4fr] gap-7 px-9 pb-3 pt-8">
       {/* inputs */}
       <motion.div variants={stagger(0.06, 0.1)} initial="hidden" animate="show" className="flex min-h-0 flex-col justify-center gap-5">
-        <motion.p variants={rise} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber">
+        <motion.p variants={rise} className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">
           Try it · runs in your browser
         </motion.p>
         <motion.h1 variants={rise} className="font-display text-[clamp(30px,3.1vw,44px)] font-bold leading-[1.04] tracking-[-0.03em]">
@@ -283,8 +283,8 @@ export default function Predict({ data }: { data: Bundle }) {
           </motion.p>
         ) : null}
 
-        <motion.p variants={rise} className="flex gap-2.5 rounded-xl border border-amber/20 bg-amber/[0.06] px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-soft">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-none text-amber" />
+        <motion.p variants={rise} className="flex gap-2.5 rounded border border-accent/20 bg-accent/[0.06] px-3.5 py-2.5 text-[12px] leading-relaxed text-ink-soft">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-none text-accent" />
           An estimate from 2015 schedule data, not a promise. The model cannot see weather or a
           late inbound aircraft — the two biggest real causes of delay.
         </motion.p>
@@ -301,7 +301,7 @@ export default function Predict({ data }: { data: Bundle }) {
           <div className="max-w-[260px] space-y-5">
             <div>
               <p className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-ink-muted">Versus the average flight</p>
-              <p className="tabular mt-1 font-mono text-[34px] font-semibold leading-none text-amber">{relText}×</p>
+              <p className="tabular mt-1 font-mono text-[34px] font-semibold leading-none text-accent">{relText}×</p>
               <p className="mt-1.5 text-[12px] text-ink-muted">
                 the average held-out flight is late {(avg * 100).toFixed(1)}% of the time
               </p>
@@ -320,9 +320,9 @@ export default function Predict({ data }: { data: Bundle }) {
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className="font-display text-[15px] font-semibold">What moved this estimate</h2>
             <p className="text-[11.5px] text-ink-muted">
-              <span className="text-[#8EC0FF]">◀ lowers risk</span>
+              <span className="text-[#1F5FAF]">◀ lowers risk</span>
               <span className="mx-2 opacity-40">|</span>
-              <span className="text-[#FF9466]">raises risk ▶</span>
+              <span className="text-[#C2471A]">raises risk ▶</span>
             </p>
           </div>
           <div className="min-h-0 flex-1 pb-1">

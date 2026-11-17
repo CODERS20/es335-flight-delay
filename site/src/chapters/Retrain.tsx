@@ -12,13 +12,13 @@ function Scale({ data }: { data: Bundle }) {
   const big = 172;
   const small = big * Math.sqrt(foldRows / p4.trained_on_rows);
   const texture =
-    "repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 8px), repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 8px)";
+    "repeating-linear-gradient(0deg, rgba(0,0,0,0.084) 0 1px, transparent 1px 8px), repeating-linear-gradient(90deg, rgba(0,0,0,0.084) 0 1px, transparent 1px 8px)";
   return (
     <div className="flex items-end justify-center gap-12">
       <div className="text-center">
         <motion.div
           className="mx-auto rounded-lg border border-s1/50"
-          style={{ width: small, height: small, background: `${texture}, rgba(57,135,229,0.35)` }}
+          style={{ width: small, height: small, background: `${texture}, rgba(42,120,214,0.35)` }}
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, duration: 0.6, ease: EASE }}
@@ -27,17 +27,17 @@ function Scale({ data }: { data: Bundle }) {
         <p className="text-[11px] text-ink-muted">each cross-validation fit</p>
       </div>
       <motion.svg width="56" height="20" viewBox="0 0 56 20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mb-16">
-        <path d="M2 10 H48 M40 3 L50 10 L40 17" stroke={COLOR.amber} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M2 10 H48 M40 3 L50 10 L40 17" stroke={COLOR.accent} strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       </motion.svg>
       <div className="text-center">
         <motion.div
-          className="mx-auto rounded-xl border border-s3/60 shadow-[0_0_50px_-10px_rgba(25,158,112,0.6)]"
-          style={{ width: big, height: big, background: `${texture}, rgba(25,158,112,0.35)` }}
+          className="mx-auto rounded border border-s3/60"
+          style={{ width: big, height: big, background: `${texture}, rgba(27,175,122,0.35)` }}
           initial={{ width: small, height: small, opacity: 0.4 }}
           animate={{ width: big, height: big, opacity: 1 }}
           transition={{ delay: 1.0, duration: 1.2, ease: EASE }}
         />
-        <p className="mt-3 font-mono text-[15px] font-semibold text-[#5CD6A5]">{fmt(p4.trained_on_rows)}</p>
+        <p className="mt-3 font-mono text-[15px] font-semibold text-[#0B7A43]">{fmt(p4.trained_on_rows)}</p>
         <p className="text-[11px] text-ink-muted">the final model — every training row</p>
       </div>
     </div>
@@ -54,11 +54,11 @@ function Importance({ data }: { data: Bundle }) {
         return (
           <div key={r.feature} className="grid grid-cols-[120px_1fr_70px] items-center gap-3">
             <span className="truncate text-[12.5px] text-ink-soft">{FEATURE_LABEL[r.feature] ?? r.feature}</span>
-            <div className="h-[16px] rounded-full bg-white/[0.035]">
+            <div className="h-[16px] rounded-full bg-ink/[0.035]">
               {pos ? (
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${COLOR.s1}, ${COLOR.s3})` }}
+                  style={{ background: COLOR.s3 }}
                   initial={{ width: 0 }}
                   animate={{ width: `${(r.drop_in_score / max) * 100}%` }}
                   transition={{ delay: 1.6 + i * 0.07, duration: 0.8, ease: EASE }}

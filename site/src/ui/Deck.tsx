@@ -1,8 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Github, Plane } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight, Github } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { EASE } from "../lib/motion";
 
 export interface ChapterDef {
   id: string;
@@ -79,64 +78,42 @@ export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
   const progress = (index + 1) / chapters.length;
 
   return (
-    <div className="atmosphere relative flex h-dvh w-screen overflow-hidden">
-      {/* ------------------------------------------------------------ rail */}
-      <aside className="relative z-10 flex w-[244px] flex-none flex-col border-r border-line bg-[rgba(7,11,22,0.6)] px-5 py-6 backdrop-blur-xl">
-        <button
-          type="button"
-          onClick={() => go(0)}
-          className="flex items-center gap-2.5 text-left"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-soft ring-1 ring-amber/40">
-            <Plane className="h-[18px] w-[18px] -rotate-45 text-amber" strokeWidth={2.2} />
+    <div className="relative flex h-dvh w-screen overflow-hidden bg-bg">
+      {/* ------------------------------------------------- table of contents */}
+      <aside className="relative z-10 flex w-[248px] flex-none flex-col border-r border-line bg-[#F7F6F1] px-5 py-6">
+        <button type="button" onClick={() => go(0)} className="text-left">
+          <span className="block font-serif text-[18px] font-semibold leading-tight text-ink">
+            Flight Delay Prediction
           </span>
-          <span className="leading-tight">
-            <span className="block font-display text-[15px] font-bold tracking-tight">
-              Flight Delays
-            </span>
-            <span className="block text-[11px] text-ink-muted">ES 335 · ML project</span>
-          </span>
+          <span className="mt-1 block text-[11.5px] text-ink-muted">ES 335 · IIT Gandhinagar</span>
         </button>
 
-        <nav aria-label="Walkthrough" className="mt-7 min-h-0 flex-1 overflow-y-auto pr-1">
+        <nav aria-label="Contents" className="mt-6 min-h-0 flex-1 overflow-y-auto border-t border-line pr-1 pt-4">
+          <p className="mb-3 px-2 font-serif text-[13px] italic text-ink-muted">Contents</p>
           {groups.map((g) => (
-            <div key={g.name} className="mb-4">
-              <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+            <div key={g.name} className="mb-3">
+              <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
                 {g.name}
               </p>
               <ul>
                 {g.items.map(({ c, i }) => {
                   const active = i === index;
-                  const done = i < index;
                   return (
                     <li key={c.id}>
                       <button
                         type="button"
                         onClick={() => go(i)}
                         aria-current={active ? "step" : undefined}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-2 py-[7px] text-left text-[13px] transition-colors ${
-                          active ? "text-ink" : done ? "text-ink-soft hover:text-ink" : "text-ink-muted hover:text-ink-soft"
+                        className={`relative flex w-full items-baseline gap-2.5 border-l-2 py-[5px] pl-2.5 pr-2 text-left text-[13.5px] transition-colors ${
+                          active
+                            ? "border-accent bg-accent-soft font-semibold text-accent"
+                            : "border-transparent text-ink-soft hover:text-ink"
                         }`}
                       >
-                        {active ? (
-                          <motion.span
-                            layoutId="rail-active"
-                            className="absolute inset-0 rounded-lg bg-white/[0.06] ring-1 ring-white/10"
-                            transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                          />
-                        ) : null}
-                        <span
-                          className={`relative flex h-[22px] w-[22px] flex-none items-center justify-center rounded-md font-mono text-[10.5px] font-semibold ${
-                            active
-                              ? "bg-amber text-bg"
-                              : done
-                                ? "bg-white/[0.07] text-ink-soft"
-                                : "bg-white/[0.03] text-ink-muted"
-                          }`}
-                        >
-                          {String(i).padStart(2, "0")}
+                        <span className="tabular w-5 flex-none font-serif text-[12.5px] text-ink-muted">
+                          {i >= 2 ? `${i - 1}.` : ""}
                         </span>
-                        <span className="relative truncate font-medium">{c.label}</span>
+                        <span className="truncate font-serif">{c.label}</span>
                       </button>
                     </li>
                   );
@@ -153,12 +130,8 @@ export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
               {String(index + 1).padStart(2, "0")} / {String(chapters.length).padStart(2, "0")}
             </span>
           </div>
-          <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
-            <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-s1 via-amber to-amber"
-              animate={{ width: `${progress * 100}%` }}
-              transition={{ duration: 0.6, ease: EASE }}
-            />
+          <div className="h-[3px] overflow-hidden bg-line">
+            <div className="h-full bg-ink" style={{ width: `${progress * 100}%` }} />
           </div>
 
           {/* The controls live here, in the rail, so they can never sit on top
@@ -169,7 +142,7 @@ export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
               onClick={() => go(index - 1)}
               disabled={index === 0}
               aria-label="Previous screen"
-              className="flex h-10 w-10 flex-none items-center justify-center rounded-xl border border-line-strong text-ink-soft transition hover:border-white/30 hover:text-ink disabled:opacity-30"
+              className="flex h-10 w-10 flex-none items-center justify-center rounded border border-line-strong bg-panel text-ink-soft transition hover:border-ink hover:text-ink disabled:opacity-30"
             >
               <ArrowLeft className="h-4 w-4" />
             </button>
@@ -177,7 +150,7 @@ export default function Deck({ chapters }: { chapters: ChapterDef[] }) {
               type="button"
               onClick={() => go(index + 1)}
               disabled={index === chapters.length - 1}
-              className="flex h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded-xl bg-amber pl-3.5 pr-3 text-[12.5px] font-semibold text-bg shadow-glow transition hover:brightness-110 disabled:opacity-30 disabled:shadow-none"
+              className="flex h-10 min-w-0 flex-1 items-center justify-between gap-2 rounded bg-ink pl-3.5 pr-3 text-[12.5px] font-semibold text-white transition hover:bg-accent disabled:opacity-30"
             >
               <span className="truncate">
                 {index < chapters.length - 1 ? chapters[index + 1].label : "The end"}

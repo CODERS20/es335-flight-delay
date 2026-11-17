@@ -61,7 +61,7 @@ function Calibration({ data }: { data: Bundle }) {
               key={c.bin}
               cx={x(c.mean_predicted)} cy={y(c.observed_rate)}
               r={3 + Math.sqrt(c.n / maxN) * 9}
-              fill={COLOR.s3} fillOpacity={0.85} stroke="#0B1122" strokeWidth={2}
+              fill={COLOR.s3} fillOpacity={0.85} stroke="#FFFFFF" strokeWidth={2}
               initial={{ scale: 0 }} animate={{ scale: 1 }}
               transition={{ delay: 0.7 + i * 0.08, type: "spring", stiffness: 260, damping: 16 }}
               style={{ transformOrigin: `${x(c.mean_predicted)}px ${y(c.observed_rate)}px` }}
@@ -101,7 +101,7 @@ function ByHour({ data }: { data: Bundle }) {
             <div key={r.group} className="group relative flex h-full flex-1 flex-col justify-end">
               {mark ? (
                 <motion.span
-                  className={`mb-1 text-center font-mono text-[11px] font-semibold ${r === hi ? "text-amber" : "text-ink"}`}
+                  className={`mb-1 text-center font-mono text-[11px] font-semibold ${r === hi ? "text-accent" : "text-ink"}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.4 }}

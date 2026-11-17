@@ -118,7 +118,7 @@ function MeanStrip({ data }: { data: Bundle }) {
     <div className="mt-5 border-t border-line pt-4">
       <div className="mb-2 flex items-baseline justify-between">
         <p className="text-[12.5px] font-semibold">
-          Five folds, one answer: <span className="font-mono text-amber">{p3.best.mean_score.toFixed(4)}</span>
+          Five folds, one answer: <span className="font-mono text-accent">{p3.best.mean_score.toFixed(4)}</span>
           <span className="ml-1.5 font-mono text-[11.5px] text-ink-muted">± {p3.best.std_score.toFixed(4)}</span>
         </p>
         <p className="text-[11px] text-ink-muted">tight spread → the mean is trustworthy, not a lucky fold</p>
@@ -145,7 +145,7 @@ function MeanStrip({ data }: { data: Bundle }) {
           />
         ))}
         <motion.div
-          className="absolute top-0 h-9 w-[3px] -translate-x-1/2 rounded-full bg-amber shadow-glow"
+          className="absolute top-0 h-9 w-[3px] -translate-x-1/2 rounded-full bg-accent"
           style={{ left: `${x(p3.best.mean_score)}%` }}
           initial={{ scaleY: 0 }}
           animate={{ scaleY: 1 }}

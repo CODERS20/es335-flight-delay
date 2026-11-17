@@ -3,7 +3,7 @@ import { Table2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
-import { EASE, fade, rise, stagger, useCountUp } from "../lib/motion";
+import { EASE, useCountUp } from "../lib/motion";
 
 /* -------------------------------------------------------------------- stats */
 
@@ -18,26 +18,19 @@ export interface StatDef {
 export function Stat({ label, value, format, hint, accent }: StatDef) {
   const { ref, value: v } = useCountUp(value);
   return (
-    <motion.div
-      variants={rise}
-      className={`rounded-2xl border p-4 ${
-        accent
-          ? "border-amber/30 bg-gradient-to-br from-amber/[0.10] to-transparent"
-          : "border-line bg-white/[0.02]"
-      }`}
-    >
-      <p className="text-[10.5px] font-semibold uppercase leading-snug tracking-[0.12em] text-ink-muted">
+    <div className="border-l border-line px-4 py-3 first:border-l-0 first:pl-0">
+      <p className="text-[10.5px] font-semibold uppercase leading-snug tracking-[0.1em] text-ink-muted">
         {label}
       </p>
       <p
-        className={`tabular mt-1.5 whitespace-nowrap font-mono text-[clamp(19px,1.75vw,27px)] font-semibold leading-none tracking-tight ${
-          accent ? "text-amber" : "text-ink"
+        className={`tabular mt-1 whitespace-nowrap font-serif text-[clamp(22px,2vw,30px)] font-semibold leading-none ${
+          accent ? "text-accent" : "text-ink"
         }`}
       >
         <span ref={ref}>{format(v)}</span>
       </p>
-      {hint ? <p className="mt-2 text-[11.5px] leading-snug text-ink-muted">{hint}</p> : null}
-    </motion.div>
+      {hint ? <p className="mt-1.5 text-[11.5px] leading-snug text-ink-muted">{hint}</p> : null}
+    </div>
   );
 }
 
@@ -62,22 +55,21 @@ export function Drawer({
 
   return (
     <>
-      <motion.button
-        variants={rise}
+      <button
         type="button"
         onClick={() => setOpen(true)}
-        className="group inline-flex items-center gap-2 self-start rounded-full border border-line-strong bg-white/[0.03] px-4 py-2 text-[12.5px] font-medium text-ink-soft transition hover:border-amber/50 hover:text-ink"
+        className="group inline-flex items-center gap-2 self-start rounded border border-line-strong bg-panel px-3.5 py-2 text-[12.5px] font-medium text-ink-soft transition hover:border-ink hover:text-ink"
       >
-        <Table2 className="h-3.5 w-3.5 text-amber" />
+        <Table2 className="h-3.5 w-3.5 text-accent" />
         See the numbers
-      </motion.button>
+      </button>
 
       {createPortal(
       <AnimatePresence>
         {open ? (
           <>
             <motion.div
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[2px]"
+              className="fixed inset-0 z-40 bg-black/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -87,18 +79,18 @@ export function Drawer({
               role="dialog"
               aria-modal="true"
               aria-label={title}
-              className="fixed right-0 top-0 z-50 flex h-full w-[560px] max-w-[92vw] flex-col border-l border-line-strong bg-[#0A1020] shadow-2xl"
+              className="fixed right-0 top-0 z-50 flex h-full w-[560px] max-w-[92vw] flex-col border-l border-line-strong bg-panel"
               initial={{ x: "100%" }}
               animate={{ x: 0, transition: { duration: 0.5, ease: EASE } }}
               exit={{ x: "100%", transition: { duration: 0.3, ease: EASE } }}
             >
               <header className="flex items-center justify-between border-b border-line px-6 py-4">
-                <h3 className="font-display text-[17px] font-semibold">{title}</h3>
+                <h3 className="font-serif text-[19px] font-semibold">{title}</h3>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
                   aria-label="Close"
-                  className="rounded-lg p-1.5 text-ink-muted transition hover:bg-white/5 hover:text-ink"
+                  className="rounded p-1.5 text-ink-muted transition hover:bg-ink/5 hover:text-ink"
                   autoFocus
                 >
                   <X className="h-4 w-4" />
@@ -128,13 +120,13 @@ export function DataTable({
 }) {
   return (
     <div>
-      <table className="w-full border-collapse text-[12.5px]">
+      <table className="w-full border-collapse border-t-2 border-ink text-[12.5px] [&_th]:pt-2">
         <thead>
           <tr>
             {head.map((h, i) => (
               <th
                 key={h}
-                className={`border-b border-line-strong pb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted ${
+                className={`border-b border-ink pb-2 text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-muted ${
                   i === 0 ? "text-left" : "text-right"
                 }`}
               >
@@ -145,7 +137,7 @@ export function DataTable({
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i} className="border-b border-line last:border-0">
+            <tr key={i} className="border-b border-line last:border-b-2 last:border-ink">
               {r.map((c, j) => (
                 <td
                   key={j}
@@ -166,7 +158,7 @@ export function DataTable({
 export function DrawerSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h4 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-amber">
+      <h4 className="mb-3 font-serif text-[15px] font-semibold text-ink">
         {title}
       </h4>
       {children}
@@ -184,7 +176,7 @@ export function Legend({ items }: { items: { color: string; label: string; dashe
           {it.dashed ? (
             <span className="block h-0 w-4 border-t-2 border-dashed" style={{ borderColor: it.color }} />
           ) : (
-            <span className="block h-2.5 w-2.5 rounded-[3px]" style={{ background: it.color }} />
+            <span className="block h-2.5 w-2.5 rounded-[2px]" style={{ background: it.color }} />
           )}
           {it.label}
         </span>
@@ -226,39 +218,25 @@ export function Chapter({
   visualHint?: ReactNode;
   legend?: ReactNode;
 }) {
+  const n = step ? Number(step) : null;
   return (
-    <div className="grid h-full grid-cols-[minmax(340px,0.74fr)_1.6fr] gap-7 px-9 pb-3 pt-8">
-      <motion.div
-        variants={stagger(0.08, 0.15)}
-        initial="hidden"
-        animate="show"
-        className="flex min-h-0 flex-col justify-center gap-5 overflow-y-auto pr-1"
-      >
-        <motion.p
-          variants={rise}
-          className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber"
-        >
-          {step ? (
-            <span className="rounded-md bg-amber-soft px-1.5 py-0.5 font-mono text-[10.5px] text-amber ring-1 ring-amber/30">
-              {step}
-            </span>
-          ) : null}
+    <div className="grid h-full grid-cols-[minmax(340px,0.74fr)_1.6fr] gap-8 px-10 pb-6 pt-8">
+      <div className="flex min-h-0 flex-col justify-center gap-5 overflow-y-auto pr-1">
+        <p className="flex items-baseline gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent">
+          {n != null ? <span className="font-serif text-[14px] normal-case tracking-normal">§{n}</span> : null}
           {kicker}
-        </motion.p>
+        </p>
 
-        <motion.h1
-          variants={rise}
-          className="font-display text-[clamp(30px,3.1vw,44px)] font-bold leading-[1.04] tracking-[-0.03em]"
-        >
+        <h1 className="font-serif text-[clamp(30px,3vw,42px)] font-semibold leading-[1.1] tracking-[-0.01em] text-ink">
           {title}
-        </motion.h1>
+        </h1>
 
-        <motion.p variants={rise} className="max-w-[46ch] text-[15.5px] leading-relaxed text-ink-soft">
-          {takeaway}
-        </motion.p>
+        <p className="max-w-[48ch] font-serif text-[16.5px] leading-[1.6] text-ink-soft">{takeaway}</p>
 
         {stats?.length ? (
-          <div className={`grid gap-3 ${stats.length >= 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+          <div
+            className={`grid border-y-[1.5px] border-ink ${stats.length >= 3 ? "grid-cols-3" : "grid-cols-2"}`}
+          >
             {stats.map((s) => (
               <Stat key={s.label} {...s} />
             ))}
@@ -266,46 +244,30 @@ export function Chapter({
         ) : null}
 
         {points?.length ? (
-          <motion.ul variants={stagger(0.06)} className="space-y-2">
+          <ul className="space-y-2">
             {points.map((p, i) => (
-              <motion.li
-                key={i}
-                variants={rise}
-                className="flex gap-3 text-[13.5px] leading-snug text-ink-soft"
-              >
-                <span className="mt-[7px] h-1.5 w-1.5 flex-none rounded-full bg-amber" />
+              <li key={i} className="flex gap-3 font-serif text-[15px] leading-snug text-ink-soft">
+                <span className="mt-[9px] h-[5px] w-[5px] flex-none bg-ink-soft" />
                 <span>{p}</span>
-              </motion.li>
+              </li>
             ))}
-          </motion.ul>
+          </ul>
         ) : null}
 
         {drawer ? <Drawer title={drawer.title}>{drawer.body}</Drawer> : null}
-      </motion.div>
+      </div>
 
-      <motion.div
-        variants={fade}
-        initial="hidden"
-        animate="show"
-        className="panel relative flex min-h-0 flex-col overflow-hidden p-6"
-      >
-        {visualTitle || legend ? (
-          <header className="mb-4 flex flex-wrap items-start justify-between gap-x-6 gap-y-2">
-            <div className="min-w-0">
-              {visualTitle ? (
-                <h2 className="font-display text-[16px] font-semibold tracking-tight">{visualTitle}</h2>
-              ) : null}
-              {visualHint ? (
-                <p className="mt-1 max-w-[70ch] text-[12.5px] leading-relaxed text-ink-muted">
-                  {visualHint}
-                </p>
-              ) : null}
-            </div>
-            {legend}
-          </header>
-        ) : null}
+      <figure className="panel relative m-0 flex min-h-0 flex-col overflow-hidden px-6 pb-5 pt-5">
+        {legend ? <div className="mb-3 flex justify-end">{legend}</div> : null}
         <div className="relative min-h-0 flex-1">{visual}</div>
-      </motion.div>
+        {visualTitle || visualHint ? (
+          <figcaption className="mt-4 border-t border-line pt-3 font-serif text-[13.5px] leading-relaxed text-ink-soft">
+            {n != null ? <b className="font-semibold text-ink">Figure {n}. </b> : null}
+            {visualTitle ? <span className="text-ink">{visualTitle}{/[.?!]$/.test(visualTitle) ? "" : "."}</span> : null}
+            {visualHint ? <span className="text-ink-muted"> {visualHint}</span> : null}
+          </figcaption>
+        ) : null}
+      </figure>
     </div>
   );
 }

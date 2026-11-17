@@ -48,9 +48,9 @@ export function Calendar({
                     background: isTest
                       ? COLOR.s2
                       : unused
-                        ? "rgba(148,163,205,0.07)"
-                        : "rgba(57,135,229,0.22)",
-                    boxShadow: isTest ? "0 0 10px -2px rgba(217,89,38,0.8)" : undefined,
+                        ? "rgba(120,114,100,0.07)"
+                        : "rgba(42,120,214,0.22)",
+                    
                   }}
                   initial={{ opacity: 0, scale: 0.3 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -103,7 +103,7 @@ function Dumbbell({ data }: { data: Bundle }) {
           <div key={r.month} className="grid grid-cols-[30px_1fr] items-center gap-2">
             <span className="text-[10.5px] text-ink-muted">{MONTHS[r.month - 1]}</span>
             <div className="relative h-3">
-              <div className="absolute inset-y-[5px] left-0 right-0 rounded bg-white/[0.03]" />
+              <div className="absolute inset-y-[5px] left-0 right-0 rounded bg-ink/[0.03]" />
               <motion.div
                 className="absolute top-[5px] h-[2px] bg-ink-muted/60"
                 initial={{ left: `${a}%`, width: 0 }}
@@ -195,7 +195,7 @@ export default function Split({ data }: { data: Bundle }) {
       }}
       visualTitle="2015, with the held-out days lit"
       visualHint="One square per day. October is missing — removed in step 1."
-      legend={<Legend items={[{ color: "rgba(57,135,229,0.45)", label: "training day" }, { color: COLOR.s2, label: "held-out day" }]} />}
+      legend={<Legend items={[{ color: "rgba(42,120,214,0.45)", label: "training day" }, { color: COLOR.s2, label: "held-out day" }]} />}
       visual={
         <div className="flex h-full flex-col justify-center gap-10">
           <FitCalendar data={data} />

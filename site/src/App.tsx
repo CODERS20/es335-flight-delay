@@ -26,7 +26,7 @@ function Loading() {
         animate={{ opacity: 1 }}
       >
         <motion.div animate={{ x: [-40, 40], opacity: [0, 1, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>
-          <Plane className="h-7 w-7 -rotate-45 text-amber" />
+          <Plane className="h-7 w-7 -rotate-45 text-accent" />
         </motion.div>
         <p className="text-[13px] text-ink-muted">Loading the flight data…</p>
       </motion.div>

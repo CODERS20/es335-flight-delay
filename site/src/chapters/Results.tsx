@@ -27,22 +27,22 @@ function Bars({ data }: { data: Bundle }) {
           <div key={m}>
             <div className="mb-1.5 flex items-baseline justify-between">
               <p className="flex items-center gap-2 text-[13px] font-semibold" style={{ color: win ? COLOR.ink : COLOR.soft }}>
-                {win ? <Trophy className="h-3.5 w-3.5 text-amber" /> : null}
+                {win ? <Trophy className="h-3.5 w-3.5 text-accent" /> : null}
                 {MODEL_LABEL[m]}
               </p>
               <p className="tabular font-mono text-[13px]">
-                <span className={win ? "font-semibold text-amber" : "text-ink-soft"}>
+                <span className={win ? "font-semibold text-accent" : "text-ink-soft"}>
                   <BarValue value={r.pr_curve_area} delay={delay + 0.3} />
                 </span>
-                <span className="ml-2 rounded-md bg-white/[0.05] px-1.5 py-0.5 text-[11px] text-ink-muted">
+                <span className="ml-2 rounded-md bg-ink/[0.05] px-1.5 py-0.5 text-[11px] text-ink-muted">
                   {r.ratio_to_base_rate.toFixed(2)}×
                 </span>
               </p>
             </div>
-            <div className="relative h-[34px] rounded-lg bg-white/[0.035]">
+            <div className="relative h-[34px] rounded-lg bg-ink/[0.035]">
               <motion.div
-                className={`h-full rounded-lg ${win ? "shadow-[0_0_28px_-6px_rgba(25,158,112,0.85)]" : ""}`}
-                style={{ background: m === "majority_baseline" ? "rgba(107,118,147,0.5)" : MODEL_COLOR[m] }}
+                className={`h-full rounded-lg `}
+                style={{ background: m === "majority_baseline" ? "rgba(117,114,106,0.5)" : MODEL_COLOR[m] }}
                 initial={{ width: 0 }}
                 animate={{ width: `${(r.pr_curve_area / max) * 100}%` }}
                 transition={{ delay, duration: 1.1, ease: EASE }}
@@ -50,7 +50,7 @@ function Bars({ data }: { data: Bundle }) {
               {/* the resampling range */}
               {m !== "majority_baseline" ? (
                 <motion.div
-                  className="absolute top-1/2 h-[10px] -translate-y-1/2 border-x-2 border-white/70"
+                  className="absolute top-1/2 h-[10px] -translate-y-1/2 border-x-2 border-ink/70"
                   style={{
                     left: `${(r.pr_curve_area_range[0] / max) * 100}%`,
                     width: `${Math.max(((r.pr_curve_area_range[1] - r.pr_curve_area_range[0]) / max) * 100, 0.4)}%`,

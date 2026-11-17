@@ -40,7 +40,7 @@ function Card({
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.7, ease: EASE }}
-      className="flex min-h-0 flex-col justify-center gap-4 rounded-2xl border border-line bg-white/[0.02] px-6 py-5"
+      className="flex min-h-0 flex-col justify-center gap-4 rounded border border-line bg-ink/[0.02] px-6 py-5"
     >
       <div className="flex items-end justify-between gap-6">
         <div className="min-w-0">
@@ -104,15 +104,15 @@ export default function Forecast({ data }: { data: Bundle }) {
         ),
       }}
       visualTitle="Two ways to hold data back"
-      legend={<Legend items={[{ color: "rgba(57,135,229,0.45)", label: "learned from" }, { color: COLOR.s2, label: "tested on" }, { color: "rgba(148,163,205,0.2)", label: "not used" }]} />}
+      legend={<Legend items={[{ color: "rgba(42,120,214,0.45)", label: "learned from" }, { color: COLOR.s2, label: "tested on" }, { color: "rgba(120,114,100,0.2)", label: "not used" }]} />}
       visual={
         <div className="grid h-full grid-rows-2 gap-4">
           <Card
-            icon={<Shuffle className="h-4 w-4 text-amber" />}
+            icon={<Shuffle className="h-4 w-4 text-accent" />}
             title="Skipped days, every month"
             question="Can we predict the flights we didn't see, in a period we know?"
             ratio={main}
-            color={COLOR.amber}
+            color={COLOR.accent}
             delay={0.2}
             calendar={<FitCalendar data={data} mode="days" max={22} />}
             note="better than guessing — the headline result"

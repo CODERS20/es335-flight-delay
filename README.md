@@ -7,6 +7,43 @@
 
 ---
 
+## Project summary
+
+**What we asked.** Will a scheduled US domestic flight arrive 15 or more
+minutes late? We answer it from the schedule alone (airline, route, departure
+and arrival hour, distance, date), so the prediction could be made when the
+ticket is sold.
+
+**Data.** The 2015 US DOT on-time performance file: 5.82 million flights. After
+removing cancelled and diverted flights and October (whose airport codes cannot
+be translated), **5.23 million flights** and **9 features** remain; 19.2% of
+them are late.
+
+**Method.**
+
+1. **Clean** the raw file into one CSV and drop redundant features on measured
+   evidence (correlation ≥ 0.90 or an exact duplicate).
+2. **Split** by whole calendar days: six days from every month (20%) are sealed
+   as the test set before any model is fit.
+3. **Cross-validate** 12 candidate settings of logistic regression, random
+   forest and gradient boosting on 5 folds grouped by date, and pick the
+   setting with the best PR curve area.
+4. **Choose the decision threshold** on the cross-validation predictions, where
+   precision and recall are best balanced.
+5. **Retrain** the winner on all 4.19 million training flights, then **score the
+   sealed test days once**.
+
+**Results.** Gradient boosting reaches a PR curve area of **0.3678 — 1.87×
+the base rate** on 1.04 million unseen flights, catching **68.5%** of late
+flights at **29.6%** precision. Every model beats the baseline. Asked instead to
+forecast November–December from January–September, the same model scores
+**1.20×**: predicting a later period is much harder than filling in skipped days.
+
+**Deliverables.** Six pipeline scripts in `src/`, every number they produce in
+`artifacts/`, and an [interactive walkthrough](https://coders20.github.io/es335-flight-delay/)
+that explains each step with figures, lets you score a flight in the browser,
+and lists the latest commits.
+
 ## The question
 
 Can we predict whether a US domestic flight in 2015 arrives more than 15
@@ -184,18 +221,21 @@ difference worth acting on.
 
 ## The website
 
-A landscape walkthrough of thirteen screens, one idea per screen: a live map of
-the busiest routes, an in-browser predictor, the cleaning funnel, the
+A landscape walkthrough of thirteen screens laid out like a research project
+page: a title page with the abstract and key results, an in-browser predictor,
+then one numbered section per pipeline step (the cleaning funnel, the
 correlation matrix, the calendar of held-out days, all five cross-validation
-iterations, every candidate with its spread, an interactive threshold slider,
-the held-out results, the errors, and the forecasting check. Each screen pairs a
-short story on the left with a chart on the right; "See the numbers"
-opens the exact table behind it. Arrow keys or the rail on the left move between
-steps.
+folds, every candidate with its spread, an interactive threshold slider, the
+held-out results, the errors and the forecasting check). Each section pairs a
+short explanation and a ruled table of key numbers with a numbered, captioned
+figure; "See the numbers" opens the exact table behind it. The contents list on
+the left, or the arrow keys, move between sections. The last section lists the
+recent commits by `divyasaini-dot`, fetched live from GitHub with a saved copy
+(`cd site && npm run commits`) as the fallback.
 
-Built with Vite, React, TypeScript, Tailwind and Framer Motion (charts are hand-drawn SVG) into `docs/`, which is
-what GitHub Pages serves. The predictor runs **in the browser** from exported
-coefficients, with no server.
+Built with Vite, React, TypeScript and Tailwind (charts are hand-drawn SVG) into
+`docs/`, which is what GitHub Pages serves. The predictor runs **in the
+browser** from exported coefficients, with no server.
 
 ## Verification
 
@@ -259,7 +299,7 @@ es335-flight-delay/
 
 | Team Member | Core Responsibilities |
 | :--- | :--- |
-| **Divya Saini** (`25110110`) | Data cleaning, feature allow-list, leakage assertions & redundancy checks (`src/pconfig.py`, `src/p1_build_dataset.py`)<br>Whole-day stratified splitting & grouped 5-fold cross-validation (`src/p2_split.py`, `src/p3_select.py`)<br>Model parity verification (`src/check_parity.py`) & walkthrough story/data views (`site/src/components/`) |
+| **Divya Saini** (`25110110`) | Data cleaning, feature allow-list, leakage assertions & redundancy checks (`src/pconfig.py`, `src/p1_build_dataset.py`)<br>Whole-day stratified splitting & grouped 5-fold cross-validation (`src/p2_split.py`, `src/p3_select.py`)<br>Model parity verification (`src/check_parity.py`) & walkthrough story/data views (`site/src/chapters/`) |
 | **Shikha Ajeet Singh** (`25110292`) | Shared model definitions, final retraining & browser weight export (`src/pmodels.py`, `src/p4_retrain.py`)<br>Single held-out evaluation, bootstrap confidence intervals & site data export (`src/p5_evaluate.py`, `src/p6_export_site.py`)<br>Browser layout testing (`site/shoot.mjs`), interactive predictor UI & live deployment (`site/`, `docs/`) |
 | **Shared** | Research question formulation, leak-free split redesign (whole-day vs. Jan–Sep forecasting), decision threshold selection, error/limitation analysis, and documentation (`README.md`) |
 

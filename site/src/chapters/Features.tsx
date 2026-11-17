@@ -36,7 +36,7 @@ function Matrix({ data }: { data: Bundle }) {
           <div key={row} className="contents">
             <div
               className={`flex items-center justify-end pr-2.5 text-[11px] ${
-                dropped.includes(row) ? "font-semibold text-amber line-through decoration-amber/60" : "text-ink-soft"
+                dropped.includes(row) ? "font-semibold text-accent line-through decoration-accent/60" : "text-ink-soft"
               }`}
               style={{ height: cell }}
             >
@@ -62,14 +62,9 @@ function Matrix({ data }: { data: Bundle }) {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.3 + (i + j) * 0.05, duration: 0.5, ease: EASE }}
                 >
-                  {strong ? (
-                    <>
-                      <span className="pulse-ring absolute inset-0 rounded-md ring-2 ring-amber" />
-                      <span className="absolute inset-0 rounded-md ring-2 ring-amber" />
-                    </>
-                  ) : null}
                   <span className={`tabular font-mono text-[10.5px] ${strong ? "font-semibold text-white" : "text-ink-soft"}`}>
                     {v.toFixed(2).replace("0.", ".").replace("-.", "−.")}
+                    {strong ? "*" : ""}
                   </span>
                 </motion.div>
               );
@@ -82,7 +77,7 @@ function Matrix({ data }: { data: Bundle }) {
           <div
             key={`c-${col}`}
             className={`flex h-[72px] items-start justify-center pt-2 text-[11px] ${
-              dropped.includes(col) ? "font-semibold text-amber line-through" : "text-ink-soft"
+              dropped.includes(col) ? "font-semibold text-accent line-through" : "text-ink-soft"
             }`}
           >
             <span className="origin-top-left translate-x-2 rotate-45 whitespace-nowrap">{SHORT[col] ?? col}</span>
@@ -92,7 +87,7 @@ function Matrix({ data }: { data: Bundle }) {
       <div className="mt-1 flex items-center gap-4 text-[11.5px] text-ink-muted">
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: COLOR.s2 }} /> move together</span>
         <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: COLOR.s1 }} /> move oppositely</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm ring-2 ring-amber" /> redundant pair</span>
+        <span className="flex items-center gap-1.5"><span className="font-mono font-semibold text-ink">*</span> redundant pair</span>
       </div>
     </div>
   );
@@ -104,7 +99,7 @@ function Chips({ data }: { data: Bundle }) {
   return (
     <div className="flex h-full flex-col justify-center gap-5">
       <section>
-        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#5CD6A5]">
+        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#0B7A43]">
           <Check className="h-3.5 w-3.5" /> Kept · {p1.final_features.length}
         </p>
         <div className="flex flex-wrap gap-1.5">
@@ -123,7 +118,7 @@ function Chips({ data }: { data: Bundle }) {
       </section>
 
       <section>
-        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-amber">
+        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-accent">
           <X className="h-3.5 w-3.5" /> Dropped as redundant · {dropped.length}
         </p>
         <div className="space-y-2">
@@ -133,9 +128,9 @@ function Chips({ data }: { data: Bundle }) {
               initial={{ opacity: 0, x: 14 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.3 + i * 0.15 }}
-              className="rounded-xl border border-amber/25 bg-amber/[0.06] px-3 py-2"
+              className="rounded border border-accent/25 bg-accent/[0.06] px-3 py-2"
             >
-              <p className="text-[12.5px] font-semibold text-ink line-through decoration-amber/70">
+              <p className="text-[12.5px] font-semibold text-ink line-through decoration-accent/70">
                 {FEATURE_LABEL[f] ?? f}
               </p>
               <p className="mt-0.5 text-[11.5px] leading-snug text-ink-muted">
@@ -147,7 +142,7 @@ function Chips({ data }: { data: Bundle }) {
       </section>
 
       <section>
-        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#FF8A8D]">
+        <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold text-[#B42318]">
           <Lock className="h-3.5 w-3.5" /> Refused · {p1.forbidden_features.length} known only after take-off
         </p>
         <div className="flex flex-wrap gap-1">
@@ -157,7 +152,7 @@ function Chips({ data }: { data: Bundle }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.6 + i * 0.025 }}
-              className="rounded-md border border-bad/25 bg-bad/[0.07] px-1.5 py-0.5 font-mono text-[9.5px] text-[#FF8A8D]/90"
+              className="rounded-md border border-bad/25 bg-bad/[0.07] px-1.5 py-0.5 font-mono text-[9.5px] text-[#B42318]/90"
             >
               {f}
             </motion.span>
@@ -210,7 +205,7 @@ export default function Features({ data }: { data: Bundle }) {
         ),
       }}
       visualTitle="Which features repeat each other?"
-      visualHint="Correlation between every pair of numeric candidates. Darker means more alike; the ringed cells are the pairs that carried the same information."
+      visualHint="Correlation between every pair of numeric candidates. Darker means more alike; starred cells (*) are the pairs that carried the same information."
       visual={
         <div className="grid h-full grid-cols-[1.25fr_1fr] gap-6">
           <Matrix data={data} />

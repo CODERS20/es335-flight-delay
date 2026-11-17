@@ -57,7 +57,7 @@ function DotPlot({ data }: { data: Bundle }) {
           {/* family columns */}
           {FAMILIES.map((m, i) => (
             <g key={m}>
-              <rect x={pad.l + colW * i + 8} y={pad.t} width={colW - 16} height={ih} rx={14} fill="rgba(255,255,255,0.018)" />
+              <rect x={pad.l + colW * i + 8} y={pad.t} width={colW - 16} height={ih} rx={14} fill="rgba(0,0,0,0.0216)" />
               <text x={pad.l + colW * (i + 0.5)} y={pad.t + ih + 26} textAnchor="middle" fontSize={12.5} fill={MODEL_COLOR[m]} fontWeight={600}>
                 {MODEL_LABEL[m]}
               </text>
@@ -100,12 +100,11 @@ function DotPlot({ data }: { data: Bundle }) {
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 0.8 + i * 0.07, duration: 0.5 }}
                 />
-                {win ? <circle cx={cx} cy={y(r.mean_score)} r={14} className="pulse-ring" fill="none" stroke={COLOR.amber} strokeWidth={2} /> : null}
                 <motion.circle
                   cx={cx}
                   r={win ? 9 : 6}
                   fill={MODEL_COLOR[r.model]}
-                  stroke={win ? COLOR.amber : "#0B1122"}
+                  stroke={win ? COLOR.accent : "#FFFFFF"}
                   strokeWidth={win ? 3 : 2}
                   initial={{ cy: pad.t - 20, opacity: 0 }}
                   animate={{ cy: y(r.mean_score), opacity: 1 }}
@@ -120,7 +119,7 @@ function DotPlot({ data }: { data: Bundle }) {
                     textAnchor="middle"
                     fontSize={11}
                     fontWeight={700}
-                    fill={COLOR.amber}
+                    fill={COLOR.accent}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.8 }}
@@ -146,7 +145,7 @@ function DotPlot({ data }: { data: Bundle }) {
             x={bx + 132}
             y1={y(best.mean_score)}
             y2={y(p3.base_rate)}
-            color={COLOR.amber}
+            color={COLOR.accent}
             delay={2.5}
             label={`${(best.mean_score - p3.base_rate).toFixed(3)}`}
             sub="model vs no model"

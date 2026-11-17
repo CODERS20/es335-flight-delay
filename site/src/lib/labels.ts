@@ -19,16 +19,16 @@ export function useSize<T extends HTMLElement>() {
 }
 
 export const COLOR = {
-  s1: "#3987E5",
-  s2: "#D95926",
-  s3: "#199E70",
-  amber: "#FBBF24",
-  ink: "#E8ECF5",
-  soft: "#A3ADC2",
-  muted: "#6B7693",
-  line: "rgba(148,163,205,0.14)",
-  good: "#2FB67C",
-  bad: "#E5484D",
+  s1: "#2A78D6",
+  s2: "#EB6834",
+  s3: "#1BAF7A",
+  accent: "#9B1B30",
+  ink: "#1A1A1A",
+  soft: "#45433E",
+  muted: "#75726A",
+  line: "rgba(120,114,100,0.14)",
+  good: "#0CA30C",
+  bad: "#D03B3B",
 };
 
 /** One colour per model, fixed everywhere on the site. */

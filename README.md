@@ -221,6 +221,18 @@ difference worth acting on.
   for the headline here were drawn fresh for this pipeline, and the earlier run
   remains in git history.
 
+  ## Representative errors
+
+Because the model uses only schedule-time features (`AIRLINE`, `ORIGIN_AIRPORT`, `DESTINATION_AIRPORT`, scheduled departure and arrival hours, `DISTANCE`, `MONTH`, `DAY`, `DAY_OF_WEEK`) with no live weather or inbound-aircraft state, its errors follow clear structural patterns:
+
+* **Unforecasted weather and ATC disruptions (false negatives):** Flights scheduled during low-risk morning windows or on punctual routes are missed when sudden storms, fog, or ground stops trigger cascading delays.
+* **Congested evening hubs (false positives):** High-traffic afternoon and evening departures out of major hubs consistently receive elevated risk scores due to historical congestion, producing false alarms on clear-weather days when operations run smoothly.
+* **Calibration gap in high-risk bands:** As noted under limitations, the worst score band is off by 0.32 between the stated probability and the observed delay rate, meaning scores work best for ranking relative risk rather than as literal probabilities.
+
+## Conclusion
+
+Using only schedule-time information known before departure, `HistGradientBoostingClassifier` reaches **0.3678 PR curve area** (**1.87×** the `0.1965` majority baseline) on 1,044,467 held-out flights, catching **68.5%** of delayed flights at **29.6%** precision and beating linear and random forest baselines across the board. While schedule-only features cannot capture real-time weather or inbound-aircraft propagation—and drop to **1.20×** lift when asked to forecast unseen late-year months—they provide a reproducible, leakage-free baseline for ranking relative delay risk at ticket-purchase time.
+
 ## The website
 
 A landscape walkthrough of thirteen screens laid out like a research project
